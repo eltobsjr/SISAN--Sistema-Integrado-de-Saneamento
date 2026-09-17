@@ -1,0 +1,18 @@
+# Segredos — nunca versionar
+.env
+.env.*
+!.env.example
+env.json
+
+# Flutter / Dart (projeto ainda não criado — placeholders pra quando existir)
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+
+# Supabase local
+supabase/.branches
+supabase/.temp
