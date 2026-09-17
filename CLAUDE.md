@@ -7,6 +7,12 @@ sanitário. App de denúncia cidadã + gestão de ordens de serviço + dashboard
 de priorização por risco sanitário, construído reaproveitando arquitetura e
 padrões já validados em outros projetos do usuário.
 
+## 0. Primeira vez neste projeto?
+
+Leia `SISANSecondBrain/Contexto de Criação do Projeto.md` primeiro — é o
+briefing completo de por que o SISAN existe, o que já foi decidido e por
+onde continuar. Depois siga o protocolo normal abaixo.
+
 ## 1. Sempre ler a memória antes de começar
 
 Ao iniciar qualquer conversa neste projeto:
@@ -47,6 +53,28 @@ Ao iniciar qualquer conversa neste projeto:
   mensais pro gestor)
 
 Ver decisão completa em `SISANSecondBrain/decisions/002 - Stack herdada do SIGAU.md`.
+
+## 2b. Acesso direto ao banco via MCP
+
+Este projeto tem um MCP do Supabase escopado só pro projeto do SISAN
+(`supabase-sisan`, definido em `.mcp.json`, git-ignorado — projeto Supabase
+`gzoosgugbgbtcrjhfoot`, ver `decisions/012`). Quando configurado, dá pra
+listar/criar tabelas, aplicar migrations e consultar dados **direto pelo
+Claude Code**, sem o usuário precisar rodar nada manualmente no Dashboard.
+
+- **Nunca** usar o MCP `supabase` global (sem projeto fixo) pra mexer neste
+  banco — sempre `supabase-sisan`. Antes de aplicar qualquer migration,
+  confirmar que o projeto retornado é o `gzoosgugbgbtcrjhfoot` (lição
+  SGAU-022 do SIGAU: já aconteceu de um MCP genérico apontar pro projeto
+  errado).
+- Aplicar migrations via MCP é autorizado por padrão neste projeto (equipe
+  pequena, ambiente de hackathon) — mas nunca rodar `DROP`/`TRUNCATE`/
+  qualquer coisa destrutiva sem confirmar com o usuário antes, mesmo com
+  essa autorização de rotina.
+- Se `.mcp.json` não existir ou o token não estiver preenchido, o MCP não
+  conecta — nesse caso, criar as migrations como arquivo `.sql` em
+  `supabase/migrations/` e avisar o usuário pra rodar manualmente, mesmo
+  fallback que o SIGAU usa.
 
 ## 3. Estrutura do projeto
 
