@@ -15,6 +15,10 @@ class OcorrenciaRepositoryImpl implements IOcorrenciaRepository {
       _ds.listarMinhas(usuarioId);
 
   @override
+  Future<List<Ocorrencia>> listarDoMunicipio(String municipioId) =>
+      _ds.listarDoMunicipio(municipioId);
+
+  @override
   Future<Ocorrencia> buscarPorId(String id) => _ds.buscarPorId(id);
 
   @override

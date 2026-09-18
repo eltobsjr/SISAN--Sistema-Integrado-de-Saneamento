@@ -7,8 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/features/auth/domain/entities/usuario.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sisan/features/mapa/presentation/pages/mapa_page.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
+import 'package:sisan/shared/widgets/sino_notificacoes_button.dart';
 
 /// Adaptado de `HomePage` do SIGAU (view do cidadão): mesmo bottom nav de 4
 /// abas (Início/Mapa/Registrar/Perfil) e header com gradiente + saudação.
@@ -30,7 +32,7 @@ class _CidadaoHomePageState extends ConsumerState<CidadaoHomePage> {
 
     final tabs = [
       _InicioTab(usuario: usuario, onPerfilTap: () => setState(() => _tabIndex = 3)),
-      const _MapaTabPlaceholder(),
+      const MapaPage(),
       const _RegistrarTab(),
       const _PerfilTab(),
     ];
@@ -284,6 +286,7 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
+          const SinoNotificacoesButton(),
         ],
       ),
     );
@@ -384,39 +387,6 @@ class _AcaoCard extends StatelessWidget {
                 style: TextStyle(fontSize: 10, color: cor.withValues(alpha: 0.65)),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── ABA MAPA (placeholder) ─────────────────────────────────────────────
-
-class _MapaTabPlaceholder extends StatelessWidget {
-  const _MapaTabPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mapa')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.map_outlined, size: 64, color: theme.colorScheme.primary.withValues(alpha: 0.3)),
-              const SizedBox(height: 16),
-              Text('Mapa em construção', style: theme.textTheme.titleMedium),
-              const SizedBox(height: 8),
-              const Text(
-                'Em breve você vai ver aqui as ocorrências do seu município no mapa.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black45, fontSize: 13),
               ),
             ],
           ),

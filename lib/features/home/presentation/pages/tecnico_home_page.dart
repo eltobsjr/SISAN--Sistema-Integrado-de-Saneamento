@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/providers/ordens_servico_provider.dart';
+import 'package:sisan/shared/widgets/sino_notificacoes_button.dart';
 
 class TecnicoHomePage extends ConsumerWidget {
   const TecnicoHomePage({super.key});
@@ -18,6 +19,7 @@ class TecnicoHomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('SISAN — Técnico'),
         actions: [
+          const SinoNotificacoesButton(corIcone: Colors.black87),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authProvider.notifier).logout(),

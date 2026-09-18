@@ -7,6 +7,10 @@ abstract interface class IOcorrenciaRepository {
   /// Ocorrências do cidadão [usuarioId] (RLS já restringe ao dono de qualquer forma).
   Future<List<Ocorrencia>> listarMinhas(String usuarioId);
 
+  /// Todas as ocorrências ativas do município [municipioId] — usado no mapa
+  /// (transparência pública, decisions em `ocorrencias_select_publica_no_municipio`).
+  Future<List<Ocorrencia>> listarDoMunicipio(String municipioId);
+
   Future<Ocorrencia> buscarPorId(String id);
 
   Future<Ocorrencia> criar({

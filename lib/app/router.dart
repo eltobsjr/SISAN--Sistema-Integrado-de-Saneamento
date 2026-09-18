@@ -17,6 +17,7 @@ import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/minhas_ocorrencias_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/nova_ocorrencia_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/ocorrencia_detalhe_page.dart';
+import 'package:sisan/features/notificacoes/presentation/pages/notificacoes_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordem_servico_detalhe_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordens_servico_page.dart';
 
@@ -131,6 +132,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => OrdemServicoDetalhePage(
           id: state.pathParameters['id']!,
         ),
+      ),
+      GoRoute(
+        path: '/notificacoes',
+        builder: (context, state) => const NotificacoesPage(),
       ),
     ],
   );

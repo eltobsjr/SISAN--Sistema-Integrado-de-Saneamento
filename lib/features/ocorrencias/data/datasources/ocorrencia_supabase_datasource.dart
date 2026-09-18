@@ -21,6 +21,18 @@ class OcorrenciaSupabaseDatasource {
         .toList();
   }
 
+  Future<List<Ocorrencia>> listarDoMunicipio(String municipioId) async {
+    final data = await supabase
+        .from('ocorrencias')
+        .select()
+        .eq('municipio_id', municipioId)
+        .neq('status', OcorrenciaStatus.arquivada.dbValue)
+        .order('criado_em', ascending: false);
+    return (data as List)
+        .map((m) => _fromMap(m as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<Ocorrencia> buscarPorId(String id) async {
     final data =
         await supabase.from('ocorrencias').select().eq('id', id).single();
