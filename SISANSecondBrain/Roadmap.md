@@ -1,21 +1,29 @@
 ---
-atualizado: 2026-09-17
+atualizado: 2026-09-18
 ---
 
 # Roadmap — SISAN
 
 ## Onde estamos
 
-**Greenfield total.** Nenhum `pubspec.yaml`, nenhuma migration aplicada.
-Documentação de base pronta: 8 specs de feature (`features/001` a `008`), 6
-decisões de arquitetura (`decisions/001` a `006`), mapa de reaproveitamento
-por projeto e catálogo de erros herdados do SIGAU (`referencia/`).
+**Fases 0 a 4 concluídas e commitadas** (`bd75e73`…`bc0d2e7`, fila offline em
+`9533be9`, retrofit visual em `8405902`, polimento de Nova Ocorrência em
+`c076448`). App funcional: login/cadastro por perfil, ocorrências com
+wizard guiado (foto+GPS), ordens de serviço com checklist, mapa e
+notificações in-app via realtime, dashboard com KPIs/alertas sanitários.
+Migrations aplicadas direto no Supabase via MCP `supabase-sisan` (não há
+`.sql` local em `supabase/migrations/` — ver `list_migrations` via MCP como
+fonte da verdade).
 
-**Antes de qualquer linha de código**, o documento de submissão do edital
-(`features/007`) precisa ficar pronto — é o entregável obrigatório até
-23/09, o app é só o que sustenta a seção "Plano mínimo de Implementação". Ver
-`prioridade/atual.md` para o calendário dia a dia; este arquivo é o
-detalhamento **técnico** de cada fase, não o calendário.
+**Faltam Fase 5 (IA) e Fase 6 (Campanhas)**, além de duas lacunas dentro de
+fases "concluídas": push real via OneSignal (dependência no `pubspec.yaml`,
+zero uso no código — hoje só há notificação in-app) e as Edge Functions de
+notificação (`notify-*`), nenhuma deployada ainda.
+
+**O documento de submissão do edital** (`features/007`) continua o maior
+risco: nada escrito, prazo 23/09 (5 dias). Ver `prioridade/atual.md` para o
+calendário dia a dia; este arquivo é o detalhamento **técnico** de cada
+fase, não o calendário.
 
 Legenda de status: 🔲 não iniciada · 🔄 em andamento · ✅ concluída
 
@@ -45,18 +53,18 @@ completo no fim deste arquivo): `supabase_flutter`, `flutter_riverpod` +
 
 | Fase | Status | O que você consegue ver ou testar ao final | Spec |
 |---|---|---|---|
-| 0. Fundação | 🔲 | App abre, login/cadastro funciona pros 3 perfis, cada um cai na home certa (guard de rota por perfil) | — (infra, sem spec própria) |
-| 1. Ocorrências | 🔲 | Cidadão cria ocorrência com foto+GPS, recebe protocolo `OCR-AAAAMM-NNNNN`, acompanha status | [[features/001 - Ocorrências]] |
-| 2. Ordens de Serviço | 🔲 | Técnico vê fila do município, aceita, registra chegada, preenche checklist, sobe foto do depois, conclui | [[features/002 - Ordens de Serviço]] |
-| 3. Mapa e Notificações | 🔲 | Mapa com marcadores coloridos por urgência, ao vivo; push chega no device certo | [[telas/00 - Índice de telas]] |
-| 4. Dashboard e Alertas Sanitários | 🔲 | Gestor abre dashboard com KPIs do mês, mapa de calor, gráfico de 6 meses, exporta PDF; cria um alerta sanitário | [[features/003 - Alertas Sanitários]], [[features/004 - Dashboard da Concessionária]] |
+| 0. Fundação | ✅ | App abre, login/cadastro funciona pros 3 perfis, cada um cai na home certa (guard de rota por perfil) | — (infra, sem spec própria) |
+| 1. Ocorrências | ✅ | Cidadão cria ocorrência com foto+GPS (wizard guiado), recebe protocolo `OCR-AAAAMM-NNNNN`, acompanha status | [[features/001 - Ocorrências]] |
+| 2. Ordens de Serviço | ✅ | Técnico vê fila do município, aceita, registra chegada, preenche checklist, sobe foto do depois, conclui | [[features/002 - Ordens de Serviço]] |
+| 3. Mapa e Notificações | 🔄 | Mapa com marcadores coloridos por urgência, ao vivo ✅; push real no device ainda não — só notificação in-app via realtime | [[telas/00 - Índice de telas]] |
+| 4. Dashboard e Alertas Sanitários | ✅ | Gestor abre dashboard com KPIs do mês e agregados mensais, cria um alerta sanitário | [[features/003 - Alertas Sanitários]], [[features/004 - Dashboard da Concessionária]] |
 | 5. IA | 🔲 | Ocorrência nova chega classificada (tipo/urgência/risco à saúde); dashboard mostra frase de insight do mês | [[features/006 - Classificação por IA]], [[features/008 - Resumo Executivo por IA no Dashboard]] |
 | 6. Campanhas e polimento | 🔲 | Gestor cria campanha, cidadão vê; estados de loading/erro consistentes; app pronto pra gravar demo | [[features/005 - Campanhas Educativas]] |
-| — Documento de submissão | 🔲 | PDF de 8 seções pronto pra inscrição — roda em paralelo às fases 0-2, não depende do app terminado | [[features/007 - Documento de Submissão do Edital]] |
+| — Documento de submissão | 🔲 | PDF de 8 seções pronto pra inscrição — roda em paralelo, não depende do app terminado | [[features/007 - Documento de Submissão do Edital]] |
 
 ---
 
-## Fase 0 — Fundação
+## Fase 0 — Fundação ✅
 
 **Migrations** (`supabase/migrations/`):
 - `001_enable_postgis.sql` — igual ao SIGAU
@@ -67,7 +75,7 @@ completo no fim deste arquivo): `supabase_flutter`, `flutter_riverpod` +
 
 **Não fazer**: não implementar auto-logout por inatividade (decisão herdada SGAU-023 — quebra o offline).
 
-## Fase 1 — Ocorrências
+## Fase 1 — Ocorrências ✅
 
 **Migration** `004_create_ocorrencias.sql` — fork de `028_denuncias.sql` +
 `029_denuncias_v2.sql` do SIGAU: `municipio_id, denunciante_id, tipo
@@ -88,7 +96,7 @@ Ocorrências" agrupada por período, detalhe com timeline de status.
 **Edge Function**: `notify-nova-ocorrencia` (push pro staff do município,
 `external_id`, chave `en` obrigatória — ver `referencia/erros-herdados-do-sigau.md`).
 
-## Fase 2 — Ordens de Serviço
+## Fase 2 — Ordens de Serviço ✅
 
 **Migration** `005_create_ordens_servico.sql` — fork de `resgates`:
 `ocorrencia_id, tecnico_id, status enum('pendente','aceita','a_caminho',
@@ -102,7 +110,7 @@ fila offline (drift), mesmo padrão de `resgates_provider.dart` do SIGAU.
 **Edge Function**: `notify-nova-os` (pro técnico) e atualização de status da
 ocorrência-mãe dispara `notify-ocorrencia-resolvida` pro cidadão.
 
-## Fase 3 — Mapa e Notificações
+## Fase 3 — Mapa e Notificações 🔄 (mapa/realtime ok, push real pendente)
 
 **Flutter**: `lib/features/mapa/` (flutter_map + OpenStreetMap, marcadores
 por urgência, cluster), `lib/features/notificacoes/` (badge realtime via
@@ -112,7 +120,7 @@ direto, ver erro herdado ERR-018).
 **Migration** `010_realtime_publications.sql` — `REPLICA IDENTITY FULL` +
 publication em `ocorrencias`, `ordens_servico`, `notificacoes`.
 
-## Fase 4 — Dashboard e Alertas Sanitários
+## Fase 4 — Dashboard e Alertas Sanitários ✅
 
 **Migration** `006_create_alertas_sanitarios.sql` — fork de `zoonoses`, RLS
 restrita a `gestor`/`tecnico` (ver ERR-023 herdado: checar as 4 policies,
@@ -155,27 +163,32 @@ finalistas, 07-13/10 — ver `prioridade/atual.md`).
 
 ### Migrations (ordem de aplicação)
 
-| # | Arquivo | Conteúdo |
+Aplicadas direto no Supabase via MCP `supabase-sisan` (sem `.sql` local) —
+lista real em `list_migrations`, 18 migrations até `create_relatorios_bucket`
+(20260918022841). Nomes reais divergem um pouco deste inventário original
+(ex.: correções de RLS/grants intercaladas), mas o conteúdo essencial bate:
+
+| # | Conteúdo | Status |
 |---|---|---|
-| 001 | `enable_postgis` | extensão PostGIS |
-| 002 | `create_municipios` | município + concessionária |
-| 003 | `create_usuarios` | perfis + trigger de signup |
-| 004 | `create_ocorrencias` | fork de denuncias |
-| 005 | `create_ordens_servico` | fork de resgates |
-| 006 | `create_alertas_sanitarios` | fork de zoonoses |
-| 007 | `create_campanhas` | fork de campanhas |
-| 008 | `create_notificacoes` | fork de notificacoes |
-| 009 | `dashboard_stats_function` | agregados mensais, SECURITY DEFINER |
-| 010 | `realtime_publications` | REPLICA IDENTITY FULL + publication |
-| 011 | `rate_limiting` | fork de `032_rate_limiting.sql` do SIGAU |
-| 012 | `storage_buckets` | `ocorrencias-fotos`, `ordens-fotos`, `relatorios` |
+| 001-003 | PostGIS + municípios + usuários (Fase 0) | ✅ aplicada |
+| 004 | `create_ocorrencias` (fork de denuncias, Fase 1) | ✅ aplicada |
+| 005 | `create_ordens_servico` (fork de resgates, Fase 2) | ✅ aplicada |
+| 006 | `create_alertas_sanitarios` (fork de zoonoses, Fase 4) | ✅ aplicada |
+| 007 | `create_campanhas` (fork de campanhas, Fase 6) | 🔲 não aplicada |
+| 008 | `create_notificacoes` (Fase 3) | ✅ aplicada |
+| 009 | `dashboard_stats_function`, SECURITY DEFINER (Fase 4) | ✅ aplicada |
+| 010 | realtime (`municipio_centro_latlng_e_realtime`, Fase 3) | ✅ aplicada |
+| 011 | `rate_limiting` (fork de `032_rate_limiting.sql` do SIGAU) | 🔲 não aplicada |
+| 012 | storage buckets | ✅ `ocorrencias-fotos` (público) e `relatorios` (privado) existem; ❌ `ordens-fotos` não existe ainda |
 
 ### Edge Functions
 
-`notify-nova-ocorrencia`, `notify-nova-os`, `notify-ocorrencia-resolvida`,
-`notify-alerta-sanitario`, `notify-nova-campanha`, `classify-ocorrencia`,
-`insight-dashboard`, `_shared/` (cors, errors, supabase-admin, provider,
-quota — copiados do polimata-concursos).
+**Nenhuma deployada ainda** (`list_edge_functions` retorna vazio). Faltam
+todas: `notify-nova-ocorrencia`, `notify-nova-os`, `notify-ocorrencia-resolvida`,
+`notify-alerta-sanitario`, `notify-nova-campanha` (Fase 3/6, push real —
+hoje só há notificação in-app via realtime), `classify-ocorrencia`,
+`insight-dashboard` (Fase 5, IA), `_shared/` (cors, errors, supabase-admin,
+provider, quota — copiados do polimata-concursos).
 
 ### Enums (`lib/core/constants/`)
 
