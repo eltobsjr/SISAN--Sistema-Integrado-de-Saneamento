@@ -110,6 +110,9 @@ class NotificacoesPage extends ConsumerWidget {
       case 'status_os':
         final id = dados['ocorrencia_id'] as String?;
         if (id != null) context.push('/ocorrencias/$id');
+      case 'alerta_sanitario':
+        final id = dados['alerta_sanitario_id'] as String?;
+        if (id != null) context.push('/alertas-sanitarios/$id');
     }
   }
 }
@@ -190,6 +193,7 @@ class _NotificacaoTile extends StatelessWidget {
   static (IconData, Color) _iconeCor(String tipo) => switch (tipo) {
         'nova_os' => (Icons.assignment_outlined, const Color(0xFF0288D1)),
         'status_os' => (Icons.water_drop_outlined, const Color(0xFF2E7D32)),
+        'alerta_sanitario' => (Icons.warning_amber_rounded, const Color(0xFFEF6C00)),
         _ => (Icons.notifications_outlined, Colors.blueGrey),
       };
 }
