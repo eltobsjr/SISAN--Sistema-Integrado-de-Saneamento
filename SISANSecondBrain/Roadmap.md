@@ -8,17 +8,22 @@ atualizado: 2026-09-18
 
 **Fases 0 a 4 concluídas e commitadas** (`bd75e73`…`bc0d2e7`, fila offline em
 `9533be9`, retrofit visual em `8405902`, polimento de Nova Ocorrência em
-`c076448`). App funcional: login/cadastro por perfil, ocorrências com
+`c076448`). **Fase 3 (push real) também concluída** (`e9b1a97`, mergeada
+em `main` em `39d9333`): trigger genérico via `pg_net` em `notificacoes` →
+Edge Function `notify-push` → OneSignal REST API, segmentado por
+`external_id`. App funcional: login/cadastro por perfil, ocorrências com
 wizard guiado (foto+GPS), ordens de serviço com checklist, mapa e
-notificações in-app via realtime, dashboard com KPIs/alertas sanitários.
-Migrations aplicadas direto no Supabase via MCP `supabase-sisan` (não há
-`.sql` local em `supabase/migrations/` — ver `list_migrations` via MCP como
-fonte da verdade).
+notificações in-app via realtime + push, dashboard com KPIs/alertas
+sanitários. Falta só o setup manual do OneSignal (criar app, configurar
+secrets) pra push funcionar de ponta a ponta — ver `prioridade/atual.md`.
+Migrations aplicadas direto no Supabase via MCP `supabase-sisan`, agora
+também versionadas em `supabase/migrations/` (primeira vez que essa pasta
+existe no repo).
 
-**Faltam Fase 5 (IA) e Fase 6 (Campanhas)**, além de duas lacunas dentro de
-fases "concluídas": push real via OneSignal (dependência no `pubspec.yaml`,
-zero uso no código — hoje só há notificação in-app) e as Edge Functions de
-notificação (`notify-*`), nenhuma deployada ainda.
+**Faltam Fase 5 (IA) e Fase 6 (Campanhas)** — nenhuma linha de código
+escrita ainda (uma tentativa de implementação em paralelo pelo Antigravity
+em 18/09 foi descartada por um incidente de coordenação, ver devtrack do
+dia — o trabalho não chegou a ser aplicado no banco).
 
 **O documento de submissão do edital** (`features/007`) continua o maior
 risco: nada escrito, prazo 23/09 (5 dias). Ver `prioridade/atual.md` para o
@@ -56,7 +61,7 @@ completo no fim deste arquivo): `supabase_flutter`, `flutter_riverpod` +
 | 0. Fundação | ✅ | App abre, login/cadastro funciona pros 3 perfis, cada um cai na home certa (guard de rota por perfil) | — (infra, sem spec própria) |
 | 1. Ocorrências | ✅ | Cidadão cria ocorrência com foto+GPS (wizard guiado), recebe protocolo `OCR-AAAAMM-NNNNN`, acompanha status | [[features/001 - Ocorrências]] |
 | 2. Ordens de Serviço | ✅ | Técnico vê fila do município, aceita, registra chegada, preenche checklist, sobe foto do depois, conclui | [[features/002 - Ordens de Serviço]] |
-| 3. Mapa e Notificações | 🔄 | Mapa com marcadores coloridos por urgência, ao vivo ✅; push real no device ainda não — só notificação in-app via realtime | [[telas/00 - Índice de telas]] |
+| 3. Mapa e Notificações | ✅ | Mapa com marcadores coloridos por urgência, ao vivo; push real via OneSignal (código pronto, falta só setup manual do app/secrets) | [[telas/00 - Índice de telas]] |
 | 4. Dashboard e Alertas Sanitários | ✅ | Gestor abre dashboard com KPIs do mês e agregados mensais, cria um alerta sanitário | [[features/003 - Alertas Sanitários]], [[features/004 - Dashboard da Concessionária]] |
 | 5. IA | 🔲 | Ocorrência nova chega classificada (tipo/urgência/risco à saúde); dashboard mostra frase de insight do mês | [[features/006 - Classificação por IA]], [[features/008 - Resumo Executivo por IA no Dashboard]] |
 | 6. Campanhas e polimento | 🔲 | Gestor cria campanha, cidadão vê; estados de loading/erro consistentes; app pronto pra gravar demo | [[features/005 - Campanhas Educativas]] |
@@ -110,7 +115,7 @@ fila offline (drift), mesmo padrão de `resgates_provider.dart` do SIGAU.
 **Edge Function**: `notify-nova-os` (pro técnico) e atualização de status da
 ocorrência-mãe dispara `notify-ocorrencia-resolvida` pro cidadão.
 
-## Fase 3 — Mapa e Notificações 🔄 (mapa/realtime ok, push real pendente)
+## Fase 3 — Mapa e Notificações ✅ (falta só setup manual do OneSignal)
 
 **Flutter**: `lib/features/mapa/` (flutter_map + OpenStreetMap, marcadores
 por urgência, cluster), `lib/features/notificacoes/` (badge realtime via
@@ -180,15 +185,23 @@ lista real em `list_migrations`, 18 migrations até `create_relatorios_bucket`
 | 010 | realtime (`municipio_centro_latlng_e_realtime`, Fase 3) | ✅ aplicada |
 | 011 | `rate_limiting` (fork de `032_rate_limiting.sql` do SIGAU) | 🔲 não aplicada |
 | 012 | storage buckets | ✅ `ocorrencias-fotos` (público) e `relatorios` (privado) existem; ❌ `ordens-fotos` não existe ainda |
+| — | `enable_pg_net_and_notify_secret`, `notify_push_trigger`, `notificar_staff_novo_alerta` (18/09) | ✅ aplicadas, infra da Fase 3 (push) — fora da numeração original, primeiras a existir como `.sql` local em `supabase/migrations/` |
 
 ### Edge Functions
 
-**Nenhuma deployada ainda** (`list_edge_functions` retorna vazio). Faltam
-todas: `notify-nova-ocorrencia`, `notify-nova-os`, `notify-ocorrencia-resolvida`,
-`notify-alerta-sanitario`, `notify-nova-campanha` (Fase 3/6, push real —
-hoje só há notificação in-app via realtime), `classify-ocorrencia`,
-`insight-dashboard` (Fase 5, IA), `_shared/` (cors, errors, supabase-admin,
-provider, quota — copiados do polimata-concursos).
+**`notify-push` deployada** (18/09) — substitui as 4 functions de
+notificação originalmente previstas (`notify-nova-ocorrencia`,
+`notify-nova-os`, `notify-ocorrencia-resolvida`, `notify-alerta-sanitario`)
+por uma única function genérica, disparada por trigger `AFTER INSERT` em
+`notificacoes` via `pg_net`. Cobre nova_os, status_os e alerta_sanitario
+automaticamente; qualquer tipo futuro inserido nessa tabela já ganha push
+sem trigger dedicado.
+
+**Ainda faltam**: `classify-ocorrencia`, `insight-dashboard` (Fase 5, IA),
+`notify-nova-campanha` (Fase 6, se a campanha precisar de push — avaliar
+quando a Fase 6 for implementada), `_shared/` (cors, errors,
+supabase-admin, provider, quota — copiados do `polimata-concursos`, ver
+`decisions/004`).
 
 ### Enums (`lib/core/constants/`)
 

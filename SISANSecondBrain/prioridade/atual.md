@@ -8,9 +8,10 @@ atualizado: 2026-09-18
 > Escopo confirmado (`decisions/010`): os 3 perfis (cidadão/técnico/gestor)
 > funcionando de ponta a ponta antes da submissão — não só documento.
 > Estado técnico real (confirmado via MCP `supabase-sisan` e código):
-> Fases 0-4 do Roadmap **concluídas e commitadas** (`bd75e73`…`bc0d2e7`,
-> `9533be9`, `8405902`, `c076448`). Roadmap.md ainda está desatualizado
-> (marca tudo como 🔲) — vale corrigir numa próxima sessão.
+> Fases 0-4 **concluídas**, Fase 3 (push) também **concluída** e mergeada
+> em `main` (`e9b1a97`/`39d9333`) — falta só o setup manual do OneSignal
+> (ver Alta). Fases 5 e 6 seguem pendentes, sem código escrito ainda.
+> Roadmap.md já corrigido.
 
 ## Alta
 
@@ -23,15 +24,17 @@ atualizado: 2026-09-18
 - [ ] **Confirmar formulário oficial de submissão** (link do edital) e
       formato exigido de anexo
 - [ ] **Definir o líder designado** pra comunicação oficial com a organização
+- [ ] **Setup manual do OneSignal**: criar app (gratuito), preencher
+      `ONESIGNAL_APP_ID` no `.env` e configurar `ONESIGNAL_REST_API_KEY` +
+      `NOTIFY_INTERNAL_SECRET` como secrets da Edge Function `notify-push`
+      — sem isso o push (código já pronto) não dispara de verdade
 
 ## Média
 
 - [ ] **Fase 5 — IA**: Edge Functions `classify-ocorrencia` e
       `insight-dashboard` (nenhuma deployada ainda — `list_edge_functions`
-      vazio)
-- [ ] **Push real via OneSignal**: dependência `onesignal_flutter` está no
-      `pubspec.yaml` mas sem nenhum uso no código — hoje só existe
-      notificação in-app via realtime
+      vazio; leitura de referência do padrão `polimata-concursos` já feita,
+      falta escrever o código)
 - [ ] **Teste end-to-end dos 3 perfis** (cidadão/técnico/gestor) num
       aparelho real — pendência recorrente em várias sessões
 - [ ] Decidir se busca um 4º/5º integrante pra multidisciplinaridade
@@ -51,15 +54,18 @@ atualizado: 2026-09-18
       (colaboradores)
 - [ ] Testar a fila offline (drift) em modo avião de verdade
 - [ ] Tela de "meu município" pro gestor visualizar/regenerar dados
+- [ ] Resolver isolamento de working directory antes de rodar o Antigravity
+      em paralelo de novo (clone ou `git worktree` separados — o
+      compartilhado foi a causa do incidente de 18/09, ver devtrack)
 
 ## Plano dia a dia (referência)
 
 | Dia | Data | Foco |
 |---|---|---|
 | 1 | 17/09 | Fases 0-4 do app, fila offline, retrofit visual — tudo commitado |
-| 2 | 18/09 (hoje) | Polimento do wizard de Nova Ocorrência (feito) + **documento de submissão deveria ter começado aqui** |
-| 3 | 19/09 | Documento de submissão (se não fechado hoje) + Fase 5 (IA) |
-| 4 | 20/09 | Push real via OneSignal + teste end-to-end dos 3 perfis |
+| 2 | 18/09 (hoje) | Wizard de Nova Ocorrência + Fase 3 (push) feitos. **Documento de submissão continua não iniciado** — prioridade nº1 pra amanhã |
+| 3 | 19/09 | Documento de submissão (urgente) + Fase 5 (IA) |
+| 4 | 20/09 | Setup do OneSignal + teste end-to-end dos 3 perfis |
 | 5 | 21/09 | **Checkpoint de risco** (`decisions/010`): se algum perfil não estiver testável de ponta a ponta, cortar pra mockup documentado |
 | 6 | 22/09 | Fase 6 (se sobrar tempo) + revisão final do PDF |
 | — | 23/09 | Submissão |
