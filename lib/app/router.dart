@@ -17,6 +17,8 @@ import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/minhas_ocorrencias_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/nova_ocorrencia_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/ocorrencia_detalhe_page.dart';
+import 'package:sisan/features/ordens_de_servico/presentation/pages/ordem_servico_detalhe_page.dart';
+import 'package:sisan/features/ordens_de_servico/presentation/pages/ordens_servico_page.dart';
 
 // `/` (splash) de propósito NÃO entra aqui: é um estado transitório só
 // enquanto `authProvider` resolve, nunca um destino válido — se entrasse,
@@ -118,6 +120,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => OcorrenciaDetalhePage(
           id: state.pathParameters['id']!,
           ocorrencia: state.extra as Ocorrencia?,
+        ),
+      ),
+      GoRoute(
+        path: '/ordens-de-servico',
+        builder: (context, state) => const OrdensServicoPage(),
+      ),
+      GoRoute(
+        path: '/ordens-de-servico/:id',
+        builder: (context, state) => OrdemServicoDetalhePage(
+          id: state.pathParameters['id']!,
         ),
       ),
     ],
