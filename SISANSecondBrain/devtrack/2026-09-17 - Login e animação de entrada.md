@@ -30,6 +30,7 @@
 - Aplicação instalada com sucesso no dispositivo `SM A366E` via USB.
 - Pacote Android: `br.sisan.sisan`.
 
-## Pendência de sessão
+## Versionamento
 
-Registrar as alterações no commit e enviar para o remote `origin`.
+- Commit `b98f27f`: `feat(auth): polish login and animate splash`.
+- Push concluído para `origin/main`.
