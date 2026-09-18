@@ -138,7 +138,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     style: TextStyle(color: Colors.black.withValues(alpha: 0.55), fontSize: 14),
                                   ),
                                   TextButton(
-                                    onPressed: () => context.go('/cadastro'),
+                                    // `push`, não `go` — cadastro tem botão de voltar (`context.pop()`
+                                    // no AppBar) que precisa de algo na pilha pra voltar.
+                                    onPressed: () => context.push('/cadastro'),
                                     style: TextButton.styleFrom(foregroundColor: primary),
                                     child: const Text('Cadastre-se', style: TextStyle(fontWeight: FontWeight.w700)),
                                   ),

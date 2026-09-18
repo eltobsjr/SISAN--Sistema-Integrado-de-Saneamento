@@ -98,7 +98,9 @@ class _CadastroPageState extends ConsumerState<CadastroPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Criar conta'),
-        leading: BackButton(onPressed: () => context.pop()),
+        leading: BackButton(
+          onPressed: () => context.canPop() ? context.pop() : context.go('/login'),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -270,7 +272,9 @@ class _CadastroPageState extends ConsumerState<CadastroPage> {
                   children: [
                     Text('Já tem conta?', style: theme.textTheme.bodyMedium),
                     TextButton(
-                      onPressed: () => context.go('/login'),
+                      // Login já existe na pilha (chegamos aqui via `push`) — `pop`
+                      // volta pra ele em vez de recriar a tela; `go` só como sobra.
+                      onPressed: () => context.canPop() ? context.pop() : context.go('/login'),
                       child: const Text('Entrar'),
                     ),
                   ],
