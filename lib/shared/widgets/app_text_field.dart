@@ -15,6 +15,10 @@ class AppTextField extends StatefulWidget {
     this.textInputAction,
     this.onFieldSubmitted,
     this.validator,
+    this.maxLines = 1,
+    this.minLines,
+    this.maxLength,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   final String label;
@@ -26,6 +30,10 @@ class AppTextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
   final String? Function(String?)? validator;
+  final int? maxLines;
+  final int? minLines;
+  final int? maxLength;
+  final TextCapitalization textCapitalization;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -46,9 +54,14 @@ class _AppTextFieldState extends State<AppTextField> {
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
       validator: widget.validator,
+      maxLines: widget.obscureText ? 1 : widget.maxLines,
+      minLines: widget.minLines,
+      maxLength: widget.maxLength,
+      textCapitalization: widget.textCapitalization,
       style: const TextStyle(fontSize: 15),
       decoration: InputDecoration(
         labelText: widget.label,
+        alignLabelWithHint: (widget.maxLines ?? 1) > 1,
         filled: true,
         fillColor: primary.withValues(alpha: 0.06),
         prefixIcon: widget.prefixIcon != null
