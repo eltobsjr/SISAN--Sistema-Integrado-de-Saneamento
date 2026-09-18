@@ -1,17 +1,23 @@
-# sisan
+# SISAN
 
-A new Flutter project.
+Sistema Integrado de Saneamento: aplicativo Flutter para denúncias cidadãs,
+ordens de serviço e priorização de problemas de saneamento.
 
-## Getting Started
+## Desenvolvimento
 
-This project is a starting point for a Flutter application.
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+O app usa Flutter com Supabase, Riverpod e GoRouter. As imagens em
+`assets/images/` são compartilhadas pelo login, splash e ícones da aplicação.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Entrada e autenticação
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A tela de login usa campos preenchidos e CTA em formato de pílula, mantendo a
+identidade visual Água Viva. A splash exibe a água-viva se formando com
+`CustomPainter`, respeitando a configuração de acessibilidade para reduzir
+animações.
