@@ -11,7 +11,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sisan/core/constants/ocorrencia_tipo.dart';
 import 'package:sisan/core/errors/error_handler.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
-import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
+import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart'
+    show kProtocoloOffline, ocorrenciasProvider;
 
 class NovaOcorrenciaPage extends ConsumerStatefulWidget {
   const NovaOcorrenciaPage({super.key});
@@ -459,6 +460,7 @@ class _SucessoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final protocolo = ocorrencia.protocolo;
+    final offline = protocolo == kProtocoloOffline;
 
     return Scaffold(
       body: SafeArea(
@@ -472,23 +474,29 @@ class _SucessoScreen extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.12),
+                    color: (offline ? Colors.orange : Colors.green).withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.water_drop_rounded, size: 44, color: Colors.green),
+                  child: Icon(
+                    offline ? Icons.cloud_off_rounded : Icons.water_drop_rounded,
+                    size: 44,
+                    color: offline ? Colors.orange : Colors.green,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Ocorrência registrada!',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  offline ? 'Ocorrência salva!' : 'Ocorrência registrada!',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Sua ocorrência foi enviada. A concessionária do seu município vai analisar o caso.',
+                Text(
+                  offline
+                      ? 'Sem conexão no momento — sua ocorrência foi salva neste aparelho e será enviada automaticamente assim que você tiver internet.'
+                      : 'Sua ocorrência foi enviada. A concessionária do seu município vai analisar o caso.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.black54, height: 1.5),
+                  style: const TextStyle(fontSize: 15, color: Colors.black54, height: 1.5),
                 ),
-                if (protocolo != null) ...[
+                if (protocolo != null && !offline) ...[
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(16),

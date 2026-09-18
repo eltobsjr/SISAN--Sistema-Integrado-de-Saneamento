@@ -41,6 +41,7 @@ dependencies:
   # Mídia
   image_picker: ^1.1.2
   cached_network_image: ^3.4.1
+  path_provider: ^2.1.5
   image: ^4.2.0 # remoção de metadados EXIF antes do upload
 
   # Localização

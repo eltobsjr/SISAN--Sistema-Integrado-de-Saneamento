@@ -7,6 +7,7 @@ import 'package:sisan/core/constants/ordem_servico_status.dart';
 import 'package:sisan/features/ordens_de_servico/domain/entities/ordem_servico.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/providers/ordens_servico_provider.dart';
 import 'package:sisan/shared/widgets/empty_state.dart';
+import 'package:sisan/shared/widgets/pending_sync_banner.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
 import 'package:sisan/shared/widgets/skeleton_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,7 +21,9 @@ class OrdensServicoPage extends ConsumerWidget {
   List<OrdemServico> _ordenar(List<OrdemServico> lista) {
     final copia = List<OrdemServico>.from(lista);
     copia.sort((a, b) {
-      final urgDiff = b.ocorrencia.urgencia.index.compareTo(a.ocorrencia.urgencia.index);
+      final urgDiff = b.ocorrencia.urgencia.index.compareTo(
+        a.ocorrencia.urgencia.index,
+      );
       if (urgDiff != 0) return urgDiff;
       return a.criadoEm.compareTo(b.criadoEm);
     });
@@ -37,37 +40,49 @@ class OrdensServicoPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(ordensServicoProvider.notifier).recarregar(),
+            onPressed: () =>
+                ref.read(ordensServicoProvider.notifier).recarregar(),
           ),
         ],
       ),
-      body: state.when(
-        loading: () => const SkeletonList(),
-        error: (_, _) => SisanErrorState(
-          onRetry: () => ref.read(ordensServicoProvider.notifier).recarregar(),
-        ),
-        data: (lista) {
-          final ordenada = _ordenar(lista);
-          if (ordenada.isEmpty) {
-            return const EmptyState(
-              icon: Icons.check_circle_outline,
-              message: 'Nenhuma ordem de serviço pendente.\n'
-                  'Todas as ocorrências do município estão em dia.',
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: () => ref.read(ordensServicoProvider.notifier).recarregar(),
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: ordenada.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _OrdemServicoCard(
-                ordemServico: ordenada[i],
-                onTap: () => context.push('/ordens-de-servico/${ordenada[i].id}'),
+      body: Column(
+        children: [
+          const PendingSyncBanner(),
+          Expanded(
+            child: state.when(
+              loading: () => const SkeletonList(),
+              error: (_, _) => SisanErrorState(
+                onRetry: () =>
+                    ref.read(ordensServicoProvider.notifier).recarregar(),
               ),
+              data: (lista) {
+                final ordenada = _ordenar(lista);
+                if (ordenada.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.check_circle_outline,
+                    message:
+                        'Nenhuma ordem de serviço pendente.\n'
+                        'Todas as ocorrências do município estão em dia.',
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () =>
+                      ref.read(ordensServicoProvider.notifier).recarregar(),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: ordenada.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (_, i) => _OrdemServicoCard(
+                      ordemServico: ordenada[i],
+                      onTap: () =>
+                          context.push('/ordens-de-servico/${ordenada[i].id}'),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -110,7 +125,11 @@ class _OrdemServicoCard extends StatelessWidget {
                   color: ocorrencia.urgencia.cor,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(ocorrencia.tipo.icone, color: Colors.white, size: 22),
+                child: Icon(
+                  ocorrencia.tipo.icone,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -135,16 +154,24 @@ class _OrdemServicoCard extends StatelessWidget {
                       ocorrencia.endereco ?? ocorrencia.descricao,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.black45),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.black45,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.access_time, size: 13, color: Colors.black38),
+                        Icon(
+                          Icons.access_time,
+                          size: 13,
+                          color: Colors.black38,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           tempoDecorrido,
-                          style: theme.textTheme.labelSmall?.copyWith(color: Colors.black45),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.black45,
+                          ),
                         ),
                         if (ocorrencia.protocolo != null) ...[
                           const SizedBox(width: 12),
@@ -152,7 +179,9 @@ class _OrdemServicoCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             ocorrencia.protocolo!,
-                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.black45),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.black45,
+                            ),
                           ),
                         ],
                       ],
@@ -203,7 +232,11 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: status.cor),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: status.cor,
+        ),
       ),
     );
   }

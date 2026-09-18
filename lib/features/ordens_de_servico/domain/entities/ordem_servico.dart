@@ -41,4 +41,32 @@ class OrdemServico {
     if (itens.isEmpty) return false;
     return itens.every((item) => checklist[item] == true);
   }
+
+  /// Usado pra atualização otimista local (offline e enquanto aguarda o
+  /// round-trip online) — nunca sobrescreve [ocorrencia], que só muda via
+  /// refetch real.
+  OrdemServico copyWith({
+    String? tecnicoId,
+    OrdemServicoStatus? status,
+    Map<String, bool>? checklist,
+    List<String>? fotosDepois,
+    DateTime? aceitaEm,
+    DateTime? chegadaEm,
+    DateTime? concluidaEm,
+  }) {
+    return OrdemServico(
+      id: id,
+      ocorrenciaId: ocorrenciaId,
+      municipioId: municipioId,
+      tecnicoId: tecnicoId ?? this.tecnicoId,
+      status: status ?? this.status,
+      checklist: checklist ?? this.checklist,
+      fotosDepois: fotosDepois ?? this.fotosDepois,
+      aceitaEm: aceitaEm ?? this.aceitaEm,
+      chegadaEm: chegadaEm ?? this.chegadaEm,
+      concluidaEm: concluidaEm ?? this.concluidaEm,
+      criadoEm: criadoEm,
+      ocorrencia: ocorrencia,
+    );
+  }
 }
