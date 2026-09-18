@@ -95,8 +95,8 @@ geral. Passo a passo documentado na memória.
 
 ## Arquivos modificados
 
-Commits `bd70771` (Fase 0), `d44511a` (Fase 1) — enviados antes desta
-feature. Fase 2 ainda não commitada ao final desta sessão (ver Status).
+Commits `bd70771` (Fase 0), `d44511a` (Fase 1) e `7fc87e1` (Fase 2) —
+todos enviados pra `origin/main`.
 
 ## Próximos passos
 
@@ -122,7 +122,7 @@ feature. Fase 2 ainda não commitada ao final desta sessão (ver Status).
 - [x] Fila do técnico, aceitar, registrar chegada, checklist, foto do
       depois, concluir
 - [x] `flutter analyze` / `flutter test` limpos
-- [ ] Commit + push da Fase 2
+- [x] Commit + push da Fase 2
 - [ ] Teste end-to-end no navegador
 - [ ] Fila offline (drift) pra ações do técnico
 - [ ] Edge Functions de notificação
