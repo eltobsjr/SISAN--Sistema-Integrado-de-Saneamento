@@ -1,0 +1,28 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Água-viva (jellyfish) — mascote do SISAN, trocadilho com a identidade
+       "Água Viva" (decisions/008). Silhueta branca sobre fundo azul, dentro
+       da safe zone do ícone adaptativo Android (~66% centrado). -->
+  <path
+    d="M300,460 C300,340 350,260 512,260 C674,260 724,340 724,460
+       a26.5,26.5 0 0 1 -53,0 a26.5,26.5 0 0 1 -53,0 a26.5,26.5 0 0 1 -53,0
+       a26.5,26.5 0 0 1 -53,0 a26.5,26.5 0 0 1 -53,0 a26.5,26.5 0 0 1 -53,0
+       a26.5,26.5 0 0 1 -53,0 a26.5,26.5 0 0 1 -53,0 Z"
+    fill="#FFFFFF" />
+  <ellipse cx="440" cy="330" rx="70" ry="38" fill="#B3E5FC" opacity="0.55"
+    transform="rotate(-15 440 330)" />
+  <circle cx="472" cy="360" r="13" fill="#01579B" />
+  <circle cx="552" cy="360" r="13" fill="#01579B" />
+  <path d="M475,400 Q512,420 549,400" stroke="#01579B" stroke-width="8"
+    stroke-linecap="round" fill="none" />
+
+  <path d="M350,460 C315,540 385,600 350,660 C325,700 375,720 350,740"
+    stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" fill="none" opacity="0.9" />
+  <path d="M430,460 C395,540 465,600 430,660 C405,700 455,750 430,780"
+    stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" fill="none" opacity="0.75" />
+  <path d="M512,460 C477,540 547,600 512,660 C487,700 537,760 512,800"
+    stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" fill="none" opacity="1" />
+  <path d="M594,460 C629,540 559,600 594,660 C619,700 569,750 594,780"
+    stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" fill="none" opacity="0.75" />
+  <path d="M674,460 C709,540 639,600 674,660 C699,700 649,720 674,740"
+    stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" fill="none" opacity="0.9" />
+</svg>

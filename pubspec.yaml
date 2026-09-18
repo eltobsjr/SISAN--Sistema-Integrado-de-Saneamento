@@ -1,0 +1,101 @@
+name: sisan
+description: "SISAN — Sistema Integrado de Saneamento"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Backend
+  supabase_flutter: ^2.9.0
+
+  # Estado
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navegação
+  go_router: ^15.1.2
+
+  # Mapas (nunca Google Maps — sem billing, ver decisions/002)
+  flutter_map: ^8.1.1
+  latlong2: ^0.9.1
+  flutter_map_marker_cluster: ^8.2.2
+
+  # Push
+  onesignal_flutter: ^5.3.0
+
+  # Banco local offline
+  drift: ^2.22.1
+  drift_flutter: ^0.2.4
+  sqlite3_flutter_libs: ^0.5.25
+
+  # Conectividade
+  connectivity_plus: ^6.1.4
+
+  # Mídia
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+  image: ^4.2.0 # remoção de metadados EXIF antes do upload
+
+  # Localização
+  geolocator: ^13.0.4
+
+  # Gráficos
+  fl_chart: ^0.70.2
+
+  # Segurança
+  flutter_secure_storage: ^9.2.2
+
+  # Code generation — anotações
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Utilitários
+  intl: ^0.20.2
+  flutter_dotenv: ^5.2.1
+  pdf: ^3.10.8
+  printing: ^5.13.2
+  share_plus: ^10.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  flutter_launcher_icons: ^0.14.3
+
+  # Code generation
+  build_runner: ^2.4.15
+  freezed: ^3.0.0
+  json_serializable: ^6.9.5
+  riverpod_generator: ^2.6.3
+  drift_dev: ^2.22.1
+
+  # Testes
+  mocktail: ^1.0.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon_full.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  adaptive_icon_background: "#0288D1"
+  adaptive_icon_foreground: "assets/images/app_icon_fg.png"
+  web:
+    generate: true
+    image_path: "assets/images/app_icon_full.png"
+    background_color: "#0288D1"
+    theme_color: "#0288D1"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
