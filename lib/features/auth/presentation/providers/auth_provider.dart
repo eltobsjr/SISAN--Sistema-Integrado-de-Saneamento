@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:sisan/core/constants/perfil_usuario.dart';
 import 'package:sisan/core/network/supabase_client.dart';
+import 'package:sisan/core/notifications/push_notifications_service.dart';
 import 'package:sisan/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:sisan/features/auth/domain/entities/usuario.dart';
 import 'package:sisan/features/auth/domain/repositories/i_auth_repository.dart';
@@ -29,8 +30,15 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
     });
 
     final session = supabase.auth.currentSession;
-    if (session == null) return null;
-    return _fetchUsuario(session.user.id);
+    if (session == null) {
+      await PushNotificationsService.logout();
+      return null;
+    }
+    final usuario = await _fetchUsuario(session.user.id);
+    if (usuario != null) {
+      await PushNotificationsService.login(usuario.id);
+    }
+    return usuario;
   }
 
   Future<Usuario?> _fetchUsuario(String id) async {
@@ -54,6 +62,7 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
   }
 
   Future<void> logout() async {
+    await PushNotificationsService.logout();
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);
   }

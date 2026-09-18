@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:sisan/app/sisan_app.dart';
+import 'package:sisan/core/notifications/push_notifications_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,8 @@ Future<void> main() async {
     publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
   );
+
+  await PushNotificationsService.init(dotenv.env['ONESIGNAL_APP_ID'] ?? '');
 
   runApp(const ProviderScope(child: SisanApp()));
 }
