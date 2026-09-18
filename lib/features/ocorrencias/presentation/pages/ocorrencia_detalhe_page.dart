@@ -7,7 +7,9 @@ import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
+import 'package:sisan/shared/widgets/foto_viewer.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
+import 'package:sisan/shared/widgets/sisan_loading.dart';
 
 /// Ponto de entrada da rota `/ocorrencias/:id`. Quando chega via lista (extra
 /// já carregado) renderiza direto; senão busca por id — evita loading infinito
@@ -28,7 +30,7 @@ class OcorrenciaDetalhePage extends ConsumerWidget {
     return porId.when(
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Ocorrência')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: SisanLoading.compact()),
       ),
       error: (_, _) => Scaffold(
         appBar: AppBar(title: const Text('Ocorrência')),
@@ -137,21 +139,27 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: ocorrencia.fotos.length,
                         separatorBuilder: (_, _) => const SizedBox(width: 8),
-                        itemBuilder: (_, i) => ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: CachedNetworkImage(
-                            imageUrl: ocorrencia.fotos[i],
-                            width: 140,
-                            height: 140,
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => Container(
+                        itemBuilder: (_, i) => GestureDetector(
+                          onTap: () => showFotoViewer(context, ocorrencia.fotos, i),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: CachedNetworkImage(
+                              imageUrl: ocorrencia.fotos[i],
                               width: 140,
                               height: 140,
-                              color: Colors.black12,
-                              child: const Center(child: CircularProgressIndicator()),
+                              fit: BoxFit.cover,
+                              placeholder: (_, _) => Container(
+                                width: 140,
+                                height: 140,
+                                color: Colors.black12,
+                                child: const Center(child: CircularProgressIndicator()),
+                              ),
+                              errorWidget: (_, _, _) => const Icon(
+                                Icons.broken_image_outlined,
+                                size: 48,
+                                color: Colors.black26,
+                              ),
                             ),
-                            errorWidget: (_, _, _) =>
-                                const Icon(Icons.broken_image_outlined, size: 48, color: Colors.black26),
                           ),
                         ),
                       ),

@@ -16,6 +16,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
+  bool _obscureSenha = true;
   bool _carregando = false;
 
   @override
@@ -46,66 +47,107 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.water_drop_rounded,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(Icons.water_drop_rounded, size: 72, color: theme.colorScheme.primary),
+                const SizedBox(height: 16),
+                Text(
+                  'SISAN',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Entrar no SISAN',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'E-mail'),
-                    validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'E-mail inválido' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _senhaController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Senha'),
-                    validator: (v) => (v == null || v.length < 6)
-                        ? 'Mínimo de 6 caracteres'
-                        : null,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _carregando ? null : _entrar,
-                    child: _carregando
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sistema Integrado de Saneamento',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                ),
+                const SizedBox(height: 40),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        decoration: const InputDecoration(
+                          labelText: 'E-mail',
+                          hintText: 'seu@email.com',
+                          prefixIcon: Icon(Icons.email_outlined),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Informe o e-mail';
+                          if (!v.contains('@')) return 'E-mail inválido';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _senhaController,
+                        obscureText: _obscureSenha,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _entrar(),
+                        decoration: InputDecoration(
+                          labelText: 'Senha',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureSenha
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                             ),
-                          )
-                        : const Text('Entrar'),
+                            onPressed: () => setState(() => _obscureSenha = !_obscureSenha),
+                          ),
+                        ),
+                        validator: (v) => (v == null || v.length < 6)
+                            ? 'Mínimo de 6 caracteres'
+                            : null,
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton(
+                        onPressed: _carregando ? null : _entrar,
+                        child: _carregando
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Entrar'),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Não tem conta?', style: theme.textTheme.bodyMedium),
+                          TextButton(
+                            onPressed: () => context.go('/cadastro'),
+                            child: const Text('Cadastre-se'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => context.go('/cadastro'),
-                    child: const Text('Não tem conta? Cadastre-se'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
