@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:sisan/core/constants/perfil_usuario.dart';
 import 'package:sisan/core/network/supabase_client.dart';
+import 'package:sisan/features/alertas_sanitarios/presentation/pages/alerta_detalhe_page.dart';
+import 'package:sisan/features/alertas_sanitarios/presentation/pages/alertas_sanitarios_page.dart';
+import 'package:sisan/features/alertas_sanitarios/presentation/pages/criar_alerta_page.dart';
 import 'package:sisan/features/auth/presentation/pages/cadastro_page.dart';
 import 'package:sisan/features/auth/presentation/pages/login_page.dart';
 import 'package:sisan/features/auth/presentation/pages/splash_page.dart';
@@ -17,6 +20,7 @@ import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/minhas_ocorrencias_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/nova_ocorrencia_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/ocorrencia_detalhe_page.dart';
+import 'package:sisan/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sisan/features/notificacoes/presentation/pages/notificacoes_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordem_servico_detalhe_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordens_servico_page.dart';
@@ -136,6 +140,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/notificacoes',
         builder: (context, state) => const NotificacoesPage(),
+      ),
+      GoRoute(
+        path: '/dashboard',
+        builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+        path: '/alertas-sanitarios',
+        builder: (context, state) => const AlertasSanitariosPage(),
+      ),
+      GoRoute(
+        path: '/alertas-sanitarios/criar',
+        builder: (context, state) => const CriarAlertaPage(),
+      ),
+      GoRoute(
+        path: '/alertas-sanitarios/:id',
+        builder: (context, state) => AlertaDetalhePage(id: state.pathParameters['id']!),
       ),
     ],
   );
