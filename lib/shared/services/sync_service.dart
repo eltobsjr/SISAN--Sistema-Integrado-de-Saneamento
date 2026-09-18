@@ -76,6 +76,11 @@ class SyncService {
           await _syncOrdemServicoUpdate(payload);
         case 'CONCLUIR:ordens_servico':
           await _syncOrdemServicoConcluir(payload);
+        default:
+          // Sem isso, uma chave desconhecida caía no switch sem fazer nada
+          // e ainda assim a entrada era removida da fila logo abaixo como
+          // se tivesse sincronizado — perda silenciosa de dado.
+          throw StateError('Operação de sync desconhecida: $key');
       }
 
       await (_db.delete(_db.syncQueueTable)..where((t) => t.id.equals(entry.id))).go();
