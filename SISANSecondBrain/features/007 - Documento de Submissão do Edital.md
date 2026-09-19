@@ -1,6 +1,6 @@
 ---
 data: 2026-09-17
-status: planejada
+status: em andamento — rascunho v1 em submissao/
 ---
 
 # 007 — Documento de Submissão do Edital
@@ -25,10 +25,10 @@ seções exigido pelo formulário de inscrição.
 
 | # | Critério | Status |
 |---|---|---|
-| CA01 | Rascunho completo escrito, com cada seção respondendo diretamente o que o edital pede (não é texto de venda genérico) | 📋 backlog |
-| CA02 | Nenhum número ou estatística sem fonte citada (lição do glicemiastartup — nunca inventar dado de saúde/mercado) | 📋 backlog |
-| CA03 | Nome/curso/instituição de todos os integrantes preenchidos (bloqueia sem isso) | 📋 backlog |
-| CA04 | Revisão final: enquadramento com o desafio central do edital ("O Piauí que queremos no saneamento") explícito na seção de transformação pretendida | 📋 backlog |
+| CA01 | Rascunho completo escrito, com cada seção respondendo diretamente o que o edital pede (não é texto de venda genérico) | ✅ rascunho v1 em `submissao/Documento de Submissão - SISAN.md` (18/09) |
+| CA02 | Nenhum número ou estatística sem fonte citada (lição do glicemiastartup — nunca inventar dado de saúde/mercado) | ✅ 4 números, todos com fonte consultada em 18/09; conferir na fonte primária antes de enviar |
+| CA03 | Nome/curso/instituição de todos os integrantes preenchidos (bloqueia sem isso) | 🚧 curso (ADS), instituição (IFPI) e nomes completos confirmados; campus Picos confirmado (18/09); matrícula só se o formulário pedir |
+| CA04 | Revisão final: enquadramento com o desafio central do edital ("O Piauí que queremos no saneamento") explícito na seção de transformação pretendida | 🚧 enquadramento escrito na seção 7; falta a revisão da equipe |
 
 ## Dependências
 

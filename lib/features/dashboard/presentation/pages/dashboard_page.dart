@@ -13,6 +13,7 @@ import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/dashboard/domain/entities/dashboard_stats.dart';
 import 'package:sisan/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/heatmap_tipo_grid.dart';
+import 'package:sisan/features/dashboard/presentation/widgets/insight_card.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/kpi_card.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/tendencia_chart.dart';
 import 'package:sisan/features/dashboard/services/pdf_relatorio.dart';
@@ -47,7 +48,10 @@ class DashboardPage extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(dashboardProvider.notifier).recarregar(),
+            onPressed: () {
+              ref.invalidate(insightDashboardProvider);
+              ref.read(dashboardProvider.notifier).recarregar();
+            },
           ),
         ],
       ),
@@ -65,6 +69,7 @@ class DashboardPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const InsightCard(),
           _buildKpiGrid(stats),
           const SizedBox(height: 16),
           TendenciaChart(serie: stats.serie),

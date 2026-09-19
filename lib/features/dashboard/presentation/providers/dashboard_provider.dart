@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:sisan/core/constants/perfil_usuario.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/dashboard/data/datasources/dashboard_supabase_datasource.dart';
 import 'package:sisan/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:sisan/features/dashboard/domain/entities/dashboard_stats.dart';
+import 'package:sisan/features/dashboard/domain/entities/insight_dashboard.dart';
 import 'package:sisan/features/dashboard/domain/repositories/i_dashboard_repository.dart';
 
 final dashboardRepositoryProvider = Provider<IDashboardRepository>((ref) {
@@ -25,3 +27,12 @@ class DashboardNotifier extends AsyncNotifier<DashboardStats> {
 }
 
 final dashboardProvider = AsyncNotifierProvider<DashboardNotifier, DashboardStats>(DashboardNotifier.new);
+
+/// Resumo executivo por IA. Independente do [dashboardProvider]: se a IA
+/// falhar, só o card de insight mostra erro — KPIs e gráficos seguem
+/// normais. Só o gestor tem acesso (a função devolve 403 pros demais).
+final insightDashboardProvider = FutureProvider.autoDispose<InsightDashboard?>((ref) async {
+  final usuario = await ref.watch(authProvider.future);
+  if (usuario == null || usuario.perfil != PerfilUsuario.gestor) return null;
+  return ref.read(dashboardRepositoryProvider).carregarInsight();
+});

@@ -1,59 +1,48 @@
 ---
-atualizado: 2026-09-18
+atualizado: 2026-09-19
 ---
 
 # Prioridades — SISAN
 
-> Prazo real: submissão do PDF até **23/09/2026**. Hoje é **18/09/2026** — 5 dias.
+> Prazo real: submissão do PDF até **23/09/2026**. Documento **enviado em 19/09** (ver devtrack). Hoje é **19/09/2026**.
 > Escopo confirmado (`decisions/010`): os 3 perfis (cidadão/técnico/gestor)
 > funcionando de ponta a ponta antes da submissão — não só documento.
 > Estado técnico real (confirmado via MCP `supabase-sisan` e código):
-> Fases 0-4 **concluídas**, Fase 3 (push) também **concluída** e mergeada
-> em `main` (`e9b1a97`/`39d9333`) — falta só o setup manual do OneSignal
-> (ver Alta). Fases 5 e 6 seguem pendentes, sem código escrito ainda.
-> Roadmap.md já corrigido.
+> Fases 0-5 **concluídas** (Fase 3/push mergeada em `main`, falta só o setup
+> manual do OneSignal — Kassio; Fase 5/IA em produção com Groq). Fase 6
+> (campanhas) fora do escopo por ora.
 
 ## Alta
 
-- [ ] **Escrever o documento de submissão** (`features/007`): título, resumo
-      executivo (máx. 300 palavras), problema, solução, público beneficiado,
-      plano mínimo de implementação, transformação pretendida, referências.
-      Entregável obrigatório do edital — nada escrito ainda, prazo em 5 dias.
-- [ ] **Curso e instituição de cada integrante** (Elto/Kassio/Evillyn) — sem
-      isso não dá pra preencher o formulário de inscrição
-- [ ] **Confirmar formulário oficial de submissão** (link do edital) e
-      formato exigido de anexo
-- [ ] **Definir o líder designado** pra comunicação oficial com a organização
-- [ ] **Setup manual do OneSignal**: criar app (gratuito), preencher
-      `ONESIGNAL_APP_ID` no `.env` e configurar `ONESIGNAL_REST_API_KEY` +
-      `NOTIFY_INTERNAL_SECRET` como secrets da Edge Function `notify-push`
-      — sem isso o push (código já pronto) não dispara de verdade
+- [x] ~~Escrever o documento de submissão~~ — enviado em 19/09
+- [x] ~~Curso, instituição, líder~~ — ADS/IFPI Picos, líder Elto
+- [ ] **Setup do OneSignal — Kassio:** criar app, `ONESIGNAL_APP_ID` no
+      `.env` e `ONESIGNAL_REST_API_KEY` como secret da `notify-push`
+      (o `NOTIFY_INTERNAL_SECRET` já está configurado)
+- [ ] **Revogar a chave do Groq colada no chat** e gerar outra (colar só no
+      Dashboard como `GROQ_API_KEY`)
+- [ ] **Teste dos 3 perfis num aparelho real** (contas `*.teresina@sisan.dev`
+      do seed) e da fila offline em modo avião
+- [ ] **Checkpoint de 21/09** (`decisions/010`)
 
 ## Média
 
-- [ ] **Fase 5 — IA**: Edge Functions `classify-ocorrencia` e
-      `insight-dashboard` (nenhuma deployada ainda — `list_edge_functions`
-      vazio; leitura de referência do padrão `polimata-concursos` já feita,
-      falta escrever o código)
-- [ ] **Teste end-to-end dos 3 perfis** (cidadão/técnico/gestor) num
-      aparelho real — pendência recorrente em várias sessões
+- [x] ~~Fase 5 — IA (`classify-ocorrencia`, `insight-dashboard`)~~ — em produção (Groq)
+- [x] ~~Rate limit~~ — ocorrências 10/h e 30/dia por usuário
+- [x] ~~Seed de Teresina~~ — 2 gestores, 3 técnicos, 4 cidadãos, 65 ocorrências
+- [x] ~~Tela "Meu município" do gestor~~
+- [ ] Gemini como fallback (precisa de chave; o PDF cita dois provedores)
+- [ ] Hardening: rate limit em `validar_codigo_ativacao_staff` (anon), limites
+      de tamanho/mime em `ocorrencias-fotos`, "Leaked password protection"
 - [ ] Decidir se busca um 4º/5º integrante pra multidisciplinaridade
-      (incentivada pelo edital, não obrigatória)
-- [ ] Confirmar/criar bucket de Storage `ordens-fotos` pras evidências do
-      técnico — hoje só `ocorrencias-fotos` e `relatorios` existem no banco
 
 ## Baixa
 
 - [ ] Tagline/slogan da identidade visual (`decisions/008` deixou em aberto)
-- [ ] **Fase 6 — Campanhas e polimento**: migration `create_campanhas` +
-      `lib/features/campanhas/` — nada iniciado, só relevante se sobrar
-      tempo (não bloqueia a submissão)
-- [ ] Migration `011_rate_limiting` (fork de `032_rate_limiting.sql` do
-      SIGAU) — hardening, não bloqueia demo
+- [ ] **Fase 6 — Campanhas educativas**: fora do escopo por ora (decisão de
+      19/09); o PDF cita como etapa da fase seguinte
 - [ ] Convidar Kassio e Evillyn no Supabase (Team) e no GitHub
       (colaboradores)
-- [ ] Testar a fila offline (drift) em modo avião de verdade
-- [ ] Tela de "meu município" pro gestor visualizar/regenerar dados
 - [ ] Resolver isolamento de working directory antes de rodar o Antigravity
       em paralelo de novo (clone ou `git worktree` separados — o
       compartilhado foi a causa do incidente de 18/09, ver devtrack)

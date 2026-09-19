@@ -1,6 +1,6 @@
 ---
 data: 2026-09-17
-status: planejada
+status: implementada (Groq; Gemini como fallback futuro)
 ---
 
 # 006 — Classificação por IA (`classify-ocorrencia`)

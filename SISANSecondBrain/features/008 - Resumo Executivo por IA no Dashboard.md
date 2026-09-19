@@ -1,6 +1,6 @@
 ---
 data: 2026-09-17
-status: planejada
+status: implementada (Groq; Gemini como fallback futuro)
 ---
 
 # 006 — Resumo Executivo por IA no Dashboard (`insight-dashboard`)

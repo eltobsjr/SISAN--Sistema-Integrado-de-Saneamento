@@ -21,6 +21,7 @@ import 'package:sisan/features/ocorrencias/presentation/pages/minhas_ocorrencias
 import 'package:sisan/features/ocorrencias/presentation/pages/nova_ocorrencia_page.dart';
 import 'package:sisan/features/ocorrencias/presentation/pages/ocorrencia_detalhe_page.dart';
 import 'package:sisan/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:sisan/features/municipio/presentation/pages/meu_municipio_page.dart';
 import 'package:sisan/features/notificacoes/presentation/pages/notificacoes_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordem_servico_detalhe_page.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/pages/ordens_servico_page.dart';
@@ -144,6 +145,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+        path: '/meu-municipio',
+        builder: (context, state) => const MeuMunicipioPage(),
       ),
       GoRoute(
         path: '/alertas-sanitarios',
