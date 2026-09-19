@@ -1,5 +1,5 @@
 ---
-atualizado: 2026-09-18
+atualizado: 2026-09-19
 ---
 
 # Roadmap — SISAN
@@ -20,15 +20,18 @@ Migrations aplicadas direto no Supabase via MCP `supabase-sisan`, agora
 também versionadas em `supabase/migrations/` (primeira vez que essa pasta
 existe no repo).
 
-**Faltam Fase 5 (IA) e Fase 6 (Campanhas)** — nenhuma linha de código
-escrita ainda (uma tentativa de implementação em paralelo pelo Antigravity
-em 18/09 foi descartada por um incidente de coordenação, ver devtrack do
-dia — o trabalho não chegou a ser aplicado no banco).
+**Fase 5 (IA) concluída em 19/09**: `classify-ocorrencia` e
+`insight-dashboard` em produção com Groq (Gemini fica como fallback
+futuro), mais rate limit, seed de Teresina e a tela "Meu município" do
+gestor — ver `devtrack/2026-09-19`. **Fase 6 (Campanhas) fora do escopo
+por ora** (decisão de 19/09). Uma tentativa de implementação em paralelo
+pelo Antigravity em 18/09 tinha sido descartada por um incidente de
+coordenação (ver devtrack do dia).
 
-**O documento de submissão do edital** (`features/007`) continua o maior
-risco: nada escrito, prazo 23/09 (5 dias). Ver `prioridade/atual.md` para o
-calendário dia a dia; este arquivo é o detalhamento **técnico** de cada
-fase, não o calendário.
+**O documento de submissão do edital** (`features/007`) foi escrito e
+enviado em 19/09 (`submissao/`). Ver `prioridade/atual.md` para as
+pendências e o responsável de cada uma; este arquivo é o detalhamento
+**técnico** de cada fase, não o calendário.
 
 Legenda de status: 🔲 não iniciada · 🔄 em andamento · ✅ concluída
 
@@ -63,9 +66,9 @@ completo no fim deste arquivo): `supabase_flutter`, `flutter_riverpod` +
 | 2. Ordens de Serviço | ✅ | Técnico vê fila do município, aceita, registra chegada, preenche checklist, sobe foto do depois, conclui | [[features/002 - Ordens de Serviço]] |
 | 3. Mapa e Notificações | ✅ | Mapa com marcadores coloridos por urgência, ao vivo; push real via OneSignal (código pronto, falta só setup manual do app/secrets) | [[telas/00 - Índice de telas]] |
 | 4. Dashboard e Alertas Sanitários | ✅ | Gestor abre dashboard com KPIs do mês e agregados mensais, cria um alerta sanitário | [[features/003 - Alertas Sanitários]], [[features/004 - Dashboard da Concessionária]] |
-| 5. IA | 🔲 | Ocorrência nova chega classificada (tipo/urgência/risco à saúde); dashboard mostra frase de insight do mês | [[features/006 - Classificação por IA]], [[features/008 - Resumo Executivo por IA no Dashboard]] |
+| 5. IA | ✅ | Ocorrência nova chega classificada (tipo/urgência/risco à saúde); dashboard mostra frase de insight do mês | [[features/006 - Classificação por IA]], [[features/008 - Resumo Executivo por IA no Dashboard]] |
 | 6. Campanhas e polimento | 🔲 | Gestor cria campanha, cidadão vê; estados de loading/erro consistentes; app pronto pra gravar demo | [[features/005 - Campanhas Educativas]] |
-| — Documento de submissão | 🔲 | PDF de 8 seções pronto pra inscrição — roda em paralelo, não depende do app terminado | [[features/007 - Documento de Submissão do Edital]] |
+| — Documento de submissão | ✅ enviado em 19/09 | PDF de 8 seções pronto pra inscrição — roda em paralelo, não depende do app terminado | [[features/007 - Documento de Submissão do Edital]] |
 
 ---
 
@@ -137,20 +140,30 @@ point-in-time — lição SGAU-021), filtrando `municipio_id` manualmente.
 tendência, export PDF via pacote `pdf`/`printing` — cores sempre sólidas,
 nunca `PdfColor` com alpha), `lib/features/alertas_sanitarios/`.
 
-## Fase 5 — IA
+## Fase 5 — IA ✅
 
-Ver `decisions/004`. Copiar `_shared/{provider,errors,cors,supabase-admin,
-quota}.ts` do `polimata-concursos` (`/home/eltobsjr/dev/pessoal/polymata/
-polimata-concursos/supabase/functions/_shared/`), adaptando nomes de
-domínio.
+Ver `decisions/004` e `decisions/013`. Padrão de `_shared/` inspirado no
+`polimata-concursos` (só o padrão de código — nenhuma credencial é
+compartilhada entre projetos).
 
-- `classify-ocorrencia`: dispara no INSERT de `ocorrencias`, schema
-  `{tipo, urgencia, riscoSaude}`, Groq→Gemini fallback, nunca reclassifica.
-- `insight-dashboard`: lê os agregados de `009_dashboard_stats_function`,
-  devolve 2-3 frases de insight, cacheado por período, falha degrada sem
-  quebrar o dashboard.
+- **`classify-ocorrencia`** (`verify_jwt: false`, autenticada por segredo
+  `x-notify-secret`): disparada pelo trigger `trg_classificar_ocorrencia`
+  (`pg_net`) a cada INSERT em `ocorrencias`. Só tipo e descrição vão pro
+  prompt. Devolve `{urgencia, risco_saude}`, nunca reclassifica
+  (`classificado_em`), e falha de IA deixa a ocorrência com `normal`.
+- **`insight-dashboard`** (`verify_jwt: true`, só gestor): RPC
+  `insight_agregados()` (agregados anônimos: tipo/urgência/bairro/
+  reincidência) → cache em `insights_dashboard` por município+período com
+  hash dos agregados → Groq só quando os números mudam → rate limit de
+  10 gerações/h. Card `InsightCard` no dashboard, com falha contida.
+- **`_shared/provider.ts`**: só Groq ativo (modelos em cascata:
+  `llama-3.3-70b-versatile` → `openai/gpt-oss-20b` → `llama-3.1-8b-instant`).
+  Gemini entra registrando `callGemini` em `CALLERS` — ainda sem chave.
+- **`_shared/errors.ts`**: `HttpError` client-safe + CORS.
+- Fora do escopo desta fase: `_shared/quota.ts` (cota diária) — o rate
+  limit por usuário cobre o abuso; e foto no prompt de classificação.
 
-## Fase 6 — Campanhas e polimento
+## Fase 6 — Campanhas e polimento (fora do escopo por ora)
 
 **Migration** `007_create_campanhas.sql` — fork direto de `campanhas` do
 SIGAU (título, descrição, link externo opcional).
@@ -183,8 +196,9 @@ lista real em `list_migrations`, 18 migrations até `create_relatorios_bucket`
 | 008 | `create_notificacoes` (Fase 3) | ✅ aplicada |
 | 009 | `dashboard_stats_function`, SECURITY DEFINER (Fase 4) | ✅ aplicada |
 | 010 | realtime (`municipio_centro_latlng_e_realtime`, Fase 3) | ✅ aplicada |
-| 011 | `rate_limiting` (fork de `032_rate_limiting.sql` do SIGAU) | 🔲 não aplicada |
-| 012 | storage buckets | ✅ `ocorrencias-fotos` (público) e `relatorios` (privado) existem; ❌ `ordens-fotos` não existe ainda |
+| 011 | `rate_limiting` (fork de `032_rate_limiting.sql` do SIGAU) | ✅ aplicada (19/09) — 10/h e 30/dia por usuário em ocorrências; endurecida por `rate_limit_key_ownership` |
+| 012 | storage buckets | ✅ `ocorrencias-fotos` (público, também recebe as fotos do "depois" do técnico) e `relatorios` (privado). `ordens-fotos` não é necessário |
+| — | 19/09: `classificar_ocorrencia_trigger`, `rate_limiting`, `insight_dashboard`, `meu_municipio_gestor`, `rate_limit_key_ownership` | ✅ aplicadas e versionadas em `supabase/migrations/` (Fase 5) |
 | — | `enable_pg_net_and_notify_secret`, `notify_push_trigger`, `notificar_staff_novo_alerta` (18/09) | ✅ aplicadas, infra da Fase 3 (push) — fora da numeração original, primeiras a existir como `.sql` local em `supabase/migrations/` |
 
 ### Edge Functions
@@ -197,11 +211,13 @@ por uma única function genérica, disparada por trigger `AFTER INSERT` em
 automaticamente; qualquer tipo futuro inserido nessa tabela já ganha push
 sem trigger dedicado.
 
-**Ainda faltam**: `classify-ocorrencia`, `insight-dashboard` (Fase 5, IA),
-`notify-nova-campanha` (Fase 6, se a campanha precisar de push — avaliar
-quando a Fase 6 for implementada), `_shared/` (cors, errors,
-supabase-admin, provider, quota — copiados do `polimata-concursos`, ver
-`decisions/004`).
+**`classify-ocorrencia` e `insight-dashboard` deployadas** (19/09, Fase 5),
+com `_shared/{provider,errors}.ts`. **Ainda faltam**: `notify-nova-campanha`
+(Fase 6, fora do escopo por ora) e o fallback Gemini no `provider.ts`.
+
+**Scripts manuais** (rodar no SQL Editor do Dashboard) ficam em
+`supabase/manual/`; o seed de demonstração de Teresina, em
+`supabase/seed/`.
 
 ### Enums (`lib/core/constants/`)
 

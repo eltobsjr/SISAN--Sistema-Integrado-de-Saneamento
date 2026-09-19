@@ -49,6 +49,23 @@
    `meu_municipio_staff` / `regenerar_codigo_ativacao_staff`, gestor-only,
    rate limit de 5 trocas/h).
 
+7. **PostGIS movido para o schema `extensions`** (`decisions/014`). O
+   `spatial_ref_sys` sem RLS não tinha conserto direto (a tabela e a extensão
+   são do `supabase_admin`). Script em
+   `supabase/manual/2026-09-19_mover_postgis_para_extensions.sql`, testado
+   com rollback e depois rodado pelo Elto no Dashboard. **Incidente
+   controlado:** o SQL Editor executou o script em lotes, a tabela temporária
+   `ON COMMIT DROP` sumiu antes da validação (`42P01`), mas os passos de dado
+   já tinham sido confirmados — conferido, nada se perdeu. Script reescrito
+   como bloco `DO` único (atômico). Lição: em scripts manuais para o
+   Dashboard, não depender de `BEGIN/COMMIT` nem de tabela temporária entre
+   statements; um único `DO` é o formato seguro.
+
+8. **Documentação do vault atualizada:** `Roadmap.md` (Fase 5 ✅, migrations,
+   Edge Functions), `telas/`, `decisions/013` e `014`,
+   `features/009 - Meu município do gestor`,
+   `referencia/contas-de-demo-teresina.md`, `features/006` e `008`.
+
 ## Decisões
 
 - **Campanhas educativas fora do escopo** por ora (pedido do usuário). O PDF
@@ -62,15 +79,19 @@
 
 ## Pendências abertas
 
+**Todas as pendências abaixo ficam com o Kassio** (definido pelo Elto em
+19/09). O `prioridade/atual.md` é a fonte de verdade.
+
 - [ ] OneSignal (Kassio).
 - [ ] Chave do Groq foi colada no chat: **revogar e gerar outra**, colando
-      direto no Dashboard.
-- [ ] Teste dos 3 perfis num aparelho real e da fila offline em modo avião.
-- [ ] Gemini como fallback (precisa de chave) — o PDF já cita dois provedores.
-- [ ] `spatial_ref_sys` sem RLS: a tabela é do `supabase_admin`, o
-      `postgres` não consegue alterar; a saída é mover o PostGIS pra outro
-      schema (destrutivo) — deixar pra depois de 23/09.
+      direto no Dashboard (Kassio).
+- [ ] Teste dos 3 perfis num aparelho real e da fila offline em modo avião
+      (Kassio) — inclui abrir o card de IA e "Meu município" no app.
+- [ ] Gemini como fallback (precisa de chave) — o PDF já cita dois provedores
+      (Kassio).
 - [ ] `validar_codigo_ativacao_staff` é executável por `anon` sem rate limit
-      (herdado): possível força bruta do código de 8 hex.
-- [ ] Limites de tamanho/mime no bucket `ocorrencias-fotos`.
-- [ ] Ligar "Leaked password protection" no Auth.
+      (herdado): possível força bruta do código de 8 hex (Kassio).
+- [ ] Limites de tamanho/mime no bucket `ocorrencias-fotos` (Kassio).
+- [ ] Ligar "Leaked password protection" no Auth — botão do Dashboard, pode
+      exigir plano pago (Kassio).
+- [x] ~~`spatial_ref_sys` sem RLS~~ — resolvido movendo o PostGIS (item 7).

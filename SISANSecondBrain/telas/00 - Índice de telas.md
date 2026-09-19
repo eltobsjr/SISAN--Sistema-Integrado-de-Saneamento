@@ -23,8 +23,8 @@ desenhar conforme a implementação avança.
 
 ## Gestor da concessionária/prefeitura
 
-- Dashboard (KPIs do mês, mapa de calor, gráfico de tendência)
+- Dashboard (resumo do mês por IA, KPIs do mês, grade de calor por tipo, gráfico de tendência)
 - Alertas Sanitários (lista + criar + detalhe)
 - Relatórios (PDF)
 - Campanhas (CRUD)
-- Gestão de município/operadores
+- Meu município (dados, contagem da equipe, código de ativação de técnicos/gestores com "gerar novo")
