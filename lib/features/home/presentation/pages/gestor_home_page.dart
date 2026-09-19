@@ -70,6 +70,17 @@ class GestorHomePage extends ConsumerWidget {
                 onTap: () => context.push('/ordens-de-servico'),
               ),
             ),
+            const SizedBox(height: 12),
+            Card(
+              margin: EdgeInsets.zero,
+              child: ListTile(
+                leading: const Icon(Icons.location_city_outlined, size: 32),
+                title: const Text('Meu município'),
+                subtitle: const Text('Equipe e código de ativação'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push('/meu-municipio'),
+              ),
+            ),
           ],
         ),
       ),

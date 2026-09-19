@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 /// Cores semânticas de urgência — sempre separadas da identidade visual
 /// "Água Viva" (decisions/008): nunca substituir por tons de azul, senão
 /// perde a leitura rápida no mapa. Definida pela Edge Function
-/// `classify-ocorrencia` (Fase 5); até lá toda ocorrência nasce `normal`.
+/// `classify-ocorrencia` (Fase 5); enquanto a IA não responde, a ocorrência
+/// fica com o padrão `normal`.
 enum OcorrenciaUrgencia {
   normal,
   atencao,

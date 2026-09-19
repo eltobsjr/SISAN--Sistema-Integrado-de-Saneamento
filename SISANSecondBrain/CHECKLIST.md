@@ -3,14 +3,14 @@
 ## Bloqueante para a submissão (23/09/2026)
 
 - [x] Nomes da equipe: **Elto, Kassio e Evillyn** (3/5, dentro do exigido)
-- [ ] Curso e instituição de cada integrante (Elto/Kassio/Evillyn) — sem
-      isso não dá pra preencher o formulário de inscrição
-- [ ] Definir o líder designado pra comunicação oficial com a organização
+- [~] Curso e instituição: ADS / IFPI (os 3) confirmado em 18/09 — nomes
+      completos já no documento; campus: Picos
+- [x] Líder designado: **Elto** (confirmado em 18/09)
 - [ ] Decidir se busca um 4º/5º integrante pra multidisciplinaridade
       (edital incentiva mas não exige) ou segue só com os 3 de ADS/TI
 - [x] Nome definitivo do projeto: **SISAN** (ver `decisions/007`) — falta só
       a identidade visual simples pro pitch (nome + 1 frase + ícone)
-- [ ] Escrever o documento de submissão: título, resumo executivo (máx. 300
+- [~] Documento de submissão — rascunho v1 pronto em `submissao/`; falta revisão da equipe: título, resumo executivo (máx. 300
       palavras), problema, solução, público beneficiado, plano mínimo de
       implementação, transformação pretendida, referências
 - [ ] Confirmar formulário oficial de submissão (link do edital) e formato
