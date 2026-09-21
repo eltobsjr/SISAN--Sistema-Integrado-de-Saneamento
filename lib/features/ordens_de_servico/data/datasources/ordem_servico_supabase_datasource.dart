@@ -27,6 +27,21 @@ class OrdemServicoSupabaseDatasource {
         .toList();
   }
 
+  /// OS concluídas por um técnico desde [desde] — alimenta o painel do
+  /// técnico (a fila nunca traz as concluídas).
+  Future<List<OrdemServico>> listarConcluidasPorTecnico(String tecnicoId, DateTime desde) async {
+    final data = await supabase
+        .from('ordens_servico')
+        .select(_select)
+        .eq('tecnico_id', tecnicoId)
+        .eq('status', OrdemServicoStatus.concluida.dbValue)
+        .gte('concluida_em', desde.toUtc().toIso8601String())
+        .order('concluida_em', ascending: false);
+    return (data as List)
+        .map((m) => _fromMap(m as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<OrdemServico> buscarPorId(String id) async {
     final data = await supabase
         .from('ordens_servico')

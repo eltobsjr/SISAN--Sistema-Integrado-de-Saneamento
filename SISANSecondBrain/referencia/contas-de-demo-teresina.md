@@ -12,15 +12,15 @@ as coordenadas são aproximadas por bairro só pra o mapa ficar plausível.
 
 | Perfil | E-mail | Nome |
 |---|---|---|
-| Gestor | `gestor1.teresina@sisan.dev` | Marcos Vinícius Andrade |
-| Gestor | `gestor2.teresina@sisan.dev` | Renata Cavalcante Lima |
-| Técnico | `tecnico1.teresina@sisan.dev` | José Ribamar Sousa |
-| Técnico | `tecnico2.teresina@sisan.dev` | Antônio Carlos Nogueira |
-| Técnico | `tecnico3.teresina@sisan.dev` | Francisco das Chagas Pereira |
-| Cidadão | `cidadao1.teresina@sisan.dev` | Maria do Socorro Silva |
-| Cidadão | `cidadao2.teresina@sisan.dev` | Ana Beatriz Rocha |
-| Cidadão | `cidadao3.teresina@sisan.dev` | Carlos Eduardo Moura |
-| Cidadão | `cidadao4.teresina@sisan.dev` | Luciana Fontenele Araújo |
+| Gestor | `gestor1@sisan.com` | Marcos Vinícius Andrade |
+| Gestor | `gestor2@sisan.com` | Renata Cavalcante Lima |
+| Técnico | `tecnico1@sisan.com` | José Ribamar Sousa |
+| Técnico | `tecnico2@sisan.com` | Antônio Carlos Nogueira |
+| Técnico | `tecnico3@sisan.com` | Francisco das Chagas Pereira |
+| Cidadão | `cidadao1@sisan.com` | Maria do Socorro Silva |
+| Cidadão | `cidadao2@sisan.com` | Ana Beatriz Rocha |
+| Cidadão | `cidadao3@sisan.com` | Carlos Eduardo Moura |
+| Cidadão | `cidadao4@sisan.com` | Luciana Fontenele Araújo |
 
 **A senha não está no repositório** (o repo é público). Quem aplicou o seed
 (Elto) a tem; o arquivo `.sql` usa o placeholder `__SENHA_DEMO__`, que deve

@@ -7,6 +7,9 @@ abstract interface class IOrdemServicoRepository {
   /// e as que já estão com ele (aceita/a_caminho), nunca as concluídas.
   Future<List<OrdemServico>> listarFila(String municipioId);
 
+  /// Concluídas pelo técnico a partir de [desde] (painel do técnico).
+  Future<List<OrdemServico>> listarConcluidasPorTecnico(String tecnicoId, DateTime desde);
+
   Future<OrdemServico> buscarPorId(String id);
 
   Future<OrdemServico> aceitar({required String osId, required String tecnicoId});

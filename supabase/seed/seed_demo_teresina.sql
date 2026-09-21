@@ -26,15 +26,15 @@ declare
 
   -- (nome, email, perfil)
   v_pessoas text[][] := array[
-    ['Marcos Vinícius Andrade',     'gestor1.teresina@sisan.dev',  'gestor'],
-    ['Renata Cavalcante Lima',      'gestor2.teresina@sisan.dev',  'gestor'],
-    ['José Ribamar Sousa',          'tecnico1.teresina@sisan.dev', 'tecnico'],
-    ['Antônio Carlos Nogueira',     'tecnico2.teresina@sisan.dev', 'tecnico'],
-    ['Francisco das Chagas Pereira','tecnico3.teresina@sisan.dev', 'tecnico'],
-    ['Maria do Socorro Silva',      'cidadao1.teresina@sisan.dev', 'cidadao'],
-    ['Ana Beatriz Rocha',           'cidadao2.teresina@sisan.dev', 'cidadao'],
-    ['Carlos Eduardo Moura',        'cidadao3.teresina@sisan.dev', 'cidadao'],
-    ['Luciana Fontenele Araújo',    'cidadao4.teresina@sisan.dev', 'cidadao']
+    ['Marcos Vinícius Andrade',     'gestor1@sisan.com',  'gestor'],
+    ['Renata Cavalcante Lima',      'gestor2@sisan.com',  'gestor'],
+    ['José Ribamar Sousa',          'tecnico1@sisan.com', 'tecnico'],
+    ['Antônio Carlos Nogueira',     'tecnico2@sisan.com', 'tecnico'],
+    ['Francisco das Chagas Pereira','tecnico3@sisan.com', 'tecnico'],
+    ['Maria do Socorro Silva',      'cidadao1@sisan.com', 'cidadao'],
+    ['Ana Beatriz Rocha',           'cidadao2@sisan.com', 'cidadao'],
+    ['Carlos Eduardo Moura',        'cidadao3@sisan.com', 'cidadao'],
+    ['Luciana Fontenele Araújo',    'cidadao4@sisan.com', 'cidadao']
   ];
 
   -- bairros repetidos = mais chamados (Dirceu Arcoverde, Santa Maria da

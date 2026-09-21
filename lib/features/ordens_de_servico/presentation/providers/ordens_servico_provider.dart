@@ -164,3 +164,13 @@ final ordemServicoPorIdProvider =
     FutureProvider.autoDispose.family<OrdemServico, String>((ref, id) {
   return ref.watch(ordemServicoRepositoryProvider).buscarPorId(id);
 });
+
+/// OS concluídas pelo técnico logado nos últimos 30 dias (painel do técnico).
+/// Observa a fila pra recarregar junto quando uma OS é concluída.
+final minhasConcluidasProvider = FutureProvider.autoDispose<List<OrdemServico>>((ref) async {
+  ref.watch(ordensServicoProvider);
+  final usuario = await ref.watch(authProvider.future);
+  if (usuario == null) return [];
+  final desde = DateTime.now().subtract(const Duration(days: 30));
+  return ref.read(ordemServicoRepositoryProvider).listarConcluidasPorTecnico(usuario.id, desde);
+});

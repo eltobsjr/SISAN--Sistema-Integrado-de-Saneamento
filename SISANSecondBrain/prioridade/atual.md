@@ -1,11 +1,11 @@
 ---
-atualizado: 2026-09-19
+atualizado: 2026-09-21
 ---
 
 # Prioridades — SISAN
 
 > Prazo real: submissão do PDF até **23/09/2026**. Documento **enviado em
-> 19/09** (`submissao/`, `devtrack/2026-09-19`). Hoje é **19/09/2026**.
+> 19/09** (`submissao/`, `devtrack/2026-09-19`). Hoje é **21/09/2026**.
 >
 > **Responsável pelas pendências abaixo: Kassio** (definido pelo Elto em
 > 19/09), exceto onde estiver indicado outro nome.
@@ -23,55 +23,42 @@ atualizado: 2026-09-19
 
 - [ ] **Setup do OneSignal** — *Responsável: Kassio.* Criar o app (gratuito),
       colocar `ONESIGNAL_APP_ID` no `.env` e `ONESIGNAL_REST_API_KEY` como
-      secret da Edge Function `notify-push`. O `NOTIFY_INTERNAL_SECRET` já
-      está configurado. Sem isso o push (código pronto) não dispara.
-- [ ] **Revogar a chave do Groq colada no chat e gerar outra** —
-      *Responsável: Kassio.* Colar a nova só no Dashboard (Edge Functions →
-      Secrets) como `GROQ_API_KEY`, sem passar por chat nem arquivo.
-- [ ] **Teste dos 3 perfis num aparelho real** — *Responsável: Kassio.* Usar
-      as contas `*.teresina@sisan.dev` (`referencia/contas-de-demo-teresina.md`;
-      a senha está com o Elto). Conferir: cidadão denuncia (offline também),
-      técnico atende com checklist e foto, gestor vê o card de IA, o
-      dashboard e "Meu município". Testar a fila offline em modo avião.
-- [ ] **Checkpoint de 21/09** (`decisions/010`) — *Responsável: Kassio.* Se
-      algum perfil não estiver testável de ponta a ponta, cortar pra mockup
-      documentado daquele perfil.
+      secret da Edge Function `notify-push`. Sem isso o push não dispara.
+- [ ] **Checkpoint de 21/09** (`decisions/010`) — conferir de novo os 3
+      perfis depois do redesenho das homes de técnico e gestor (21/09).
+- [ ] **Commitar** o redesenho das homes, o hardening e a doc desta rodada
+      (só com permissão explícita).
 
 ## Média
 
-- [ ] **Gemini como fallback** — *Responsável: Kassio.* Criar a chave, colar
-      como secret `GEMINI_API_KEY` e implementar `callGemini` em
-      `supabase/functions/_shared/provider.ts` (`decisions/013`). O PDF
-      enviado já cita "dois provedores em cascata".
-- [ ] **Hardening (segurança)** — *Responsável: Kassio.*
-      - rate limit em `validar_codigo_ativacao_staff` (chamável sem login;
-        herdado — possível força bruta do código de 8 hex);
-      - limites de tamanho e tipo de arquivo no bucket `ocorrencias-fotos`
-        (cuidado: restringir mime pode quebrar o upload do app);
-      - ligar "Leaked password protection" no Auth (botão do Dashboard, pode
-        exigir plano pago).
-- [ ] **Commitar e enviar a doc desta rodada** — *Responsável: Kassio* (ou
-      quem estiver com a sessão; só com permissão explícita): `decisions/013`
-      e `014`, `features/009`, `referencia/contas-de-demo-teresina.md`,
-      Roadmap, telas, devtrack e `supabase/manual/`.
-- [ ] **Decidir se busca um 4º/5º integrante** pra multidisciplinaridade
-      (incentivada pelo edital, não obrigatória) — *decisão da equipe.*
+- [ ] **Leaked password protection** no Auth — botão no Dashboard
+      (Authentication → Providers/Policies); pode exigir plano pago.
+      *Responsável: Elto.*
 
 ## Baixa
 
-- [ ] **Fotos no seed de Teresina** — *Responsável: Kassio.* Hoje as
-      ocorrências e as evidências do "depois" aparecem sem foto; subir
-      imagens de exemplo (fictícias/livres) pro storage e preencher `fotos`.
-- [ ] Tagline/slogan da identidade visual (`decisions/008` deixou em aberto)
-      — *decisão da equipe.*
-- [ ] **Fase 6 — Campanhas educativas**: fora do escopo por ora (decisão de
-      19/09); o PDF cita como etapa da fase seguinte.
-- [ ] **Convidar Kassio e Evillyn** no Supabase (Team) e no GitHub
-      (colaboradores) — *Responsável: Elto* (dono do projeto; não dá pra
-      Kassio se convidar sozinho).
-- [ ] **Resolver o isolamento de working directory** antes de rodar o
-      Antigravity em paralelo de novo (clone ou `git worktree` separados — o
-      compartilhado foi a causa do incidente de 18/09) — *Responsável: Kassio.*
+- [ ] Tagline/slogan da identidade visual (`decisions/008`) — *decisão da equipe.*
+
+## Descartado (decisão de 21/09)
+
+- Gemini como fallback — não vai ser feito (o PDF cita "dois provedores em
+  cascata"; hoje é só Groq).
+- Fotos no seed de Teresina.
+- Isolamento de working directory pro Antigravity.
+- 4º/5º integrante — a equipe fica como está.
+- Fase 6 — Campanhas educativas (citada no PDF como fase seguinte).
+
+## Concluído em 21/09
+
+- [x] Chave nova do Groq (Kassio)
+- [x] Teste dos 3 perfis num aparelho real (Kassio)
+- [x] Hardening: rate limit em `validar_codigo_ativacao_staff` (10/10 min
+      por IP, 30/h por município) e bucket `ocorrencias-fotos` limitado a
+      10 MB e imagens (migration `20260921120000`)
+- [x] Homes de técnico e gestor com bottom nav igual à do cidadão; painel
+      do técnico (fila, em andamento, desempenho 30 dias)
+- [x] E-mails de demo simplificados (`gestor1@sisan.com` etc.)
+- [x] Branches antigas apagadas (local e remoto) — tudo já estava na `main`
 
 ## Concluído em 19/09
 
@@ -80,9 +67,7 @@ atualizado: 2026-09-19
 - [x] Rate limit (ocorrências 10/h e 30/dia; insight 10/h; código de equipe 5/h)
 - [x] Seed de Teresina (2 gestores, 3 técnicos, 4 cidadãos, 65 ocorrências)
 - [x] Tela "Meu município" do gestor
-- [x] PostGIS movido para `extensions` (resolve `spatial_ref_sys` sem RLS)
-- [x] Bucket `ordens-fotos` — desnecessário (fotos do "depois" já usam
-      `ocorrencias-fotos`)
+- [x] PostGIS movido para `extensions`
 
 ## Plano dia a dia (referência)
 
