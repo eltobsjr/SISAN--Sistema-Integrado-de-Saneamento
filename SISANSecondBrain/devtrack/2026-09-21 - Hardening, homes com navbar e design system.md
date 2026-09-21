@@ -36,6 +36,16 @@ data: 2026-09-21
 - **Web**: `driftDatabase` ganhou `web:` (a build web quebrava ao abrir),
   o que permitiu validar a UI por screenshot (Playwright + Chrome headless).
 
+- **Build e instalação**: APK de release (70 MB) instalado por `adb` no
+  Galaxy A36 (SM-A366E) do Elto, por cima da versão anterior. O primeiro
+  `flutter build apk --release` falhou em `mergeReleaseNativeLibs`: o
+  Gradle não resolvia `firebase-messaging`, com o erro "trustAnchors
+  parameter must be non-empty". O problema é o truststore vazio do JDK da
+  máquina, não o código. Contorno:
+  `JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=/etc/pki/ca-trust/extracted/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=JKS"`
+  antes do build.
+- **Submissão**: o PDF enviado em 19/09 foi versionado em `submissao/`.
+
 ## Pendências
 
 - Setup do OneSignal (Kassio).
