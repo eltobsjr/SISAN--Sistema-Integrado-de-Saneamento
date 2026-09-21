@@ -1,161 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/core/constants/ordem_servico_status.dart';
+import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ordens_de_servico/domain/entities/ordem_servico.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
 
-/// Card de uma OS na fila — usado na lista de Ordens de Serviço e nos
-/// painéis do técnico e do gestor.
+/// Card de uma OS — usado na tela de Ordens e nos painéis do técnico e do
+/// gestor. Faixa lateral na cor da urgência, status em pílula, bairro e
+/// idade da OS (vermelha quando passa de 48h aberta) e progresso das 4
+/// etapas (pendente → aceita → a caminho → concluída).
 class OrdemServicoCard extends StatelessWidget {
   const OrdemServicoCard({super.key, required this.ordemServico, required this.onTap});
 
   final OrdemServico ordemServico;
   final VoidCallback onTap;
 
+  static const _limiteAtrasoHoras = 48;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final ocorrencia = ordemServico.ocorrencia;
-    final isMinha =
-        ordemServico.tecnicoId == Supabase.instance.client.auth.currentUser?.id;
-    final tempoDecorrido = _tempoDecorrido(ordemServico.criadoEm);
+    final os = ordemServico;
+    final oc = os.ocorrencia;
+    final isMinha = os.tecnicoId != null && os.tecnicoId == Supabase.instance.client.auth.currentUser?.id;
+    final aberta = os.status != OrdemServicoStatus.concluida;
+    final atrasada = aberta && DateTime.now().difference(os.criadoEm).inHours >= _limiteAtrasoHoras;
+    final etapa = OrdemServicoStatus.values.indexOf(os.status);
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isMinha
-            ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide.none,
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
+    return SisanCard(
+      onTap: onTap,
+      corDestaque: oc.urgencia.cor,
+      padding: const EdgeInsets.fromLTRB(SisanEspaco.lg + 4, SisanEspaco.md + 2, SisanEspaco.md + 2, SisanEspaco.md + 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: ocorrencia.urgencia.cor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  ocorrencia.tipo.icone,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
+              IconTile(oc.tipo.icone, cor: oc.tipo.cor, tamanho: 42),
+              const SizedBox(width: SisanEspaco.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            ocorrencia.tipo.label,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        _StatusChip(status: ordemServico.status),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
+                    Text(oc.tipo.label, style: SisanTexto.tituloCard),
+                    const SizedBox(height: 2),
                     Text(
-                      ocorrencia.endereco ?? ocorrencia.descricao,
+                      oc.bairro ?? oc.endereco ?? oc.descricao,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.black45,
-                      ),
+                      style: SisanTexto.secundario,
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 13,
-                          color: Colors.black38,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          tempoDecorrido,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.black45,
-                          ),
-                        ),
-                        if (ocorrencia.protocolo != null) ...[
-                          const SizedBox(width: 12),
-                          Icon(Icons.tag, size: 13, color: Colors.black38),
-                          const SizedBox(width: 4),
-                          Text(
-                            ocorrencia.protocolo!,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: Colors.black45,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (isMinha)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          'Sua OS ativa',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.black26),
+              const SizedBox(width: SisanEspaco.sm),
+              StatusBadge(os.status.label, cor: os.status.cor, icone: os.status.icone),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  String _tempoDecorrido(DateTime criadoEm) {
-    final diff = DateTime.now().difference(criadoEm);
-    if (diff.inMinutes < 1) return 'agora';
-    if (diff.inMinutes < 60) return 'há ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'há ${diff.inHours}h';
-    return DateFormat('dd/MM HH:mm').format(criadoEm);
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
-  final OrdemServicoStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: status.cor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        status.label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: status.cor,
-        ),
+          const SizedBox(height: SisanEspaco.md),
+          Row(
+            children: [
+              if (oc.urgencia != OcorrenciaUrgencia.normal) ...[
+                StatusBadge(
+                  oc.urgencia.label,
+                  cor: oc.urgencia.cor,
+                  icone: oc.urgencia == OcorrenciaUrgencia.riscoSaude
+                      ? Icons.health_and_safety_outlined
+                      : Icons.warning_amber_rounded,
+                ),
+                const SizedBox(width: SisanEspaco.sm),
+              ],
+              if (isMinha) ...[
+                const StatusBadge('Com você', cor: SisanCores.primaria, icone: Icons.person_outline),
+                const SizedBox(width: SisanEspaco.sm),
+              ],
+              Expanded(
+                child: MetaInfo(
+                  atrasada ? Icons.schedule : Icons.access_time,
+                  'aberta ${tempoRelativo(os.criadoEm)}',
+                  cor: atrasada ? SisanCores.perigo : SisanCores.textoTerciario,
+                  flex: true,
+                ),
+              ),
+              if (oc.protocolo != null)
+                Text(oc.protocolo!, style: const TextStyle(fontSize: 11, color: SisanCores.textoTerciario)),
+            ],
+          ),
+          const SizedBox(height: SisanEspaco.md),
+          EtapasProgresso(total: 4, atual: etapa, cor: os.status.cor),
+        ],
       ),
     );
   }

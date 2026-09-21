@@ -25,9 +25,7 @@ atualizado: 2026-09-21
       colocar `ONESIGNAL_APP_ID` no `.env` e `ONESIGNAL_REST_API_KEY` como
       secret da Edge Function `notify-push`. Sem isso o push não dispara.
 - [ ] **Checkpoint de 21/09** (`decisions/010`) — conferir de novo os 3
-      perfis depois do redesenho das homes de técnico e gestor (21/09).
-- [ ] **Commitar** o redesenho das homes, o hardening e a doc desta rodada
-      (só com permissão explícita).
+      perfis no aparelho depois do design system novo (21/09).
 
 ## Média
 
@@ -57,6 +55,8 @@ atualizado: 2026-09-21
       10 MB e imagens (migration `20260921120000`)
 - [x] Homes de técnico e gestor com bottom nav igual à do cidadão; painel
       do técnico (fila, em andamento, desempenho 30 dias)
+- [x] Design system e componentização (`decisions/015`): dashboards dos 3
+      perfis, Ordens, Notificações, Alertas e detalhe da OS redesenhados
 - [x] E-mails de demo simplificados (`gestor1@sisan.com` etc.)
 - [x] Branches antigas apagadas (local e remoto) — tudo já estava na `main`
 

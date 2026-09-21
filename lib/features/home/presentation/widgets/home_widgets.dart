@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:sisan/features/auth/domain/entities/usuario.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/shared/widgets/sino_notificacoes_button.dart';
 
 /// Uma aba do bottom nav das homes.
@@ -74,7 +75,9 @@ class _HomeShellState extends State<HomeShell> {
       },
       child: Scaffold(
         body: IndexedStack(index: _tabIndex, children: [for (final a in abas) a.pagina]),
-        bottomNavigationBar: NavigationBar(
+        bottomNavigationBar: DecoratedBox(
+          decoration: const BoxDecoration(border: Border(top: BorderSide(color: SisanCores.borda))),
+          child: NavigationBar(
           selectedIndex: _tabIndex,
           onDestinationSelected: (i) => setState(() => _tabIndex = i),
           destinations: [
@@ -84,7 +87,8 @@ class _HomeShellState extends State<HomeShell> {
                 selectedIcon: Icon(a.iconeSelecionado),
                 label: a.label,
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -111,7 +115,6 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
     final hora = DateTime.now().hour;
     final saudacao = hora < 12 ? 'Bom dia' : (hora < 18 ? 'Boa tarde' : 'Boa noite');
     final primeiroNome =
@@ -119,13 +122,10 @@ class HomeHeader extends StatelessWidget {
     final inicial = primeiroNome.isNotEmpty ? primeiroNome[0].toUpperCase() : '?';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [primary, primary.withValues(alpha: 0.75)],
-        ),
+      padding: EdgeInsets.fromLTRB(20, MediaQuery.paddingOf(context).top + 18, 20, 22),
+      decoration: const BoxDecoration(
+        gradient: SisanCores.gradiente,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(SisanRaio.xl + 4)),
       ),
       child: Column(
         children: [
@@ -134,8 +134,8 @@ class HomeHeader extends StatelessWidget {
               GestureDetector(
                 onTap: onAvatarTap,
                 child: CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Colors.white24,
+                  radius: 24,
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   child: Text(
                     inicial,
                     style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
@@ -169,201 +169,6 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-/// Número grande sobre o gradiente do header (resumo rápido).
-class HeaderResumo extends StatelessWidget {
-  const HeaderResumo({super.key, required this.itens});
-
-  /// Pares (valor, rótulo).
-  final List<(String, String)> itens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          for (var i = 0; i < itens.length; i++) ...[
-            if (i > 0) Container(width: 1, height: 32, color: Colors.white24),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    itens[i].$1,
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    itens[i].$2,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Título de seção das homes, com ação opcional à direita ("Ver todas").
-class SecaoTitulo extends StatelessWidget {
-  const SecaoTitulo(this.titulo, {super.key, this.acaoLabel, this.onAcao});
-
-  final String titulo;
-  final String? acaoLabel;
-  final VoidCallback? onAcao;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 24, acaoLabel != null ? 4 : 16, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              titulo,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          if (acaoLabel != null) TextButton(onPressed: onAcao, child: Text(acaoLabel!)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Card de ação da grade "O que deseja fazer?" — do `_AcaoCard` do SIGAU.
-class AcaoCard extends StatelessWidget {
-  const AcaoCard({
-    super.key,
-    required this.titulo,
-    required this.subtitulo,
-    required this.icone,
-    required this.cor,
-    this.onTap,
-    this.badge,
-  });
-
-  final String titulo;
-  final String subtitulo;
-  final IconData icone;
-  final Color cor;
-  final VoidCallback? onTap;
-
-  /// Contador opcional no canto (ex.: alertas ativos).
-  final int? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: cor.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: cor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icone, color: cor, size: 22),
-                  ),
-                  const Spacer(),
-                  if (badge != null && badge! > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(color: cor, borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                        '$badge',
-                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                titulo,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cor.withValues(alpha: 0.9)),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitulo,
-                style: TextStyle(fontSize: 10, color: cor.withValues(alpha: 0.65)),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Grade 2 colunas de [AcaoCard], como sliver.
-class AcoesGrid extends StatelessWidget {
-  const AcoesGrid({super.key, required this.children});
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverGrid.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.25,
-        children: children,
-      ),
-    );
-  }
-}
-
-/// Estado vazio compacto dentro de uma seção da home.
-class SecaoVazia extends StatelessWidget {
-  const SecaoVazia({super.key, required this.icone, required this.mensagem, this.cor});
-
-  final IconData icone;
-  final String mensagem;
-  final Color? cor;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = cor ?? Colors.green;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Icon(icone, color: c.withValues(alpha: 0.7)),
-          const SizedBox(width: 12),
-          Expanded(child: Text(mensagem, style: const TextStyle(color: Colors.black54, fontSize: 13))),
-        ],
-      ),
-    );
-  }
-}
-
 /// Atalho da aba Perfil.
 class PerfilAtalho {
   const PerfilAtalho({required this.icone, required this.titulo, required this.rota});
@@ -372,7 +177,7 @@ class PerfilAtalho {
   final String rota;
 }
 
-/// Aba Perfil dos três perfis — dados do usuário, atalhos e sair.
+/// Aba Perfil dos três perfis — cabeçalho em gradiente, atalhos e sair.
 class PerfilTab extends ConsumerWidget {
   const PerfilTab({super.key, this.atalhos = const []});
 
@@ -380,63 +185,81 @@ class PerfilTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
     final usuario = ref.watch(authProvider).valueOrNull;
     final inicial = (usuario != null && usuario.nome.isNotEmpty) ? usuario.nome[0].toUpperCase() : '?';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meu Perfil')),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.zero,
         children: [
-          Center(
-            child: CircleAvatar(
-              radius: 44,
-              backgroundColor: primary.withValues(alpha: 0.15),
-              child: Text(
-                inicial,
-                style: TextStyle(color: primary, fontSize: 32, fontWeight: FontWeight.bold),
+          Container(
+            decoration: const BoxDecoration(gradient: SisanCores.gradiente),
+            padding: EdgeInsets.fromLTRB(20, MediaQuery.paddingOf(context).top + 28, 20, 28),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  child: Text(inicial, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w800)),
+                ),
+                const SizedBox(height: SisanEspaco.md),
+                Text(
+                  usuario?.nome ?? '—',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 2),
+                Text(usuario?.email ?? '—', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
+                const SizedBox(height: SisanEspaco.md),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(SisanRaio.pill),
+                  ),
+                  child: Text(
+                    usuario?.perfil.toLabel() ?? 'Cidadão',
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (atalhos.isNotEmpty) ...[
+            const SectionHeader('Atalhos'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
+              child: SisanCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (final (i, a) in atalhos.indexed) ...[
+                      if (i > 0) const Divider(indent: 64),
+                      ListTile(
+                        leading: IconTile(a.icone, cor: SisanCores.primaria, tamanho: 36),
+                        title: Text(a.titulo, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        trailing: const Icon(Icons.chevron_right, color: SisanCores.textoTerciario),
+                        onTap: () => context.push(a.rota),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SectionHeader('Conta'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
+            child: SisanCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: const IconTile(Icons.logout, cor: SisanCores.perigo, tamanho: 36),
+                title: const Text('Sair', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: SisanCores.perigo)),
+                onTap: () => _confirmarSaida(context, ref),
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              usuario?.nome ?? '—',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Center(
-            child: Text(
-              usuario?.email ?? '—',
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Chip(
-              label: Text(usuario?.perfil.toLabel() ?? 'Cidadão'),
-              backgroundColor: primary.withValues(alpha: 0.1),
-              labelStyle: TextStyle(color: primary),
-            ),
-          ),
-          const SizedBox(height: 32),
-          const Divider(),
-          for (final a in atalhos) ...[
-            ListTile(
-              leading: Icon(a.icone),
-              title: Text(a.titulo),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(a.rota),
-            ),
-            const Divider(),
-          ],
-          ListTile(
-            leading: Icon(Icons.logout, color: theme.colorScheme.error),
-            title: Text('Sair', style: TextStyle(color: theme.colorScheme.error)),
-            onTap: () => _confirmarSaida(context, ref),
-          ),
+          const SizedBox(height: SisanEspaco.xl),
         ],
       ),
     );

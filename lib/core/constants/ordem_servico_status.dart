@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sisan/shared/design/sisan_tokens.dart';
+
 enum OrdemServicoStatus {
   pendente,
   aceita,
@@ -21,10 +23,17 @@ enum OrdemServicoStatus {
       };
 
   Color get cor => switch (this) {
-        OrdemServicoStatus.pendente => Colors.orange,
-        OrdemServicoStatus.aceita => Colors.blue,
-        OrdemServicoStatus.aCaminho => Colors.purple,
-        OrdemServicoStatus.concluida => Colors.green,
+        OrdemServicoStatus.pendente => SisanCores.atencao,
+        OrdemServicoStatus.aceita => SisanCores.info,
+        OrdemServicoStatus.aCaminho => SisanCores.andamento,
+        OrdemServicoStatus.concluida => SisanCores.sucesso,
+      };
+
+  IconData get icone => switch (this) {
+        OrdemServicoStatus.pendente => Icons.hourglass_empty_rounded,
+        OrdemServicoStatus.aceita => Icons.assignment_turned_in_outlined,
+        OrdemServicoStatus.aCaminho => Icons.directions_car_filled_outlined,
+        OrdemServicoStatus.concluida => Icons.check_circle_outline,
       };
 
   static OrdemServicoStatus fromString(String value) =>

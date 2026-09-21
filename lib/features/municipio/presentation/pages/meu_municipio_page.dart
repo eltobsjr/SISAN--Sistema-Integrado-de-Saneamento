@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/constants/concessionaria.dart';
 import 'package:sisan/features/municipio/domain/entities/meu_municipio.dart';
 import 'package:sisan/features/municipio/presentation/providers/meu_municipio_provider.dart';
@@ -20,7 +21,7 @@ class MeuMunicipioPage extends ConsumerWidget {
     final state = ref.watch(meuMunicipioProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meu município')),
+      appBar: SisanAppBar(title: const Text('Meu município')),
       body: state.when(
         loading: () => const Center(child: SisanLoading.compact()),
         error: (_, _) => SisanErrorState(onRetry: () => ref.invalidate(meuMunicipioProvider)),

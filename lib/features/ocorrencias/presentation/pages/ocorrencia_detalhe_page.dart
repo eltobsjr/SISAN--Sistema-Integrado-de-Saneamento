@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
@@ -29,11 +30,11 @@ class OcorrenciaDetalhePage extends ConsumerWidget {
     final porId = ref.watch(ocorrenciaPorIdProvider(id));
     return porId.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Ocorrência')),
+        appBar: SisanAppBar(title: const Text('Ocorrência')),
         body: const Center(child: SisanLoading.compact()),
       ),
       error: (_, _) => Scaffold(
-        appBar: AppBar(title: const Text('Ocorrência')),
+        appBar: SisanAppBar(title: const Text('Ocorrência')),
         body: SisanErrorState(onRetry: () => ref.invalidate(ocorrenciaPorIdProvider(id))),
       ),
       data: (o) => _OcorrenciaDetalheView(ocorrencia: o),

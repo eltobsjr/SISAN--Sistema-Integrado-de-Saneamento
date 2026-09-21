@@ -22,9 +22,9 @@ as coordenadas são aproximadas por bairro só pra o mapa ficar plausível.
 | Cidadão | `cidadao3@sisan.com` | Carlos Eduardo Moura |
 | Cidadão | `cidadao4@sisan.com` | Luciana Fontenele Araújo |
 
-**A senha não está no repositório** (o repo é público). Quem aplicou o seed
-(Elto) a tem; o arquivo `.sql` usa o placeholder `__SENHA_DEMO__`, que deve
-ser substituído na hora de rodar. O código de ativação de equipe de Teresina
+**A senha não está no repositório** (o repo é público). Ela foi
+redefinida em 21/09 e está com o Elto. O arquivo `.sql` usa o placeholder
+`__SENHA_DEMO__`, que deve ser substituído na hora de rodar. O código de ativação de equipe de Teresina
 é aleatório: o gestor o vê em "Meu município".
 
 ## O que o seed cria

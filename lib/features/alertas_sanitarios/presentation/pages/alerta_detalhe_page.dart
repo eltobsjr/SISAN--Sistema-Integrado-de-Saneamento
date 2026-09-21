@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/errors/error_handler.dart';
 import 'package:sisan/features/alertas_sanitarios/domain/entities/alerta_sanitario.dart';
 import 'package:sisan/features/alertas_sanitarios/presentation/providers/alertas_sanitarios_provider.dart';
@@ -22,7 +23,7 @@ class AlertaDetalhePage extends ConsumerWidget {
 
     if (alerta == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Alerta')),
+        appBar: SisanAppBar(title: const Text('Alerta')),
         body: const Center(child: SisanLoading.compact()),
       );
     }

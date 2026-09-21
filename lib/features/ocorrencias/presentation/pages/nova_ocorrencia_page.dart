@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/widgets/nova_ocorrencia_guiada_view.dart';
 import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_sucesso_screen.dart';
@@ -28,7 +29,7 @@ class _NovaOcorrenciaPageState extends ConsumerState<NovaOcorrenciaPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: SisanAppBar(
         title: const Text('Nova Ocorrência'),
         actions: [
           IconButton(

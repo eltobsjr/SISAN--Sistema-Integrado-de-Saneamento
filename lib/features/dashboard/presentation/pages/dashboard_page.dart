@@ -14,10 +14,11 @@ import 'package:sisan/features/dashboard/domain/entities/dashboard_stats.dart';
 import 'package:sisan/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/heatmap_tipo_grid.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/insight_card.dart';
-import 'package:sisan/features/dashboard/presentation/widgets/kpi_card.dart';
 import 'package:sisan/features/dashboard/presentation/widgets/tendencia_chart.dart';
 import 'package:sisan/features/dashboard/services/pdf_relatorio.dart';
-import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
+import 'package:sisan/core/constants/ocorrencia_status.dart';
+import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_card.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
 import 'package:sisan/shared/widgets/sisan_loading.dart';
 
@@ -38,8 +39,9 @@ class DashboardPage extends ConsumerWidget {
     final statsState = ref.watch(dashboardProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
+      appBar: SisanAppBar(
+        title: const Text('Painel do município'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -64,30 +66,51 @@ class DashboardPage extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, DashboardStats stats) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    int status(OcorrenciaStatus s) => stats.porStatus[s.dbValue] ?? 0;
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(insightDashboardProvider);
+        await ref.read(dashboardProvider.notifier).recarregar();
+      },
+      child: ListView(
+        padding: const EdgeInsets.all(SisanEspaco.tela),
         children: [
           const InsightCard(),
-          _buildKpiGrid(stats),
-          const SizedBox(height: 16),
-          TendenciaChart(serie: stats.serie),
-          const SizedBox(height: 16),
-          HeatmapTipoGrid(porTipo: stats.porTipo),
-          const SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.health_and_safety_outlined, color: Color(0xFFC62828)),
-              title: const Text('Alertas Sanitários'),
-              subtitle: Text('${stats.alertasAtivos} ativo${stats.alertasAtivos == 1 ? '' : 's'} no município'),
-              trailing: const Icon(Icons.chevron_right),
+          if (stats.alertasAtivos > 0) ...[
+            AvisoBanner(
+              mensagem: '${stats.alertasAtivos} alerta${stats.alertasAtivos == 1 ? '' : 's'} sanitário${stats.alertasAtivos == 1 ? '' : 's'} ativo${stats.alertasAtivos == 1 ? '' : 's'} no município',
+              cor: SisanCores.perigo,
+              icone: Icons.health_and_safety_outlined,
               onTap: () => context.push('/alertas-sanitarios'),
             ),
+            const SizedBox(height: SisanEspaco.lg),
+          ],
+          const SectionHeader('Indicadores do mês', padding: EdgeInsets.only(bottom: SisanEspaco.sm)),
+          _buildKpiGrid(stats),
+          const SizedBox(height: SisanEspaco.md),
+          DistribuicaoCard(
+            titulo: 'Situação das ocorrências do mês',
+            icone: Icons.donut_large_outlined,
+            segmentos: [
+              for (final s in OcorrenciaStatus.values) Segmento(s.label, status(s), s.cor),
+            ],
           ),
-          const SizedBox(height: 16),
-          _UltimasOcorrenciasCard(ocorrencias: stats.ultimasOcorrencias),
-          const SizedBox(height: 8),
+          const SectionHeader('Evolução', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+          TendenciaChart(serie: stats.serie),
+          const SizedBox(height: SisanEspaco.md),
+          HeatmapTipoGrid(porTipo: stats.porTipo),
+          SectionHeader(
+            'Últimas ocorrências',
+            padding: const EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
+          ),
+          if (stats.ultimasOcorrencias.isEmpty)
+            const EmptyHint(icone: Icons.inbox_outlined, mensagem: 'Nenhuma ocorrência registrada ainda.', cor: SisanCores.neutro)
+          else
+            for (final (i, o) in stats.ultimasOcorrencias.indexed) ...[
+              if (i > 0) const SizedBox(height: SisanEspaco.sm),
+              OcorrenciaCard(ocorrencia: o, compacto: true),
+            ],
+          const SizedBox(height: SisanEspaco.lg),
         ],
       ),
     );
@@ -106,33 +129,33 @@ class DashboardPage extends ConsumerWidget {
       return '= $mesAnteriorLabel';
     }
 
-    Color comparacaoCor(num a, num b) => a > b ? const Color(0xFF2E7D32) : Colors.black38;
+    Color comparacaoCor(num a, num b) => a > b ? SisanCores.sucesso : SisanCores.textoTerciario;
 
     final kpis = [
-      KpiCard(
+      KpiTile(
         titulo: 'Ocorrências no Mês',
         valor: atual.ocorrencias.toString(),
         icone: Icons.water_drop_outlined,
         cor: const Color(0xFF0288D1),
-        comparacao: comparacao(atual.ocorrencias, anterior.ocorrencias),
-        comparacaoCor: comparacaoCor(atual.ocorrencias, anterior.ocorrencias),
+        rodape: comparacao(atual.ocorrencias, anterior.ocorrencias),
+        corRodape: comparacaoCor(atual.ocorrencias, anterior.ocorrencias),
       ),
-      KpiCard(
+      KpiTile(
         titulo: 'Resolvidas no Mês',
         valor: atual.resolvidas.toString(),
         icone: Icons.check_circle_outline,
         cor: const Color(0xFF2E7D32),
-        comparacao: comparacao(atual.resolvidas, anterior.resolvidas),
-        comparacaoCor: comparacaoCor(atual.resolvidas, anterior.resolvidas),
+        rodape: comparacao(atual.resolvidas, anterior.resolvidas),
+        corRodape: comparacaoCor(atual.resolvidas, anterior.resolvidas),
       ),
-      KpiCard(
+      KpiTile(
         titulo: 'Tempo médio de resolução',
         valor: '${atual.tempoMedioHoras.toStringAsFixed(1)}h',
         icone: Icons.timer_outlined,
         cor: const Color(0xFFEF6C00),
-        subtitulo: 'da criação até a conclusão da OS',
+        rodape: 'da criação à conclusão da OS',
       ),
-      KpiCard(
+      KpiTile(
         titulo: 'Alertas Sanitários Ativos',
         valor: stats.alertasAtivos.toString(),
         icone: Icons.health_and_safety_outlined,
@@ -140,19 +163,7 @@ class DashboardPage extends ConsumerWidget {
       ),
     ];
 
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Expanded(child: kpis[0]), const SizedBox(width: 12), Expanded(child: kpis[1])],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Expanded(child: kpis[2]), const SizedBox(width: 12), Expanded(child: kpis[3])],
-        ),
-      ],
-    );
+    return GradeDupla(children: kpis);
   }
 
   Future<void> _exportarPdf(BuildContext context, WidgetRef ref) async {
@@ -217,87 +228,5 @@ class DashboardPage extends ConsumerWidget {
         );
       }
     }
-  }
-}
-
-class _UltimasOcorrenciasCard extends StatelessWidget {
-  const _UltimasOcorrenciasCard({required this.ocorrencias});
-  final List<Ocorrencia> ocorrencias;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 8, 8),
-            child: Row(
-              children: [
-                const Icon(Icons.history_outlined, size: 18, color: Colors.black54),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text('Últimas Ocorrências', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                ),
-              ],
-            ),
-          ),
-          if (ocorrencias.isEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 4, 16, 16),
-              child: Text('Nenhuma ocorrência registrada ainda.', style: TextStyle(color: Colors.black38, fontSize: 13)),
-            )
-          else
-            ...ocorrencias.map((o) => _OcorrenciaListTile(ocorrencia: o)),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
-
-class _OcorrenciaListTile extends StatelessWidget {
-  const _OcorrenciaListTile({required this.ocorrencia});
-  final Ocorrencia ocorrencia;
-
-  @override
-  Widget build(BuildContext context) {
-    final tipo = ocorrencia.tipo;
-    final diff = DateTime.now().difference(ocorrencia.criadoEm);
-    final tempo = diff.inMinutes < 1
-        ? 'agora'
-        : diff.inMinutes < 60
-            ? 'há ${diff.inMinutes} min'
-            : diff.inHours < 24
-                ? 'há ${diff.inHours}h'
-                : DateFormat('dd/MM HH:mm').format(ocorrencia.criadoEm);
-
-    return InkWell(
-      onTap: () => context.push('/ocorrencias/${ocorrencia.id}', extra: ocorrencia),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(color: tipo.cor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-              child: Icon(tipo.icone, color: tipo.cor, size: 16),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(tipo.label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                  Text(ocorrencia.status.label, style: const TextStyle(fontSize: 11, color: Colors.black45)),
-                ],
-              ),
-            ),
-            Text(tempo, style: const TextStyle(fontSize: 11, color: Colors.black38)),
-          ],
-        ),
-      ),
-    );
   }
 }

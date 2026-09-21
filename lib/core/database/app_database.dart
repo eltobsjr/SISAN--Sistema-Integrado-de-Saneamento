@@ -14,7 +14,16 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'sisan_local');
+    // Sem `web:` o driftDatabase lança na abertura do app no Flutter web.
+    // A fila offline é do mobile; no web os assets só são exigidos se o
+    // banco for de fato usado.
+    return driftDatabase(
+      name: 'sisan_local',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    );
   }
 }
 

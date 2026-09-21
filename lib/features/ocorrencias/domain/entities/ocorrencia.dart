@@ -35,3 +35,16 @@ class Ocorrencia {
     this.atualizadoEm,
   });
 }
+
+extension OcorrenciaLocal on Ocorrencia {
+  /// Bairro extraído do endereço no formato do app/seed
+  /// ("Rua X, 85 - Bairro, Cidade - UF"); null quando não dá pra inferir.
+  String? get bairro {
+    final e = endereco;
+    if (e == null) return null;
+    final partes = e.split(' - ');
+    if (partes.length < 2) return null;
+    final b = partes[1].split(',').first.trim();
+    return b.isEmpty ? null : b;
+  }
+}

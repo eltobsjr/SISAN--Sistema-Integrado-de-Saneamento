@@ -10,8 +10,10 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/constants/checklist_encerramento.dart';
 import 'package:sisan/core/constants/ordem_servico_status.dart';
+import 'package:sisan/core/constants/perfil_usuario.dart';
 import 'package:sisan/core/errors/error_handler.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/ordens_de_servico/domain/entities/ordem_servico.dart';
@@ -42,11 +44,11 @@ class OrdemServicoDetalhePage extends ConsumerWidget {
     final porId = ref.watch(ordemServicoPorIdProvider(id));
     return porId.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Ordem de Serviço')),
+        appBar: SisanAppBar(title: const Text('Ordem de Serviço')),
         body: const Center(child: SisanLoading.compact()),
       ),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: const Text('Ordem de Serviço')),
+        appBar: SisanAppBar(title: const Text('Ordem de Serviço')),
         body: SisanErrorState(
           onRetry: () => ref.invalidate(ordemServicoPorIdProvider(id)),
         ),
@@ -72,6 +74,8 @@ class _OrdemServicoDetalheViewState
   String get _meuId => ref.read(authProvider).valueOrNull?.id ?? '';
 
   bool get _isMinha => widget.ordemServico.tecnicoId == _meuId;
+
+  bool get _ehTecnico => ref.read(authProvider).valueOrNull?.perfil == PerfilUsuario.tecnico;
 
   Future<void> _executar(Future<void> Function() acao) async {
     setState(() => _loading = true);
@@ -150,77 +154,151 @@ class _OrdemServicoDetalheViewState
     final ocorrencia = os.ocorrencia;
     final temCoordenadas = ocorrencia.latitude != null && ocorrencia.longitude != null;
 
+    final botao = _BotaoAcao(
+      ordemServico: os,
+      isMinha: _isMinha,
+      ehTecnico: _ehTecnico,
+      loading: _loading,
+      onAceitar: _aceitar,
+      onChegada: _registrarChegada,
+      onConcluir: () => _abrirConclusao(context),
+    );
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Ordem de Serviço')),
-      body: Column(
+      appBar: const SisanAppBar(title: Text('Ordem de serviço')),
+      bottomNavigationBar: botao.temAcao
+          ? DecoratedBox(
+              decoration: const BoxDecoration(
+                color: SisanCores.superficie,
+                border: Border(top: BorderSide(color: SisanCores.borda)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(padding: const EdgeInsets.all(SisanEspaco.tela), child: botao),
+              ),
+            )
+          : null,
+      body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           if (temCoordenadas)
             _MiniMapa(
               ponto: LatLng(ocorrencia.latitude!, ocorrencia.longitude!),
               cor: ocorrencia.urgencia.cor,
-            )
-          else
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              color: Colors.black.withValues(alpha: 0.04),
-              child: Row(
-                children: [
-                  const Icon(Icons.location_off_outlined, color: Colors.black38),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      ocorrencia.endereco ?? 'Localização não informada',
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ),
-                ],
-              ),
             ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _StatusTimeline(status: os.status),
-                  const SizedBox(height: 20),
-                  Text(
-                    ocorrencia.tipo.label,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+          Padding(
+            padding: const EdgeInsets.all(SisanEspaco.tela),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SisanCard(
+                  corDestaque: ocorrencia.urgencia.cor,
+                  padding: const EdgeInsets.fromLTRB(SisanEspaco.lg + 4, SisanEspaco.lg, SisanEspaco.lg, SisanEspaco.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          IconTile(ocorrencia.tipo.icone, cor: ocorrencia.tipo.cor, tamanho: 44),
+                          const SizedBox(width: SisanEspaco.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(ocorrencia.tipo.label, style: SisanTexto.tituloTela),
+                                if (ocorrencia.protocolo != null)
+                                  Text(ocorrencia.protocolo!, style: SisanTexto.legenda),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: SisanEspaco.md),
+                      Wrap(
+                        spacing: SisanEspaco.sm,
+                        runSpacing: SisanEspaco.sm,
+                        children: [
+                          StatusBadge(os.status.label, cor: os.status.cor, icone: os.status.icone),
+                          StatusBadge(ocorrencia.urgencia.label, cor: ocorrencia.urgencia.cor, icone: Icons.warning_amber_rounded),
+                          if (_isMinha) const StatusBadge('Com você', cor: SisanCores.primaria, icone: Icons.person_outline),
+                        ],
+                      ),
+                      const SizedBox(height: SisanEspaco.lg),
+                      _StatusTimeline(status: os.status),
+                    ],
                   ),
-                  if (ocorrencia.protocolo != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      ocorrencia.protocolo!,
-                      style: const TextStyle(color: Colors.black45, fontSize: 13),
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  Text(ocorrencia.descricao),
-                  const SizedBox(height: 16),
-                  _InfoGrid(ordemServico: os),
-                  if (ocorrencia.fotos.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _FotosSection(titulo: 'Fotos da denúncia', urls: ocorrencia.fotos),
-                  ],
-                  if (os.fotosDepois.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _FotosSection(titulo: 'Fotos do reparo', urls: os.fotosDepois),
-                  ],
-                  const SizedBox(height: 24),
-                  _BotaoAcao(
-                    ordemServico: os,
-                    isMinha: _isMinha,
-                    loading: _loading,
-                    onAceitar: _aceitar,
-                    onChegada: _registrarChegada,
-                    onConcluir: () => _abrirConclusao(context),
+                ),
+                const SectionHeader('Relato do cidadão', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+                SisanCard(child: Text(ocorrencia.descricao, style: SisanTexto.corpo)),
+                const SectionHeader('Local e registro', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+                SisanCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _LinhaInfo(Icons.place_outlined, 'Endereço', ocorrencia.endereco ?? 'Não informado'),
+                      const Divider(indent: 56),
+                      _LinhaInfo(Icons.flag_outlined, 'OS aberta', _dataHora(os.criadoEm)),
+                      if (os.aceitaEm != null) ...[
+                        const Divider(indent: 56),
+                        _LinhaInfo(Icons.assignment_turned_in_outlined, 'Aceita', _dataHora(os.aceitaEm!)),
+                      ],
+                      if (os.chegadaEm != null) ...[
+                        const Divider(indent: 56),
+                        _LinhaInfo(Icons.pin_drop_outlined, 'Chegada no local', _dataHora(os.chegadaEm!)),
+                      ],
+                      if (os.concluidaEm != null) ...[
+                        const Divider(indent: 56),
+                        _LinhaInfo(Icons.check_circle_outline, 'Concluída', _dataHora(os.concluidaEm!)),
+                      ],
+                    ],
                   ),
+                ),
+                if (ocorrencia.fotos.isNotEmpty) ...[
+                  const SizedBox(height: SisanEspaco.xl),
+                  _FotosSection(titulo: 'Fotos da denúncia', urls: ocorrencia.fotos),
                 ],
-              ),
+                if (os.fotosDepois.isNotEmpty) ...[
+                  const SizedBox(height: SisanEspaco.xl),
+                  _FotosSection(titulo: 'Fotos do reparo', urls: os.fotosDepois),
+                ],
+                const SizedBox(height: SisanEspaco.lg),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _dataHora(DateTime d) {
+    final l = d.toLocal();
+    String dois(int n) => n.toString().padLeft(2, '0');
+    return '${dois(l.day)}/${dois(l.month)}/${l.year} ${dois(l.hour)}:${dois(l.minute)}';
+  }
+}
+
+class _LinhaInfo extends StatelessWidget {
+  const _LinhaInfo(this.icone, this.rotulo, this.valor);
+  final IconData icone;
+  final String rotulo;
+  final String valor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.lg, vertical: SisanEspaco.md),
+      child: Row(
+        children: [
+          IconTile(icone, cor: SisanCores.primaria, tamanho: 30),
+          const SizedBox(width: SisanEspaco.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(rotulo, style: SisanTexto.legenda),
+                const SizedBox(height: 1),
+                Text(valor, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SisanCores.texto)),
+              ],
             ),
           ),
         ],
@@ -244,7 +322,7 @@ class _MiniMapa extends StatelessWidget {
         useSafeArea: false,
         builder: (_) => Dialog.fullscreen(
           child: Scaffold(
-            appBar: AppBar(
+            appBar: SisanAppBar(
               leading: const CloseButton(),
               title: const Text('Localização da Ocorrência'),
             ),
@@ -365,80 +443,13 @@ class _StatusTimeline extends StatelessWidget {
   }
 }
 
-// ─── INFO GRID ────────────────────────────────────────────────────────────
-
-class _InfoGrid extends StatelessWidget {
-  const _InfoGrid({required this.ordemServico});
-  final OrdemServico ordemServico;
-
-  @override
-  Widget build(BuildContext context) {
-    final ocorrencia = ordemServico.ocorrencia;
-    return Row(
-      children: [
-        Expanded(
-          child: _InfoTile(
-            label: 'Urgência',
-            valor: ocorrencia.urgencia.label,
-            icone: Icons.warning_amber_rounded,
-            cor: ocorrencia.urgencia.cor,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _InfoTile(
-            label: 'Endereço',
-            valor: ocorrencia.endereco ?? 'Não informado',
-            icone: Icons.location_on_outlined,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  const _InfoTile({required this.label, required this.valor, required this.icone, this.cor});
-  final String label;
-  final String valor;
-  final IconData icone;
-  final Color? cor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final c = cor ?? theme.colorScheme.primary;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icone, color: c, size: 20),
-          const SizedBox(height: 8),
-          Text(label, style: theme.textTheme.labelSmall?.copyWith(color: Colors.black45)),
-          const SizedBox(height: 2),
-          Text(
-            valor,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── BOTÃO DE AÇÃO ────────────────────────────────────────────────────────
 
 class _BotaoAcao extends StatelessWidget {
   const _BotaoAcao({
     required this.ordemServico,
     required this.isMinha,
+    required this.ehTecnico,
     required this.loading,
     required this.onAceitar,
     required this.onChegada,
@@ -447,7 +458,15 @@ class _BotaoAcao extends StatelessWidget {
 
   final OrdemServico ordemServico;
   final bool isMinha;
+  final bool ehTecnico;
   final bool loading;
+
+  /// Há botão pra mostrar (define se a barra inferior aparece).
+  bool get temAcao => switch (ordemServico.status) {
+        OrdemServicoStatus.pendente => ehTecnico,
+        OrdemServicoStatus.aceita || OrdemServicoStatus.aCaminho => isMinha,
+        OrdemServicoStatus.concluida => false,
+      };
   final VoidCallback onAceitar;
   final VoidCallback onChegada;
   final VoidCallback onConcluir;
@@ -466,13 +485,13 @@ class _BotaoAcao extends StatelessWidget {
     }
 
     return switch (ordemServico.status) {
-      OrdemServicoStatus.pendente => FilledButton.icon(
+      OrdemServicoStatus.pendente when ehTecnico => FilledButton.icon(
           onPressed: onAceitar,
           icon: const Icon(Icons.assignment_turned_in_outlined),
           label: const Text('Aceitar Ordem de Serviço'),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            backgroundColor: Colors.orange,
+            backgroundColor: SisanCores.atencao,
           ),
         ),
       OrdemServicoStatus.aceita when isMinha => FilledButton.icon(
@@ -481,7 +500,7 @@ class _BotaoAcao extends StatelessWidget {
           label: const Text('Registrar Chegada'),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            backgroundColor: Colors.blue,
+            backgroundColor: SisanCores.info,
           ),
         ),
       OrdemServicoStatus.aCaminho when isMinha => FilledButton.icon(
@@ -490,7 +509,7 @@ class _BotaoAcao extends StatelessWidget {
           label: const Text('Concluir Ordem de Serviço'),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            backgroundColor: Colors.green,
+            backgroundColor: SisanCores.sucesso,
           ),
         ),
       _ => const SizedBox.shrink(),
@@ -626,7 +645,7 @@ class _ConclusaoBottomSheetState extends State<_ConclusaoBottomSheet> {
                       )
                   : null,
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: SisanCores.sucesso,
                 minimumSize: const Size.fromHeight(48),
               ),
               child: const Text('Concluir Ordem de Serviço'),

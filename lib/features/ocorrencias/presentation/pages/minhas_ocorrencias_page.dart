@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart'
     show kProtocoloOffline, ocorrenciasProvider;
+import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_card.dart';
 import 'package:sisan/shared/widgets/pending_sync_banner.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
 import 'package:sisan/shared/widgets/skeleton_list.dart';
@@ -19,7 +19,7 @@ class MinhasOcorrenciasPage extends ConsumerWidget {
     final state = ref.watch(ocorrenciasProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Minhas Ocorrências')),
+      appBar: SisanAppBar(title: const Text('Minhas Ocorrências')),
       body: Column(
         children: [
           const PendingSyncBanner(),
@@ -62,37 +62,28 @@ class MinhasOcorrenciasPage extends ConsumerWidget {
 
                 return RefreshIndicator(
                   onRefresh: () async => ref.invalidate(ocorrenciasProvider),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: grupos.length,
-                    itemBuilder: (_, i) {
-                      final grupo = grupos[i];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
-                            child: Text(
-                              grupo.titulo,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black45,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                          ...grupo.itens.map(
-                            (o) => Column(
-                              children: [
-                                _OcorrenciaTile(ocorrencia: o),
-                                const Divider(height: 1, indent: 68),
-                              ],
-                            ),
-                          ),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(SisanEspaco.tela, SisanEspaco.tela, SisanEspaco.tela, SisanEspaco.xl),
+                    children: [
+                      DistribuicaoCard(
+                        titulo: 'Seus registros',
+                        icone: Icons.donut_large_outlined,
+                        segmentos: [
+                          for (final s in OcorrenciaStatus.values)
+                            Segmento(s.label, ocorrencias.where((o) => o.status == s).length, s.cor),
                         ],
-                      );
-                    },
+                      ),
+                      for (final grupo in grupos) ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, SisanEspaco.xl, 0, SisanEspaco.sm),
+                          child: Text(grupo.titulo.toUpperCase(), style: SisanTexto.rotulo),
+                        ),
+                        for (final (i, o) in grupo.itens.indexed) ...[
+                          if (i > 0) const SizedBox(height: SisanEspaco.sm),
+                          OcorrenciaCard(ocorrencia: o, aguardandoSync: o.protocolo == kProtocoloOffline),
+                        ],
+                      ],
+                    ],
                   ),
                 );
               },
@@ -141,97 +132,4 @@ class _Grupo {
   const _Grupo(this.titulo, this.itens);
   final String titulo;
   final List<Ocorrencia> itens;
-}
-
-class _OcorrenciaTile extends StatelessWidget {
-  const _OcorrenciaTile({required this.ocorrencia});
-  final Ocorrencia ocorrencia;
-
-  Color _statusCor(OcorrenciaStatus s) => switch (s) {
-    OcorrenciaStatus.pendente => Colors.orange,
-    OcorrenciaStatus.emAnalise => Colors.blue,
-    OcorrenciaStatus.resolvida => Colors.green,
-    OcorrenciaStatus.arquivada => Colors.grey,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final tipo = ocorrencia.tipo;
-    final statusCor = _statusCor(ocorrencia.status);
-    final aguardandoSync = ocorrencia.protocolo == kProtocoloOffline;
-
-    return ListTile(
-      onTap: aguardandoSync
-          ? null
-          : () => context.push(
-              '/ocorrencias/${ocorrencia.id}',
-              extra: ocorrencia,
-            ),
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: tipo.cor.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(tipo.icone, color: tipo.cor, size: 20),
-      ),
-      title: Text(
-        tipo.label,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (aguardandoSync)
-            Row(
-              children: [
-                const Icon(
-                  Icons.cloud_off_rounded,
-                  size: 12,
-                  color: Colors.orange,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Aguardando conexão para enviar',
-                  style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
-                ),
-              ],
-            )
-          else if (ocorrencia.protocolo != null)
-            Text(
-              ocorrencia.protocolo!,
-              style: const TextStyle(fontSize: 11, color: Colors.black45),
-            ),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: statusCor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  ocorrencia.status.label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: statusCor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                DateFormat('dd/MM/yyyy HH:mm').format(ocorrencia.criadoEm),
-                style: const TextStyle(fontSize: 11, color: Colors.black38),
-              ),
-            ],
-          ),
-        ],
-      ),
-      isThreeLine: true,
-      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black26),
-    );
-  }
 }

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import 'package:sisan/core/constants/ocorrencia_status.dart';
+import 'package:sisan/core/constants/ocorrencia_tipo.dart';
 import 'package:sisan/features/auth/domain/entities/usuario.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sisan/features/home/presentation/widgets/home_widgets.dart';
 import 'package:sisan/features/mapa/presentation/pages/mapa_page.dart';
+import 'package:sisan/features/mapa/presentation/providers/mapa_provider.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
-import 'package:sisan/features/home/presentation/widgets/home_widgets.dart';
+import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_card.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
 
-/// Adaptado de `HomePage` do SIGAU (view do cidadão): bottom nav de 4 abas
-/// (Início/Mapa/Registrar/Perfil) e header com gradiente + saudação. A casca
-/// e os widgets da home são compartilhados com técnico e gestor
-/// (`home_widgets.dart`).
+/// Home do cidadão — adaptada do `HomePage` do SIGAU: bottom nav de 4 abas
+/// (Início/Mapa/Registrar/Perfil). O Início é um painel: o que ele
+/// registrou e ainda está em andamento, e como está o município no mês.
 class CidadaoHomePage extends ConsumerWidget {
   const CidadaoHomePage({super.key});
 
@@ -28,7 +30,7 @@ class CidadaoHomePage extends ConsumerWidget {
           label: 'Início',
           icone: Icons.home_outlined,
           iconeSelecionado: Icons.home,
-          pagina: _InicioTab(usuario: usuario, onPerfilTap: () => irPara(3)),
+          pagina: _InicioTab(usuario: usuario, irPara: irPara),
         ),
         const HomeAba(
           label: 'Mapa',
@@ -49,6 +51,7 @@ class CidadaoHomePage extends ConsumerWidget {
           pagina: PerfilTab(
             atalhos: [
               PerfilAtalho(icone: Icons.history_outlined, titulo: 'Minhas ocorrências', rota: '/ocorrencias'),
+              PerfilAtalho(icone: Icons.notifications_outlined, titulo: 'Notificações', rota: '/notificacoes'),
             ],
           ),
         ),
@@ -60,177 +63,129 @@ class CidadaoHomePage extends ConsumerWidget {
 // ─── ABA INÍCIO ───────────────────────────────────────────────────────────
 
 class _InicioTab extends ConsumerWidget {
-  const _InicioTab({this.usuario, this.onPerfilTap});
+  const _InicioTab({this.usuario, required this.irPara});
   final Usuario? usuario;
-  final VoidCallback? onPerfilTap;
+  final void Function(int) irPara;
+
+  static bool _emAndamento(Ocorrencia o) =>
+      o.status == OcorrenciaStatus.pendente || o.status == OcorrenciaStatus.emAnalise;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final ocorrenciasState = ref.watch(ocorrenciasProvider);
+    final minhasState = ref.watch(ocorrenciasProvider);
+    final minhas = minhasState.valueOrNull ?? const <Ocorrencia>[];
+    final municipio = ref.watch(mapaProvider).ocorrencias;
+
+    final andamento = minhas.where(_emAndamento).toList();
+    final resolvidas = minhas.where((o) => o.status == OcorrenciaStatus.resolvida).length;
+
+    final agora = DateTime.now();
+    final doMes = municipio.where((o) => o.criadoEm.year == agora.year && o.criadoEm.month == agora.month).toList();
+    int contar(OcorrenciaStatus s) => doMes.where((o) => o.status == s).length;
+    final porTipo = <OcorrenciaTipo, int>{};
+    for (final o in doMes) {
+      porTipo[o.tipo] = (porTipo[o.tipo] ?? 0) + 1;
+    }
+    final rankingTipos = porTipo.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: HomeHeader(usuario: usuario, subtitulo: 'Como podemos ajudar hoje?', onAvatarTap: onPerfilTap),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  'O que deseja fazer?',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(ocorrenciasProvider);
+          await ref.read(mapaProvider.notifier).recarregar();
+        },
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            HomeHeader(
+              usuario: usuario,
+              subtitulo: 'Como podemos ajudar hoje?',
+              onAvatarTap: () => irPara(3),
+              rodape: StatStrip(
+                itens: [
+                  StatItem('${minhas.length}', 'Registradas'),
+                  StatItem('${andamento.length}', 'Em\nandamento'),
+                  StatItem('$resolvidas', 'Resolvidas'),
+                ],
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverGrid.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.25,
+            const SectionHeader('O que deseja fazer?'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
+              child: GradeDupla(
                 children: [
-                  AcaoCard(
-                    titulo: 'Nova Ocorrência',
+                  ActionTile(
+                    titulo: 'Nova ocorrência',
                     subtitulo: 'Foto, GPS e descrição do problema',
-                    icone: Icons.add_circle_outline,
-                    cor: primary,
+                    icone: Icons.add_location_alt_outlined,
+                    cor: SisanCores.primaria,
                     onTap: () => context.push('/ocorrencias/nova'),
                   ),
-                  AcaoCard(
-                    titulo: 'Minhas Ocorrências',
-                    subtitulo: 'Acompanhe o status dos seus registros',
+                  ActionTile(
+                    titulo: 'Minhas ocorrências',
+                    subtitulo: 'Histórico e status dos registros',
                     icone: Icons.history_rounded,
-                    cor: const Color(0xFF00796B),
+                    cor: SisanCores.teal,
                     onTap: () => context.push('/ocorrencias'),
                   ),
                 ],
               ),
             ),
-
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Atividade recente',
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push('/ocorrencias'),
-                      child: const Text('Ver todas'),
-                    ),
-                  ],
-                ),
-              ),
+            SectionHeader(
+              'Acompanhe seus registros',
+              subtitulo: 'Ocorrências ainda em andamento',
+              acaoLabel: minhas.isEmpty ? null : 'Ver todas',
+              onAcao: () => context.push('/ocorrencias'),
             ),
-            ocorrenciasState.when(
-              loading: () => const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: LinearProgressIndicator(),
-                ),
-              ),
-              error: (_, _) => const SliverToBoxAdapter(child: SizedBox()),
-              data: (ocorrencias) {
-                if (ocorrencias.isEmpty) {
-                  return SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
+              child: minhasState.isLoading && minhas.isEmpty
+                  ? const LinearProgressIndicator()
+                  : andamento.isEmpty
+                      ? EmptyHint(
+                          icone: minhas.isEmpty ? Icons.water_drop_outlined : Icons.verified_outlined,
+                          cor: minhas.isEmpty ? SisanCores.primaria : SisanCores.sucesso,
+                          mensagem: minhas.isEmpty
+                              ? 'Você ainda não registrou nenhuma ocorrência. Viu um problema? Registre em menos de 1 minuto.'
+                              : 'Nenhuma ocorrência sua em aberto. Obrigado por ajudar o município!',
+                        )
+                      : Column(
                           children: [
-                            Icon(
-                              Icons.water_drop_outlined,
-                              size: 56,
-                              color: primary.withValues(alpha: 0.3),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Nenhuma atividade ainda',
-                              style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black38),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Registre uma ocorrência para começar',
-                              style: theme.textTheme.bodySmall?.copyWith(color: Colors.black26),
-                            ),
+                            for (final (i, o) in andamento.take(3).indexed) ...[
+                              if (i > 0) const SizedBox(height: SisanEspaco.sm + 2),
+                              OcorrenciaCard(
+                                ocorrencia: o,
+                                aguardandoSync: o.protocolo == kProtocoloOffline,
+                              ),
+                            ],
                           ],
                         ),
-                      ),
-                    ),
-                  );
-                }
-                final recentes = ocorrencias.take(3).toList();
-                return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList.separated(
-                    itemCount: recentes.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1, indent: 56),
-                    itemBuilder: (_, i) => _AtividadeRecenteTile(ocorrencia: recentes[i]),
-                  ),
-                );
-              },
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            const SectionHeader('Seu município este mês', subtitulo: 'Todas as ocorrências registradas pela população'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
+              child: Column(
+                children: [
+                  DistribuicaoCard(
+                    titulo: 'Situação das ocorrências',
+                    icone: Icons.donut_large_outlined,
+                    segmentos: [
+                      Segmento('Resolvidas', contar(OcorrenciaStatus.resolvida), OcorrenciaStatus.resolvida.cor),
+                      Segmento('Em análise', contar(OcorrenciaStatus.emAnalise), OcorrenciaStatus.emAnalise.cor),
+                      Segmento('Pendentes', contar(OcorrenciaStatus.pendente), OcorrenciaStatus.pendente.cor),
+                    ],
+                  ),
+                  const SizedBox(height: SisanEspaco.md),
+                  RankingCard(
+                    titulo: 'Problemas mais registrados',
+                    icone: Icons.leaderboard_outlined,
+                    itens: [for (final e in rankingTipos.take(4)) (e.key.label, e.value)],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: SisanEspaco.xl),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AtividadeRecenteTile extends StatelessWidget {
-  const _AtividadeRecenteTile({required this.ocorrencia});
-  final Ocorrencia ocorrencia;
-
-  Color _statusCor(OcorrenciaStatus s) => switch (s) {
-        OcorrenciaStatus.pendente => Colors.orange,
-        OcorrenciaStatus.emAnalise => Colors.blue,
-        OcorrenciaStatus.resolvida => Colors.green,
-        OcorrenciaStatus.arquivada => Colors.grey,
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final tipo = ocorrencia.tipo;
-    final statusCor = _statusCor(ocorrencia.status);
-    final diff = DateTime.now().difference(ocorrencia.criadoEm);
-    final tempo = diff.inMinutes < 60
-        ? 'há ${diff.inMinutes} min'
-        : diff.inHours < 24
-            ? 'há ${diff.inHours}h'
-            : DateFormat('dd/MM').format(ocorrencia.criadoEm);
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-      onTap: () => context.push('/ocorrencias/${ocorrencia.id}', extra: ocorrencia),
-      leading: CircleAvatar(
-        backgroundColor: tipo.cor.withValues(alpha: 0.12),
-        radius: 20,
-        child: Icon(tipo.icone, color: tipo.cor, size: 18),
-      ),
-      title: Text(tipo.label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-      subtitle: Text(tempo, style: const TextStyle(fontSize: 12)),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: statusCor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          ocorrencia.status.label,
-          style: TextStyle(fontSize: 11, color: statusCor, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -242,45 +197,64 @@ class _AtividadeRecenteTile extends StatelessWidget {
 class _RegistrarTab extends StatelessWidget {
   const _RegistrarTab();
 
+  static const _passos = [
+    (Icons.category_outlined, 'Escolha o tipo do problema'),
+    (Icons.photo_camera_outlined, 'Tire uma foto (opcional)'),
+    (Icons.my_location, 'Confirme a localização'),
+    (Icons.send_outlined, 'Envie — funciona mesmo sem internet'),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrar Ocorrência')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(color: primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(Icons.water_drop_outlined, size: 44, color: primary),
+      appBar: const SisanAppBar(title: Text('Registrar ocorrência')),
+      body: ListView(
+        padding: const EdgeInsets.all(SisanEspaco.tela),
+        children: [
+          SisanCard(
+            padding: const EdgeInsets.all(SisanEspaco.xl),
+            child: Column(
+              children: [
+                const IconTile(Icons.water_drop_outlined, cor: SisanCores.primaria, tamanho: 72),
+                const SizedBox(height: SisanEspaco.lg),
+                const Text(
+                  'Viu um problema de água ou esgoto?',
+                  textAlign: TextAlign.center,
+                  style: SisanTexto.tituloTela,
+                ),
+                const SizedBox(height: SisanEspaco.sm),
+                const Text(
+                  'Seu registro vai direto para a concessionária, que abre uma ordem de serviço e acompanha até resolver.',
+                  textAlign: TextAlign.center,
+                  style: SisanTexto.secundario,
+                ),
+                const SizedBox(height: SisanEspaco.xl),
+                FilledButton.icon(
+                  onPressed: () => context.push('/ocorrencias/nova'),
+                  icon: const Icon(Icons.add_location_alt_outlined),
+                  label: const Text('Iniciar registro'),
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'Viu um problema de água ou esgoto?',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SectionHeader('Como funciona', padding: EdgeInsets.fromLTRB(0, SisanEspaco.xl, 0, SisanEspaco.sm)),
+          SisanCard(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                for (final (i, (icone, texto)) in _passos.indexed) ...[
+                  if (i > 0) const Divider(indent: 64),
+                  ListTile(
+                    leading: IconTile(icone, cor: SisanCores.primaria, tamanho: 36),
+                    title: Text(texto, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    trailing: Text('${i + 1}', style: SisanTexto.rotulo),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Registre a localização, fotos e uma descrição para que a concessionária possa agir.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            ),
-            const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: () => context.push('/ocorrencias/nova'),
-              icon: const Icon(Icons.add_location_alt_outlined),
-              label: const Text('Iniciar Registro'),
-              style: FilledButton.styleFrom(minimumSize: const Size(200, 48)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

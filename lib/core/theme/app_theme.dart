@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sisan/shared/design/sisan_tokens.dart';
+
 /// Identidade visual "Água Viva" (decisions/008): azul/ciano remetendo a
 /// água limpa. Cores semânticas de urgência (verde/laranja/vermelho) ficam
 /// fora daqui de propósito — nunca substituir por tons de azul, senão perde
@@ -7,10 +9,10 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static const Color _primary = Color(0xFF0288D1);
-  static const Color _secondary = Color(0xFF01579B);
+  static const Color _primary = SisanCores.primaria;
+  static const Color _secondary = SisanCores.primariaEscura;
   static const Color _error = Color(0xFFB71C1C);
-  static const Color _background = Color(0xFFE1F5FE);
+  static const Color _background = SisanCores.fundo;
   static const Color _onPrimary = Colors.white;
 
   static ThemeData light() {
@@ -22,7 +24,7 @@ class AppTheme {
       onPrimary: _onPrimary,
       onSecondary: Colors.white,
       onError: Colors.white,
-      onSurface: Colors.black87,
+      onSurface: SisanCores.texto,
     );
 
     return ThemeData(
@@ -33,10 +35,11 @@ class AppTheme {
         backgroundColor: _secondary,
         foregroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
         titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 19,
+          fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
       ),
@@ -94,9 +97,40 @@ class AppTheme {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       cardTheme: CardThemeData(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: SisanCores.superficie,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SisanRaio.lg),
+          side: const BorderSide(color: SisanCores.borda),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: SisanCores.superficie,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        height: 68,
+        indicatorColor: SisanCores.primariaClara,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (s) => IconThemeData(
+            color: s.contains(WidgetState.selected) ? SisanCores.primariaEscura : SisanCores.textoSecundario,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (s) => TextStyle(
+            fontSize: 12,
+            fontWeight: s.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+            color: s.contains(WidgetState.selected) ? SisanCores.primariaEscura : SisanCores.textoSecundario,
+          ),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(color: SisanCores.borda, thickness: 1, space: 1),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.md)),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
