@@ -14,6 +14,10 @@ class OrdemServicoRepositoryImpl implements IOrdemServicoRepository {
       _ds.listarFila(municipioId);
 
   @override
+  Future<List<OrdemServico>> listarConcluidasPorTecnico(String tecnicoId, DateTime desde) =>
+      _ds.listarConcluidasPorTecnico(tecnicoId, desde);
+
+  @override
   Future<OrdemServico> buscarPorId(String id) => _ds.buscarPorId(id);
 
   @override

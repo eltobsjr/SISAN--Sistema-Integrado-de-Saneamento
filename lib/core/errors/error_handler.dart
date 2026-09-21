@@ -22,6 +22,10 @@ class ErrorHandler {
       }
       return 'Não foi possível concluir. Tente novamente.';
     }
+    // Rate limit do código de ativação (validar_codigo_ativacao_staff).
+    if (error is PostgrestException && error.message.startsWith('Muitas tentativas')) {
+      return error.message;
+    }
     return 'Algo deu errado. Verifique sua conexão e tente novamente.';
   }
 }

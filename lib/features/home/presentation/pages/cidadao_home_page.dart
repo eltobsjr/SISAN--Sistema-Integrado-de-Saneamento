@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -10,88 +9,50 @@ import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/mapa/presentation/pages/mapa_page.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
-import 'package:sisan/shared/widgets/sino_notificacoes_button.dart';
+import 'package:sisan/features/home/presentation/widgets/home_widgets.dart';
 
-/// Adaptado de `HomePage` do SIGAU (view do cidadão): mesmo bottom nav de 4
-/// abas (Início/Mapa/Registrar/Perfil) e header com gradiente + saudação.
-/// `Mapa` é placeholder até a feature `mapa` existir (ver
-/// referencia/reaproveitamento-por-projeto.md).
-class CidadaoHomePage extends ConsumerStatefulWidget {
+/// Adaptado de `HomePage` do SIGAU (view do cidadão): bottom nav de 4 abas
+/// (Início/Mapa/Registrar/Perfil) e header com gradiente + saudação. A casca
+/// e os widgets da home são compartilhados com técnico e gestor
+/// (`home_widgets.dart`).
+class CidadaoHomePage extends ConsumerWidget {
   const CidadaoHomePage({super.key});
 
   @override
-  ConsumerState<CidadaoHomePage> createState() => _CidadaoHomePageState();
-}
-
-class _CidadaoHomePageState extends ConsumerState<CidadaoHomePage> {
-  int _tabIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final usuario = ref.watch(authProvider).valueOrNull;
 
-    final tabs = [
-      _InicioTab(usuario: usuario, onPerfilTap: () => setState(() => _tabIndex = 3)),
-      const MapaPage(),
-      const _RegistrarTab(),
-      const _PerfilTab(),
-    ];
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        final sair = await showDialog<bool>(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Deseja sair do SISAN?'),
-            content: const Text('Tem certeza que deseja fechar o aplicativo?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Sair'),
-              ),
+    return HomeShell(
+      abasBuilder: (irPara) => [
+        HomeAba(
+          label: 'Início',
+          icone: Icons.home_outlined,
+          iconeSelecionado: Icons.home,
+          pagina: _InicioTab(usuario: usuario, onPerfilTap: () => irPara(3)),
+        ),
+        const HomeAba(
+          label: 'Mapa',
+          icone: Icons.map_outlined,
+          iconeSelecionado: Icons.map,
+          pagina: MapaPage(),
+        ),
+        const HomeAba(
+          label: 'Registrar',
+          icone: Icons.add_circle_outline,
+          iconeSelecionado: Icons.add_circle,
+          pagina: _RegistrarTab(),
+        ),
+        const HomeAba(
+          label: 'Perfil',
+          icone: Icons.person_outline,
+          iconeSelecionado: Icons.person,
+          pagina: PerfilTab(
+            atalhos: [
+              PerfilAtalho(icone: Icons.history_outlined, titulo: 'Minhas ocorrências', rota: '/ocorrencias'),
             ],
           ),
-        );
-        if (sair == true && context.mounted) SystemNavigator.pop();
-      },
-      child: Scaffold(
-        body: IndexedStack(index: _tabIndex, children: tabs),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _tabIndex,
-          onDestinationSelected: (i) => setState(() => _tabIndex = i),
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Início',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.map_outlined),
-              selectedIcon: Icon(Icons.map),
-              label: 'Mapa',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.add_circle_outline),
-              selectedIcon: Icon(Icons.add_circle),
-              label: 'Registrar',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Perfil',
-            ),
-          ],
         ),
-      ),
+      ],
     );
   }
 }
@@ -115,7 +76,7 @@ class _InicioTab extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: _Header(usuario: usuario, primary: primary, onAvatarTap: onPerfilTap),
+              child: HomeHeader(usuario: usuario, subtitulo: 'Como podemos ajudar hoje?', onAvatarTap: onPerfilTap),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -134,14 +95,14 @@ class _InicioTab extends ConsumerWidget {
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.25,
                 children: [
-                  _AcaoCard(
+                  AcaoCard(
                     titulo: 'Nova Ocorrência',
                     subtitulo: 'Foto, GPS e descrição do problema',
                     icone: Icons.add_circle_outline,
                     cor: primary,
                     onTap: () => context.push('/ocorrencias/nova'),
                   ),
-                  _AcaoCard(
+                  AcaoCard(
                     titulo: 'Minhas Ocorrências',
                     subtitulo: 'Acompanhe o status dos seus registros',
                     icone: Icons.history_rounded,
@@ -229,70 +190,6 @@ class _InicioTab extends ConsumerWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({this.usuario, required this.primary, this.onAvatarTap});
-  final Usuario? usuario;
-  final Color primary;
-  final VoidCallback? onAvatarTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final hora = DateTime.now().hour;
-    final saudacao = hora < 12 ? 'Bom dia' : (hora < 18 ? 'Boa tarde' : 'Boa noite');
-    final primeiroNome =
-        usuario != null && usuario!.nome.isNotEmpty ? usuario!.nome.split(' ').first : '';
-    final inicial = primeiroNome.isNotEmpty ? primeiroNome[0].toUpperCase() : '?';
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [primary, primary.withValues(alpha: 0.75)],
-        ),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: onAvatarTap,
-            child: CircleAvatar(
-              radius: 26,
-              backgroundColor: Colors.white24,
-              child: Text(
-                inicial,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$saudacao${primeiroNome.isNotEmpty ? ', $primeiroNome!' : '!'}',
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 2),
-                const Text(
-                  'Como podemos ajudar hoje?',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-          const SinoNotificacoesButton(),
-        ],
-      ),
-    );
-  }
-}
-
 class _AtividadeRecenteTile extends StatelessWidget {
   const _AtividadeRecenteTile({required this.ocorrencia});
   final Ocorrencia ocorrencia;
@@ -334,62 +231,6 @@ class _AtividadeRecenteTile extends StatelessWidget {
         child: Text(
           ocorrencia.status.label,
           style: TextStyle(fontSize: 11, color: statusCor, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-}
-
-class _AcaoCard extends StatelessWidget {
-  const _AcaoCard({
-    required this.titulo,
-    required this.subtitulo,
-    required this.icone,
-    required this.cor,
-    this.onTap,
-  });
-
-  final String titulo;
-  final String subtitulo;
-  final IconData icone;
-  final Color cor;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: cor.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: cor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icone, color: cor, size: 22),
-              ),
-              const Spacer(),
-              Text(
-                titulo,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cor.withValues(alpha: 0.9)),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitulo,
-                style: TextStyle(fontSize: 10, color: cor.withValues(alpha: 0.65)),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -440,99 +281,6 @@ class _RegistrarTab extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── ABA PERFIL ───────────────────────────────────────────────────────────
-
-class _PerfilTab extends ConsumerWidget {
-  const _PerfilTab();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final usuario = ref.watch(authProvider).valueOrNull;
-    final inicial = (usuario != null && usuario.nome.isNotEmpty) ? usuario.nome[0].toUpperCase() : '?';
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Meu Perfil')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Center(
-            child: CircleAvatar(
-              radius: 44,
-              backgroundColor: primary.withValues(alpha: 0.15),
-              child: Text(
-                inicial,
-                style: TextStyle(color: primary, fontSize: 32, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              usuario?.nome ?? '—',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Center(
-            child: Text(
-              usuario?.email ?? '—',
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Chip(
-              label: Text(usuario?.perfil.toLabel() ?? 'Cidadão'),
-              backgroundColor: primary.withValues(alpha: 0.1),
-              labelStyle: TextStyle(color: primary),
-            ),
-          ),
-          const SizedBox(height: 32),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.history_outlined),
-            title: const Text('Minhas ocorrências'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/ocorrencias'),
-          ),
-          const Divider(),
-          ListTile(
-            leading: Icon(Icons.logout, color: theme.colorScheme.error),
-            title: Text('Sair', style: TextStyle(color: theme.colorScheme.error)),
-            onTap: () => _confirmarSaida(context, ref),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmarSaida(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Sair do app?'),
-        content: const Text('Você precisará fazer login novamente.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await ref.read(authProvider.notifier).logout();
-              if (context.mounted) context.go('/login');
-            },
-            child: const Text('Sair'),
-          ),
-        ],
       ),
     );
   }
