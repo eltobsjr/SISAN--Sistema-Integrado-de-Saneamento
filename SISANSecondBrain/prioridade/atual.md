@@ -1,8 +1,13 @@
 ---
-atualizado: 2026-09-21
+atualizado: 2026-10-07
 ---
 
 # Prioridades — SISAN
+
+> **07/10/2026: SISAN aprovado entre as 5 finalistas.** Fase final: mentoria
+> e Programe Studio 07-13/10, apresentação gravada **14/10**, resultado
+> **19/10**. Ver `devtrack/2026-10-07 - SISAN aprovado entre as 5 finalistas.md`.
+> Itens abaixo de 21/09 seguem válidos; o foco agora é o pitch.
 
 > Prazo real: submissão do PDF até **23/09/2026**. Documento **enviado em
 > 19/09** (`submissao/`, `devtrack/2026-09-19`). Hoje é **21/09/2026**.
