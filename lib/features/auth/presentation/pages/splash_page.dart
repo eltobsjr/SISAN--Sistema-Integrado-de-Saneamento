@@ -19,12 +19,7 @@ class SplashPage extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'SISAN',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 1.5),
             ),
             SizedBox(height: 32),
             CircularProgressIndicator(color: Colors.white),

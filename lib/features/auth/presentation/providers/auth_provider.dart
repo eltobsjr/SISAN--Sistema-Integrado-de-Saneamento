@@ -23,8 +23,7 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
   Future<Usuario?> build() async {
     ref.listen<AsyncValue<AuthState>>(supabaseAuthStreamProvider, (prev, next) {
       final event = next.valueOrNull?.event;
-      if (event == AuthChangeEvent.signedIn ||
-          event == AuthChangeEvent.signedOut) {
+      if (event == AuthChangeEvent.signedIn || event == AuthChangeEvent.signedOut) {
         ref.invalidateSelf();
       }
     });
@@ -42,11 +41,7 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
   }
 
   Future<Usuario?> _fetchUsuario(String id) async {
-    final data = await supabase
-        .from('usuarios')
-        .select()
-        .eq('id', id)
-        .maybeSingle();
+    final data = await supabase.from('usuarios').select().eq('id', id).maybeSingle();
     if (data == null) return null;
 
     return Usuario(
@@ -68,6 +63,4 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
   }
 }
 
-final authProvider = AsyncNotifierProvider<AuthNotifier, Usuario?>(
-  AuthNotifier.new,
-);
+final authProvider = AsyncNotifierProvider<AuthNotifier, Usuario?>(AuthNotifier.new);

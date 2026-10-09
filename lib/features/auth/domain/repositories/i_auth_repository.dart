@@ -18,10 +18,7 @@ abstract interface class IAuthRepository {
 
   /// Checagem de UX antes do cadastro — a validação que realmente importa
   /// acontece no trigger `handle_new_user`, no servidor.
-  Future<bool> validarCodigoAtivacaoStaff({
-    required String municipioId,
-    required String codigo,
-  });
+  Future<bool> validarCodigoAtivacaoStaff({required String municipioId, required String codigo});
 
   Future<void> logout();
 }

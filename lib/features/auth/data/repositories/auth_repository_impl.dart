@@ -30,10 +30,7 @@ class AuthRepositoryImpl implements IAuthRepository {
   }
 
   @override
-  Future<bool> validarCodigoAtivacaoStaff({
-    required String municipioId,
-    required String codigo,
-  }) async {
+  Future<bool> validarCodigoAtivacaoStaff({required String municipioId, required String codigo}) async {
     final result = await supabase.rpc(
       'validar_codigo_ativacao_staff',
       params: {'p_municipio_id': municipioId, 'p_codigo': codigo},

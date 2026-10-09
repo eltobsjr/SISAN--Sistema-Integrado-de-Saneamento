@@ -15,6 +15,5 @@ sealed class Usuario with _$Usuario {
     required String municipioId,
   }) = _Usuario;
 
-  factory Usuario.fromJson(Map<String, dynamic> json) =>
-      _$UsuarioFromJson(json);
+  factory Usuario.fromJson(Map<String, dynamic> json) => _$UsuarioFromJson(json);
 }
