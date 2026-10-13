@@ -17,6 +17,7 @@ import 'package:sisan/features/dashboard/presentation/widgets/insight_card.dart'
 import 'package:sisan/features/dashboard/presentation/widgets/tendencia_chart.dart';
 import 'package:sisan/features/dashboard/services/pdf_relatorio.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
+import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_card.dart';
 import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
@@ -30,8 +31,18 @@ class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
   static const _meses = [
-    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+    'janeiro',
+    'fevereiro',
+    'março',
+    'abril',
+    'maio',
+    'junho',
+    'julho',
+    'agosto',
+    'setembro',
+    'outubro',
+    'novembro',
+    'dezembro',
   ];
 
   @override
@@ -78,24 +89,27 @@ class DashboardPage extends ConsumerWidget {
           const InsightCard(),
           if (stats.alertasAtivos > 0) ...[
             AvisoBanner(
-              mensagem: '${stats.alertasAtivos} alerta${stats.alertasAtivos == 1 ? '' : 's'} sanitário${stats.alertasAtivos == 1 ? '' : 's'} ativo${stats.alertasAtivos == 1 ? '' : 's'} no município',
+              mensagem:
+                  '${stats.alertasAtivos} alerta${stats.alertasAtivos == 1 ? '' : 's'} sanitário${stats.alertasAtivos == 1 ? '' : 's'} ativo${stats.alertasAtivos == 1 ? '' : 's'} no município',
               cor: SisanCores.perigo,
               icone: Icons.health_and_safety_outlined,
               onTap: () => context.push('/alertas-sanitarios'),
             ),
             const SizedBox(height: SisanEspaco.lg),
           ],
+          ..._prioridades(stats),
           const SectionHeader('Indicadores do mês', padding: EdgeInsets.only(bottom: SisanEspaco.sm)),
           _buildKpiGrid(stats),
           const SizedBox(height: SisanEspaco.md),
           DistribuicaoCard(
             titulo: 'Situação das ocorrências do mês',
             icone: Icons.donut_large_outlined,
-            segmentos: [
-              for (final s in OcorrenciaStatus.values) Segmento(s.label, status(s), s.cor),
-            ],
+            segmentos: [for (final s in OcorrenciaStatus.values) Segmento(s.label, status(s), s.cor)],
           ),
-          const SectionHeader('Evolução', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+          const SectionHeader(
+            'Evolução',
+            padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
+          ),
           TendenciaChart(serie: stats.serie),
           const SizedBox(height: SisanEspaco.md),
           HeatmapTipoGrid(porTipo: stats.porTipo),
@@ -104,7 +118,11 @@ class DashboardPage extends ConsumerWidget {
             padding: const EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
           ),
           if (stats.ultimasOcorrencias.isEmpty)
-            const EmptyHint(icone: Icons.inbox_outlined, mensagem: 'Nenhuma ocorrência registrada ainda.', cor: SisanCores.neutro)
+            const EmptyHint(
+              icone: Icons.inbox_outlined,
+              mensagem: 'Nenhuma ocorrência registrada ainda.',
+              cor: SisanCores.neutro,
+            )
           else
             for (final (i, o) in stats.ultimasOcorrencias.indexed) ...[
               if (i > 0) const SizedBox(height: SisanEspaco.sm),
@@ -114,6 +132,33 @@ class DashboardPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// "O que atacar hoje": ocorrências abertas com urgência, risco à saúde primeiro.
+  List<Widget> _prioridades(DashboardStats stats) {
+    final abertas =
+        stats.ultimasOcorrencias
+            .where(
+              (o) =>
+                  o.urgencia != OcorrenciaUrgencia.normal &&
+                  o.status != OcorrenciaStatus.resolvida &&
+                  o.status != OcorrenciaStatus.arquivada,
+            )
+            .toList()
+          ..sort((a, b) => b.urgencia.index.compareTo(a.urgencia.index));
+    if (abertas.isEmpty) return const [];
+    return [
+      SectionHeader(
+        'Prioridades de hoje',
+        subtitulo: 'Abertas com urgência, risco à saúde primeiro',
+        padding: const EdgeInsets.only(bottom: SisanEspaco.sm),
+      ),
+      for (final (i, o) in abertas.take(3).indexed) ...[
+        if (i > 0) const SizedBox(height: SisanEspaco.sm),
+        OcorrenciaCard(ocorrencia: o, compacto: true),
+      ],
+      const SizedBox(height: SisanEspaco.lg),
+    ];
   }
 
   Widget _buildKpiGrid(DashboardStats stats) {
@@ -136,7 +181,7 @@ class DashboardPage extends ConsumerWidget {
         titulo: 'Ocorrências no Mês',
         valor: atual.ocorrencias.toString(),
         icone: Icons.water_drop_outlined,
-        cor: const Color(0xFF0288D1),
+        cor: SisanCores.primaria,
         rodape: comparacao(atual.ocorrencias, anterior.ocorrencias),
         corRodape: comparacaoCor(atual.ocorrencias, anterior.ocorrencias),
       ),
@@ -144,7 +189,7 @@ class DashboardPage extends ConsumerWidget {
         titulo: 'Resolvidas no Mês',
         valor: atual.resolvidas.toString(),
         icone: Icons.check_circle_outline,
-        cor: const Color(0xFF2E7D32),
+        cor: SisanCores.sucesso,
         rodape: comparacao(atual.resolvidas, anterior.resolvidas),
         corRodape: comparacaoCor(atual.resolvidas, anterior.resolvidas),
       ),
@@ -152,14 +197,14 @@ class DashboardPage extends ConsumerWidget {
         titulo: 'Tempo médio de resolução',
         valor: '${atual.tempoMedioHoras.toStringAsFixed(1)}h',
         icone: Icons.timer_outlined,
-        cor: const Color(0xFFEF6C00),
+        cor: SisanCores.atencao,
         rodape: 'da criação à conclusão da OS',
       ),
       KpiTile(
         titulo: 'Alertas Sanitários Ativos',
         valor: stats.alertasAtivos.toString(),
         icone: Icons.health_and_safety_outlined,
-        cor: const Color(0xFFC62828),
+        cor: SisanCores.perigo,
       ),
     ];
 
@@ -216,16 +261,15 @@ class DashboardPage extends ConsumerWidget {
 
       if (context.mounted) ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      await Share.shareXFiles(
-        [XFile(path, mimeType: 'application/pdf')],
-        subject: 'Relatório SISAN — ${DateFormat('dd/MM/yyyy').format(now)}',
-      );
+      await Share.shareXFiles([
+        XFile(path, mimeType: 'application/pdf'),
+      ], subject: 'Relatório SISAN — ${DateFormat('dd/MM/yyyy').format(now)}');
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Não foi possível gerar o relatório. Tente novamente.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Não foi possível gerar o relatório. Tente novamente.')));
       }
     }
   }

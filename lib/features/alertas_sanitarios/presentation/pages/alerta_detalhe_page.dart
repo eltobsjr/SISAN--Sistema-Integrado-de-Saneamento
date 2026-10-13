@@ -37,18 +37,21 @@ class AlertaDetalhePage extends ConsumerWidget {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: alerta.ativo ? tipo.cor : Colors.grey,
+            backgroundColor: alerta.ativo ? tipo.cor : SisanCores.neutro,
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(tipo.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              title: Text(
+                tipo.label,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      alerta.ativo ? tipo.cor : Colors.grey,
-                      (alerta.ativo ? tipo.cor : Colors.grey).withValues(alpha: 0.7),
+                      alerta.ativo ? tipo.cor : SisanCores.neutro,
+                      (alerta.ativo ? tipo.cor : SisanCores.neutro).withValues(alpha: 0.7),
                     ],
                   ),
                 ),
@@ -67,9 +70,11 @@ class AlertaDetalhePage extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: alerta.ativo ? Colors.red.withValues(alpha: 0.12) : Colors.grey.withValues(alpha: 0.12),
+                          color: alerta.ativo
+                              ? SisanCores.perigo.withValues(alpha: 0.12)
+                              : SisanCores.neutro.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: alerta.ativo ? Colors.red : Colors.grey),
+                          border: Border.all(color: alerta.ativo ? SisanCores.perigo : SisanCores.neutro),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -77,7 +82,7 @@ class AlertaDetalhePage extends ConsumerWidget {
                             Icon(
                               alerta.ativo ? Icons.warning_amber_rounded : Icons.check_circle_outline,
                               size: 14,
-                              color: alerta.ativo ? Colors.red : Colors.grey,
+                              color: alerta.ativo ? SisanCores.perigo : SisanCores.neutro,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -85,7 +90,7 @@ class AlertaDetalhePage extends ConsumerWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
-                                color: alerta.ativo ? Colors.red : Colors.grey,
+                                color: alerta.ativo ? SisanCores.perigo : SisanCores.neutro,
                               ),
                             ),
                           ],
@@ -97,7 +102,7 @@ class AlertaDetalhePage extends ConsumerWidget {
                   _InfoRow(icone: tipo.icone, cor: tipo.cor, titulo: 'Tipo', valor: tipo.label),
                   _InfoRow(
                     icone: Icons.radar_outlined,
-                    cor: Colors.blueGrey,
+                    cor: SisanCores.neutro,
                     titulo: 'Raio de risco',
                     valor: alerta.raioMetros >= 1000
                         ? '${(alerta.raioMetros / 1000).toStringAsFixed(1)} km ao redor do foco'
@@ -105,23 +110,29 @@ class AlertaDetalhePage extends ConsumerWidget {
                   ),
                   _InfoRow(
                     icone: Icons.calendar_today_outlined,
-                    cor: Colors.blueGrey,
+                    cor: SisanCores.neutro,
                     titulo: 'Criado em',
                     valor: DateFormat('dd/MM/yyyy às HH:mm').format(alerta.criadoEm),
                   ),
                   if (alerta.encerradoEm != null)
                     _InfoRow(
                       icone: Icons.event_available_outlined,
-                      cor: Colors.blueGrey,
+                      cor: SisanCores.neutro,
                       titulo: 'Encerrado em',
                       valor: DateFormat('dd/MM/yyyy às HH:mm').format(alerta.encerradoEm!),
                     ),
                   const SizedBox(height: 20),
-                  Text('Descrição', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Descrição',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Text(alerta.descricao, style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87)),
                   const SizedBox(height: 20),
-                  Text('Localização', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Localização',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -168,11 +179,11 @@ class AlertaDetalhePage extends ConsumerWidget {
                     const SizedBox(height: 32),
                     OutlinedButton.icon(
                       onPressed: () => _confirmarEncerrar(context, ref),
-                      icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-                      label: const Text('Encerrar Alerta', style: TextStyle(color: Colors.red)),
+                      icon: const Icon(Icons.cancel_outlined, color: SisanCores.perigo),
+                      label: const Text('Encerrar Alerta', style: TextStyle(color: SisanCores.perigo)),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),
-                        side: const BorderSide(color: Colors.red),
+                        side: const BorderSide(color: SisanCores.perigo),
                       ),
                     ),
                   ],
@@ -195,21 +206,21 @@ class AlertaDetalhePage extends ConsumerWidget {
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: SisanCores.perigo),
             onPressed: () async {
               Navigator.of(context).pop();
               try {
                 await ref.read(alertasSanitariosProvider.notifier).encerrar(id);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Alerta encerrado'), backgroundColor: Colors.green),
+                    const SnackBar(content: Text('Alerta encerrado'), backgroundColor: SisanCores.sucesso),
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: Colors.red),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: SisanCores.perigo));
                 }
               }
             },

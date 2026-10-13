@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart' show kProtocoloOffline;
@@ -28,13 +29,13 @@ class OcorrenciaSucessoScreen extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: (offline ? Colors.orange : Colors.green).withValues(alpha: 0.12),
+                    color: (offline ? SisanCores.atencao : SisanCores.sucesso).withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     offline ? Icons.cloud_off_rounded : Icons.water_drop_rounded,
                     size: 44,
-                    color: offline ? Colors.orange : Colors.green,
+                    color: offline ? SisanCores.atencao : SisanCores.sucesso,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -55,23 +56,20 @@ class OcorrenciaSucessoScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: SisanCores.sucessoClara,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.shade200),
+                      border: Border.all(color: SisanCores.sucesso.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       children: [
-                        Text(
-                          'Número de protocolo',
-                          style: TextStyle(fontSize: 12, color: Colors.green.shade700),
-                        ),
+                        Text('Número de protocolo', style: TextStyle(fontSize: 12, color: SisanCores.sucesso)),
                         const SizedBox(height: 6),
                         Text(
                           protocolo,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green.shade800,
+                            color: SisanCores.sucesso,
                             letterSpacing: 1.2,
                           ),
                         ),
@@ -85,7 +83,7 @@ class OcorrenciaSucessoScreen extends StatelessWidget {
                           },
                           icon: const Icon(Icons.copy_rounded, size: 16),
                           label: const Text('Copiar protocolo'),
-                          style: TextButton.styleFrom(foregroundColor: Colors.green.shade700),
+                          style: TextButton.styleFrom(foregroundColor: SisanCores.sucesso),
                         ),
                       ],
                     ),

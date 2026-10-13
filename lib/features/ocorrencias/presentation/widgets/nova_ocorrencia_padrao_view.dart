@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,9 @@ class _NovaOcorrenciaPadraoViewState extends ConsumerState<NovaOcorrenciaPadraoV
     if (!_formKey.currentState!.validate()) return;
     setState(() => _enviando = true);
     try {
-      final ocorrencia = await ref.read(ocorrenciasProvider.notifier).criar(
+      final ocorrencia = await ref
+          .read(ocorrenciasProvider.notifier)
+          .criar(
             tipo: _tipo,
             descricao: _relatoCtrl.text.trim(),
             endereco: _enderecoCtrl.text.trim().isNotEmpty ? _enderecoCtrl.text.trim() : null,
@@ -164,9 +167,7 @@ class _NovaOcorrenciaPadraoViewState extends ConsumerState<NovaOcorrenciaPadraoV
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  ..._fotos.asMap().entries.map(
-                        (e) => _FotoThumb(xfile: e.value, onRemove: () => _removerFoto(e.key)),
-                      ),
+                  ..._fotos.asMap().entries.map((e) => _FotoThumb(xfile: e.value, onRemove: () => _removerFoto(e.key))),
                   if (_fotos.length < 5) _BotaoAdicionarFoto(onTap: _adicionarFotos),
                 ],
               ),
@@ -174,11 +175,7 @@ class _NovaOcorrenciaPadraoViewState extends ConsumerState<NovaOcorrenciaPadraoV
             const SizedBox(height: 20),
           ],
 
-          PrimaryPillButton(
-            label: _enviando ? 'Enviando...' : 'Enviar Ocorrência',
-            loading: _enviando,
-            onTap: _enviar,
-          ),
+          PrimaryPillButton(label: _enviando ? 'Enviando...' : 'Enviar Ocorrência', loading: _enviando, onTap: _enviar),
         ],
       ),
     );
@@ -197,7 +194,11 @@ class _SecaoTitulo extends StatelessWidget {
       child: Row(
         children: [
           Text(titulo, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-          if (obrigatorio) const Text(' *', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          if (obrigatorio)
+            const Text(
+              ' *',
+              style: TextStyle(color: SisanCores.perigo, fontWeight: FontWeight.bold),
+            ),
         ],
       ),
     );

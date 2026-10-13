@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/features/notificacoes/presentation/providers/notificacoes_provider.dart';
 
@@ -30,7 +31,7 @@ class SinoNotificacoesButton extends ConsumerWidget {
             child: Container(
               width: 16,
               height: 16,
-              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: SisanCores.perigo, shape: BoxShape.circle),
               alignment: Alignment.center,
               child: Text(
                 count > 9 ? '9+' : '$count',

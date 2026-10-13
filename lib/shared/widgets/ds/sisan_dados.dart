@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sisan/shared/design/sisan_tokens.dart';
@@ -30,7 +31,8 @@ class KpiTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SisanCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(SisanEspaco.md + 2),
+      corDestaque: cor,
+      padding: const EdgeInsets.fromLTRB(SisanEspaco.lg, SisanEspaco.md + 2, SisanEspaco.md + 2, SisanEspaco.md + 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -48,10 +50,10 @@ class KpiTile extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               valor,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: SisanCores.texto, height: 1),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: SisanCores.texto, height: 1),
             ),
           ),
-          const SizedBox(height: SisanEspaco.xs),
+          const SizedBox(height: SisanEspaco.xs + 2),
           Text(
             titulo,
             maxLines: 2,
@@ -169,8 +171,8 @@ class Segmento {
   final Color cor;
 }
 
-/// Barra empilhada + legenda com contagem e percentual — mostra "como está
-/// dividido" (status da fila, urgência, tipos) numa leitura só.
+/// Rosca com o total no centro + legenda com contagem e percentual — mostra
+/// "como está dividido" (status da fila, urgência, tipos) numa leitura só.
 class DistribuicaoCard extends StatelessWidget {
   const DistribuicaoCard({
     super.key,
@@ -203,57 +205,106 @@ class DistribuicaoCard extends StatelessWidget {
                 const SizedBox(width: SisanEspaco.sm),
               ],
               Expanded(child: Text(titulo, style: SisanTexto.tituloCard)),
-              Text('$total', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: SisanCores.texto)),
             ],
           ),
-          if (subtitulo != null) ...[
-            const SizedBox(height: 2),
-            Text(subtitulo!, style: SisanTexto.legenda),
-          ],
-          const SizedBox(height: SisanEspaco.md),
+          if (subtitulo != null) ...[const SizedBox(height: 2), Text(subtitulo!, style: SisanTexto.legenda)],
+          const SizedBox(height: SisanEspaco.lg),
           if (total == 0)
             Text(vazio, style: SisanTexto.secundario)
-          else ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(SisanRaio.pill),
-              child: SizedBox(
-                height: 12,
-                child: Row(
-                  children: [
-                    for (var i = 0; i < visiveis.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 2),
-                      Expanded(flex: visiveis[i].valor, child: Container(color: visiveis[i].cor)),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: SisanEspaco.md),
-            Wrap(
-              spacing: SisanEspaco.lg,
-              runSpacing: SisanEspaco.sm,
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                for (final s in segmentos)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                SizedBox(
+                  width: 128,
+                  height: 128,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(color: s.cor, borderRadius: BorderRadius.circular(3)),
+                      PieChart(
+                        PieChartData(
+                          sectionsSpace: 3,
+                          centerSpaceRadius: 42,
+                          startDegreeOffset: -90,
+                          pieTouchData: PieTouchData(enabled: false),
+                          sections: [
+                            for (final s in visiveis)
+                              PieChartSectionData(
+                                value: s.valor.toDouble(),
+                                color: s.cor,
+                                radius: 18,
+                                showTitle: false,
+                              ),
+                          ],
+                        ),
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOutCubic,
                       ),
-                      const SizedBox(width: 6),
-                      Text(s.rotulo, style: const TextStyle(fontSize: 12, color: SisanCores.textoSecundario)),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${s.valor} · ${(s.valor * 100 / total).round()}%',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: SisanCores.texto),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$total',
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: SisanCores.texto,
+                              height: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text('total', style: SisanTexto.legenda),
+                        ],
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: SisanEspaco.lg),
+                Expanded(
+                  child: Column(
+                    children: [
+                      for (final (i, s) in segmentos.indexed) ...[
+                        if (i > 0) const SizedBox(height: SisanEspaco.sm),
+                        Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(color: s.cor, borderRadius: BorderRadius.circular(3)),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                s.rotulo,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12.5, color: SisanCores.textoSecundario),
+                              ),
+                            ),
+                            Text(
+                              '${s.valor}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: SisanCores.texto,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 38,
+                              child: Text(
+                                '${(s.valor * 100 / total).round()}%',
+                                textAlign: TextAlign.right,
+                                style: SisanTexto.legenda,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
-          ],
         ],
       ),
     );
@@ -262,7 +313,14 @@ class DistribuicaoCard extends StatelessWidget {
 
 /// Ranking horizontal (ex.: bairros com mais ocorrências abertas).
 class RankingCard extends StatelessWidget {
-  const RankingCard({super.key, required this.titulo, required this.itens, this.icone, this.subtitulo, this.cor = SisanCores.primaria});
+  const RankingCard({
+    super.key,
+    required this.titulo,
+    required this.itens,
+    this.icone,
+    this.subtitulo,
+    this.cor = SisanCores.primaria,
+  });
 
   final String titulo;
   final String? subtitulo;
@@ -286,10 +344,7 @@ class RankingCard extends StatelessWidget {
               Expanded(child: Text(titulo, style: SisanTexto.tituloCard)),
             ],
           ),
-          if (subtitulo != null) ...[
-            const SizedBox(height: 2),
-            Text(subtitulo!, style: SisanTexto.legenda),
-          ],
+          if (subtitulo != null) ...[const SizedBox(height: 2), Text(subtitulo!, style: SisanTexto.legenda)],
           const SizedBox(height: SisanEspaco.md),
           if (itens.isEmpty) const Text('Sem dados no período.', style: SisanTexto.secundario),
           for (final (i, (rotulo, valor)) in itens.indexed) ...[
@@ -298,7 +353,10 @@ class RankingCard extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 18,
-                  child: Text('${i + 1}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: SisanCores.textoTerciario)),
+                  child: Text(
+                    '${i + 1}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: SisanCores.textoTerciario),
+                  ),
                 ),
                 Expanded(
                   child: Column(
@@ -307,9 +365,17 @@ class RankingCard extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: Text(rotulo, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: SisanCores.texto)),
+                            child: Text(
+                              rotulo,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13, color: SisanCores.texto),
+                            ),
                           ),
-                          Text('$valor', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SisanCores.texto)),
+                          Text(
+                            '$valor',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SisanCores.texto),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -336,7 +402,13 @@ class RankingCard extends StatelessWidget {
 
 /// Barras verticais simples com rótulo embaixo (séries curtas: 7 dias).
 class MiniBarChart extends StatelessWidget {
-  const MiniBarChart({super.key, required this.valores, required this.rotulos, this.cor = SisanCores.primaria, this.altura = 96});
+  const MiniBarChart({
+    super.key,
+    required this.valores,
+    required this.rotulos,
+    this.cor = SisanCores.primaria,
+    this.altura = 96,
+  });
 
   final List<int> valores;
   final List<String> rotulos;
@@ -357,7 +429,14 @@ class MiniBarChart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (valores[i] > 0)
-                    Text('${valores[i]}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: SisanCores.textoSecundario)),
+                    Text(
+                      '${valores[i]}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: SisanCores.textoSecundario,
+                      ),
+                    ),
                   const SizedBox(height: 2),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 400),
@@ -454,9 +533,17 @@ class ActionTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: SisanEspaco.md),
-          Text(titulo, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: SisanCores.texto)),
+          Text(
+            titulo,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: SisanCores.texto),
+          ),
           const SizedBox(height: 2),
-          Text(subtitulo, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: SisanCores.textoSecundario)),
+          Text(
+            subtitulo,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, color: SisanCores.textoSecundario),
+          ),
         ],
       ),
     );

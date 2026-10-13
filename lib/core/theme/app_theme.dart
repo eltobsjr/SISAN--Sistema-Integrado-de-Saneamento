@@ -11,7 +11,7 @@ class AppTheme {
 
   static const Color _primary = SisanCores.primaria;
   static const Color _secondary = SisanCores.primariaEscura;
-  static const Color _error = Color(0xFFB71C1C);
+  static const Color _error = SisanCores.perigo;
   static const Color _background = SisanCores.fundo;
   static const Color _onPrimary = Colors.white;
 
@@ -29,6 +29,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Inter',
       colorScheme: colorScheme,
       scaffoldBackgroundColor: _background,
       appBarTheme: const AppBarTheme(
@@ -37,11 +38,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontSize: 19,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
+        titleTextStyle: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.white),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: _secondary,
@@ -51,50 +48,43 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.md)),
+          minimumSize: const Size(64, 48),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: _primary,
           side: const BorderSide(color: _primary),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.md)),
+          minimumSize: const Size(64, 48),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: _primary),
-      ),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: _primary)),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+          borderRadius: BorderRadius.circular(SisanRaio.md),
+          borderSide: const BorderSide(color: SisanCores.bordaForte),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+          borderRadius: BorderRadius.circular(SisanRaio.md),
+          borderSide: const BorderSide(color: SisanCores.bordaForte),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(SisanRaio.md),
           borderSide: const BorderSide(color: _primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(SisanRaio.md),
           borderSide: const BorderSide(color: _error),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       cardTheme: CardThemeData(
         color: SisanCores.superficie,
@@ -128,9 +118,25 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.md)),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          minimumSize: const Size(64, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: SisanCores.texto,
+        contentTextStyle: const TextStyle(
+          fontFamily: 'Inter',
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.md)),
+      ),
+      chipTheme: ChipThemeData(
+        side: const BorderSide(color: SisanCores.borda),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SisanRaio.pill)),
       ),
     );
   }

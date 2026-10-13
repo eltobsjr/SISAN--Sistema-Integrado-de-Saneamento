@@ -64,6 +64,10 @@ class OcorrenciaCard extends StatelessWidget {
                   : StatusBadge(oc.status.label, cor: oc.status.cor, icone: oc.status.icone),
             ],
           ),
+          if (oc.urgencia != OcorrenciaUrgencia.normal && !aguardandoSync) ...[
+            const SizedBox(height: SisanEspaco.sm),
+            StatusBadge(oc.urgencia.label, cor: oc.urgencia.cor, icone: oc.urgencia.icone),
+          ],
           if (!compacto && !aguardandoSync) ...[
             const SizedBox(height: SisanEspaco.md),
             EtapasProgresso(total: 3, atual: etapa, cor: oc.status.cor),

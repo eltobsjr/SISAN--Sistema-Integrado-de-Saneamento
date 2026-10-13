@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/shared/providers/municipio_center_provider.dart';
 
@@ -16,7 +17,7 @@ class MapLocationPicker extends ConsumerStatefulWidget {
     required this.onPontoSelecionado,
     this.pontoInicial,
     this.altura = 220,
-    this.cor = const Color(0xFF0288D1),
+    this.cor = SisanCores.primaria,
   });
 
   final ValueChanged<LatLng> onPontoSelecionado;
@@ -105,11 +106,7 @@ class _MapLocationPickerState extends ConsumerState<MapLocationPicker> {
           children: [
             FlutterMap(
               mapController: _mapCtrl,
-              options: MapOptions(
-                initialCenter: centro,
-                initialZoom: 15,
-                onTap: (_, ponto) => _selecionar(ponto),
-              ),
+              options: MapOptions(initialCenter: centro, initialZoom: 15, onTap: (_, ponto) => _selecionar(ponto)),
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',

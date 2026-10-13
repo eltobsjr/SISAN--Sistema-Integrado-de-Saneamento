@@ -101,3 +101,8 @@ flutter:
   assets:
     - .env
     - assets/images/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf

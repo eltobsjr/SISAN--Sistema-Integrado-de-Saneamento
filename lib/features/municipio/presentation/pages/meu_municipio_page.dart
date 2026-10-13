@@ -35,7 +35,7 @@ class _Conteudo extends ConsumerWidget {
   const _Conteudo({required this.municipio});
   final MeuMunicipio municipio;
 
-  static const _azul = Color(0xFF0288D1);
+  static const _azul = SisanCores.primaria;
 
   String get _concessionaria {
     try {
@@ -79,11 +79,21 @@ class _Conteudo extends ConsumerWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _Contagem(icone: Icons.admin_panel_settings_outlined, valor: municipio.gestores, rotulo: 'Gestores')),
+            Expanded(
+              child: _Contagem(
+                icone: Icons.admin_panel_settings_outlined,
+                valor: municipio.gestores,
+                rotulo: 'Gestores',
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _Contagem(icone: Icons.engineering_outlined, valor: municipio.tecnicos, rotulo: 'Técnicos')),
+            Expanded(
+              child: _Contagem(icone: Icons.engineering_outlined, valor: municipio.tecnicos, rotulo: 'Técnicos'),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _Contagem(icone: Icons.people_outline, valor: municipio.cidadaos, rotulo: 'Cidadãos')),
+            Expanded(
+              child: _Contagem(icone: Icons.people_outline, valor: municipio.cidadaos, rotulo: 'Cidadãos'),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -104,7 +114,7 @@ class _Conteudo extends ConsumerWidget {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(color: const Color(0xFFE3F2FD), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: SisanCores.primariaClara, borderRadius: BorderRadius.circular(10)),
                   child: Text(
                     codigo ?? '—',
                     textAlign: TextAlign.center,
@@ -183,8 +193,9 @@ class _Conteudo extends ConsumerWidget {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Não foi possível gerar o código. Tente novamente.')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Não foi possível gerar o código. Tente novamente.')));
       }
     }
   }
@@ -204,7 +215,7 @@ class _Contagem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Column(
           children: [
-            Icon(icone, color: const Color(0xFF0288D1)),
+            Icon(icone, color: SisanCores.primaria),
             const SizedBox(height: 6),
             Text('$valor', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             Text(rotulo, style: const TextStyle(fontSize: 12, color: Colors.black54)),

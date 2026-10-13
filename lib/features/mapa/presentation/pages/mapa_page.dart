@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/core/constants/ocorrencia_tipo.dart';
+import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/features/mapa/presentation/providers/mapa_provider.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/shared/providers/municipio_center_provider.dart';
@@ -69,9 +71,7 @@ class _MapaPageState extends ConsumerState<MapaPage> {
       });
     }
 
-    final comCoordenadas = state.ocorrenciasFiltradas
-        .where((o) => o.latitude != null && o.longitude != null)
-        .toList();
+    final comCoordenadas = state.ocorrenciasFiltradas.where((o) => o.latitude != null && o.longitude != null).toList();
 
     return Scaffold(
       body: Stack(
@@ -192,18 +192,41 @@ class _MapaPageState extends ConsumerState<MapaPage> {
     final cor = ocorrencia.urgencia.cor;
     return Marker(
       point: LatLng(ocorrencia.latitude!, ocorrencia.longitude!),
-      width: 36,
-      height: 36,
+      width: 40,
+      height: 40,
       child: GestureDetector(
         onTap: () => _mostrarDetalhes(context, ocorrencia),
-        child: Container(
-          decoration: BoxDecoration(
-            color: cor,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
-          ),
-          child: Icon(ocorrencia.tipo.icone, color: Colors.white, size: 18),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: cor,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+              ),
+              child: Icon(ocorrencia.tipo.icone, color: Colors.white, size: 18),
+            ),
+            // Selo de urgência: a leitura não depende só da cor do marcador.
+            if (ocorrencia.urgencia != OcorrenciaUrgencia.normal)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: cor, width: 1.5),
+                  ),
+                  child: Icon(ocorrencia.urgencia.icone, size: 11, color: cor),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -361,7 +384,10 @@ class _ListaOcorrenciasSheet extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                Text('${ocorrencias.length}', style: const TextStyle(color: Colors.black45, fontWeight: FontWeight.w600)),
+                Text(
+                  '${ocorrencias.length}',
+                  style: const TextStyle(color: SisanCores.textoSecundario, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),
@@ -369,7 +395,10 @@ class _ListaOcorrenciasSheet extends StatelessWidget {
           Expanded(
             child: ocorrencias.isEmpty
                 ? const Center(
-                    child: Text('Nenhuma ocorrência no mapa no momento.', style: TextStyle(color: Colors.black45)),
+                    child: Text(
+                      'Nenhuma ocorrência no mapa no momento.',
+                      style: TextStyle(color: SisanCores.textoSecundario),
+                    ),
                   )
                 : ListView.separated(
                     controller: controller,
@@ -387,7 +416,7 @@ class _ListaOcorrenciasSheet extends StatelessWidget {
                         ),
                         title: Text(o.tipo.label, style: const TextStyle(fontWeight: FontWeight.w600)),
                         subtitle: Text(o.protocolo ?? '', style: const TextStyle(fontSize: 12)),
-                        trailing: const Icon(Icons.chevron_right, color: Colors.black38),
+                        trailing: const Icon(Icons.chevron_right, color: SisanCores.textoTerciario),
                         onTap: () => onSelecionar(o),
                       );
                     },
@@ -406,11 +435,11 @@ class _DetalhesSheet extends StatelessWidget {
   final Ocorrencia ocorrencia;
 
   Color _statusCor(OcorrenciaStatus s) => switch (s) {
-        OcorrenciaStatus.pendente => Colors.orange,
-        OcorrenciaStatus.emAnalise => Colors.blue,
-        OcorrenciaStatus.resolvida => Colors.green,
-        OcorrenciaStatus.arquivada => Colors.grey,
-      };
+    OcorrenciaStatus.pendente => SisanCores.atencao,
+    OcorrenciaStatus.emAnalise => SisanCores.info,
+    OcorrenciaStatus.resolvida => SisanCores.sucesso,
+    OcorrenciaStatus.arquivada => SisanCores.neutro,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -446,8 +475,8 @@ class _DetalhesSheet extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => Container(
                     height: 160,
-                    color: Colors.grey.shade100,
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                    color: SisanCores.fundo,
+                    child: const Icon(Icons.broken_image, color: SisanCores.neutro),
                   ),
                 ),
               ),
@@ -485,9 +514,14 @@ class _DetalhesSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.location_on_outlined, size: 14, color: Colors.black38),
+                const Icon(Icons.location_on_outlined, size: 14, color: SisanCores.textoTerciario),
                 const SizedBox(width: 4),
-                Expanded(child: Text(ocorrencia.endereco!, style: const TextStyle(fontSize: 12, color: Colors.black45))),
+                Expanded(
+                  child: Text(
+                    ocorrencia.endereco!,
+                    style: const TextStyle(fontSize: 12, color: SisanCores.textoSecundario),
+                  ),
+                ),
               ],
             ),
           ],
@@ -496,19 +530,19 @@ class _DetalhesSheet extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.access_time, size: 14, color: Colors.black38),
+              const Icon(Icons.access_time, size: 14, color: SisanCores.textoTerciario),
               const SizedBox(width: 4),
               Text(
                 DateFormat('dd/MM/yyyy HH:mm').format(ocorrencia.criadoEm),
-                style: theme.textTheme.labelSmall?.copyWith(color: Colors.black38),
+                style: theme.textTheme.labelSmall?.copyWith(color: SisanCores.textoTerciario),
               ),
               if (ocorrencia.protocolo != null) ...[
                 const SizedBox(width: 12),
-                const Icon(Icons.tag, size: 14, color: Colors.black38),
+                const Icon(Icons.tag, size: 14, color: SisanCores.textoTerciario),
                 const SizedBox(width: 4),
                 Text(
                   ocorrencia.protocolo!,
-                  style: theme.textTheme.labelSmall?.copyWith(color: Colors.black38, letterSpacing: 0.8),
+                  style: theme.textTheme.labelSmall?.copyWith(color: SisanCores.textoTerciario, letterSpacing: 0.8),
                 ),
               ],
             ],

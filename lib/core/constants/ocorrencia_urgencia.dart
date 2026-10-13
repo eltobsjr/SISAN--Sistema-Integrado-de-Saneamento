@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sisan/shared/design/sisan_tokens.dart';
+
 /// Cores semânticas de urgência — sempre separadas da identidade visual
 /// "Água Viva" (decisions/008): nunca substituir por tons de azul, senão
 /// perde a leitura rápida no mapa. Definida pela Edge Function
@@ -11,26 +13,33 @@ enum OcorrenciaUrgencia {
   riscoSaude;
 
   String get label => switch (this) {
-        OcorrenciaUrgencia.normal => 'Normal',
-        OcorrenciaUrgencia.atencao => 'Atenção',
-        OcorrenciaUrgencia.riscoSaude => 'Risco à saúde',
-      };
+    OcorrenciaUrgencia.normal => 'Normal',
+    OcorrenciaUrgencia.atencao => 'Atenção',
+    OcorrenciaUrgencia.riscoSaude => 'Risco à saúde',
+  };
 
   String get dbValue => switch (this) {
-        OcorrenciaUrgencia.normal => 'normal',
-        OcorrenciaUrgencia.atencao => 'atencao',
-        OcorrenciaUrgencia.riscoSaude => 'risco_saude',
-      };
+    OcorrenciaUrgencia.normal => 'normal',
+    OcorrenciaUrgencia.atencao => 'atencao',
+    OcorrenciaUrgencia.riscoSaude => 'risco_saude',
+  };
 
   Color get cor => switch (this) {
-        OcorrenciaUrgencia.normal => const Color(0xFF2E7D32),
-        OcorrenciaUrgencia.atencao => const Color(0xFFEF6C00),
-        OcorrenciaUrgencia.riscoSaude => const Color(0xFFC62828),
-      };
+    OcorrenciaUrgencia.normal => SisanCores.sucesso,
+    OcorrenciaUrgencia.atencao => SisanCores.atencao,
+    OcorrenciaUrgencia.riscoSaude => SisanCores.perigo,
+  };
+
+  /// Ícone que acompanha a cor: a urgência nunca depende só do tom.
+  IconData get icone => switch (this) {
+    OcorrenciaUrgencia.normal => Icons.check_circle_outline,
+    OcorrenciaUrgencia.atencao => Icons.warning_amber_rounded,
+    OcorrenciaUrgencia.riscoSaude => Icons.health_and_safety_outlined,
+  };
 
   static OcorrenciaUrgencia fromString(String value) => switch (value) {
-        'atencao' => OcorrenciaUrgencia.atencao,
-        'risco_saude' => OcorrenciaUrgencia.riscoSaude,
-        _ => OcorrenciaUrgencia.normal,
-      };
+    'atencao' => OcorrenciaUrgencia.atencao,
+    'risco_saude' => OcorrenciaUrgencia.riscoSaude,
+    _ => OcorrenciaUrgencia.normal,
+  };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/shared/services/sync_service.dart';
 
@@ -15,16 +16,16 @@ class PendingSyncBanner extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      color: Colors.orange.shade50,
+      color: SisanCores.atencaoClara,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Icon(Icons.sync_problem_rounded, size: 16, color: Colors.orange.shade800),
+          Icon(Icons.sync_problem_rounded, size: 16, color: SisanCores.atencao),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$count ação${count == 1 ? '' : 'ões'} aguardando conexão para sincronizar',
-              style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 12, color: SisanCores.atencao, fontWeight: FontWeight.w500),
             ),
           ),
         ],

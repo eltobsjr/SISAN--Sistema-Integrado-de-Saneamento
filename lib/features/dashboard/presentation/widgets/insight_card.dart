@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/features/dashboard/presentation/providers/dashboard_provider.dart';
 
@@ -9,7 +10,7 @@ import 'package:sisan/features/dashboard/presentation/providers/dashboard_provid
 class InsightCard extends ConsumerWidget {
   const InsightCard({super.key});
 
-  static const _azul = Color(0xFF0288D1);
+  static const _azul = SisanCores.primaria;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +22,12 @@ class InsightCard extends ConsumerWidget {
           children: [
             SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: _azul)),
             SizedBox(width: 12),
-            Expanded(child: Text('Gerando resumo do mês...', style: TextStyle(color: Colors.black54, fontSize: 13))),
+            Expanded(
+              child: Text(
+                'Gerando resumo do mês...',
+                style: TextStyle(color: SisanCores.textoSecundario, fontSize: 13),
+              ),
+            ),
           ],
         ),
       ),
@@ -31,7 +37,10 @@ class InsightCard extends ConsumerWidget {
             const Icon(Icons.cloud_off_outlined, size: 18, color: Colors.black38),
             const SizedBox(width: 10),
             const Expanded(
-              child: Text('Resumo por IA indisponível no momento.', style: TextStyle(color: Colors.black54, fontSize: 13)),
+              child: Text(
+                'Resumo por IA indisponível no momento.',
+                style: TextStyle(color: SisanCores.textoSecundario, fontSize: 13),
+              ),
             ),
             TextButton(onPressed: () => ref.invalidate(insightDashboardProvider), child: const Text('Tentar de novo')),
           ],
@@ -86,13 +95,13 @@ class InsightCard extends ConsumerWidget {
   }
 
   Widget _moldura({required Widget child}) => Card(
-        color: const Color(0xFFE3F2FD),
-        elevation: 0,
-        margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFBBDEFB)),
-        ),
-        child: Padding(padding: const EdgeInsets.all(16), child: child),
-      );
+    color: SisanCores.primariaClara,
+    elevation: 0,
+    margin: const EdgeInsets.only(bottom: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(color: SisanCores.primaria.withValues(alpha: 0.25)),
+    ),
+    child: Padding(padding: const EdgeInsets.all(16), child: child),
+  );
 }

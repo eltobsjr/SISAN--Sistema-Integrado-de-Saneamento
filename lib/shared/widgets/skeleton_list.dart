@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 /// Lista de skeletons pulsantes para estados de loading — substitui
 /// `CircularProgressIndicator` em toda página de lista (ver erro herdado
 /// ERR do SIGAU: skeleton dá noção do layout que está chegando).
 class SkeletonList extends StatefulWidget {
-  const SkeletonList({
-    super.key,
-    this.itemCount = 5,
-    this.padding = const EdgeInsets.all(16),
-  });
+  const SkeletonList({super.key, this.itemCount = 5, this.padding = const EdgeInsets.all(16)});
 
   final int itemCount;
   final EdgeInsets padding;
@@ -17,21 +14,15 @@ class SkeletonList extends StatefulWidget {
   State<SkeletonList> createState() => _SkeletonListState();
 }
 
-class _SkeletonListState extends State<SkeletonList>
-    with SingleTickerProviderStateMixin {
+class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _fade;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _fade = Tween<double>(begin: 0.35, end: 0.8).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true);
+    _fade = Tween<double>(begin: 0.35, end: 0.8).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -62,7 +53,7 @@ class _SkeletonCardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Colors.grey.shade100,
+      color: SisanCores.fundo,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -103,10 +94,7 @@ class _Box extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      decoration: BoxDecoration(color: SisanCores.borda, borderRadius: BorderRadius.circular(radius)),
     );
   }
 }

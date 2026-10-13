@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:sisan/core/constants/ocorrencia_tipo.dart';
 
-/// Grade de intensidade por tipo de ocorrência no mês — a cor de cada célula
-/// fica mais forte quanto maior a contagem relativa ao tipo mais frequente.
-/// Sem precedente no SIGAU (roadmap pede "heatmap" só pro SISAN); aqui é uma
-/// leitura simples, sem depender de um pacote de mapa de calor geográfico.
+import 'package:sisan/core/constants/ocorrencia_tipo.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
+
+/// Barras horizontais por tipo de ocorrência no mês, ordenadas da mais
+/// frequente para a menos. Cada barra usa a cor do tipo (a mesma do mapa).
 class HeatmapTipoGrid extends StatelessWidget {
   const HeatmapTipoGrid({super.key, required this.porTipo});
 
@@ -12,68 +12,71 @@ class HeatmapTipoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxValor = porTipo.values.isEmpty ? 0 : porTipo.values.reduce((a, b) => a > b ? a : b);
+    final itens = [for (final t in OcorrenciaTipo.values) (t, porTipo[t.dbValue] ?? 0)]
+      ..sort((a, b) => b.$2.compareTo(a.$2));
+    final maxValor = itens.isEmpty ? 0 : itens.first.$2;
+    final total = itens.fold<int>(0, (a, e) => a + e.$2);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.grid_view_rounded, size: 18, color: Colors.black54),
-                SizedBox(width: 8),
-                Text('Ocorrências por tipo (mês)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (maxValor == 0)
-              const Text('Sem ocorrências registradas este mês.', style: TextStyle(color: Colors.black38, fontSize: 13))
-            else
-              Column(
-                children: OcorrenciaTipo.values.map((tipo) {
-                  final total = porTipo[tipo.dbValue] ?? 0;
-                  final intensidade = maxValor == 0 ? 0.0 : total / maxValor;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            tipo.label,
-                            style: const TextStyle(fontSize: 12, color: Colors.black87),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 22,
-                            decoration: BoxDecoration(
-                              color: tipo.cor.withValues(alpha: 0.08 + 0.5 * intensidade),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Text(
-                              '$total',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: intensidade > 0.5 ? Colors.white : tipo.cor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+    return SisanCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.bar_chart_rounded, size: 18, color: SisanCores.textoSecundario),
+              SizedBox(width: SisanEspaco.sm),
+              Expanded(child: Text('Ocorrências por tipo (mês)', style: SisanTexto.tituloCard)),
+            ],
+          ),
+          const SizedBox(height: SisanEspaco.lg),
+          if (maxValor == 0)
+            const Text('Sem ocorrências registradas este mês.', style: SisanTexto.secundario)
+          else
+            for (final (i, (tipo, n)) in itens.indexed) ...[
+              if (i > 0) const SizedBox(height: SisanEspaco.md),
+              Row(
+                children: [
+                  Icon(tipo.icone, size: 16, color: tipo.cor),
+                  const SizedBox(width: SisanEspaco.sm),
+                  Expanded(
+                    child: Text(
+                      tipo.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 13, color: SisanCores.texto),
                     ),
-                  );
-                }).toList(),
+                  ),
+                  Text(
+                    '$n',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: SisanCores.texto),
+                  ),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                      '${total == 0 ? 0 : (n * 100 / total).round()}%',
+                      textAlign: TextAlign.right,
+                      style: SisanTexto.legenda,
+                    ),
+                  ),
+                ],
               ),
-          ],
-        ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(SisanRaio.pill),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(end: n / maxValor),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutCubic,
+                  builder: (_, v, _) => LinearProgressIndicator(
+                    value: v,
+                    minHeight: 8,
+                    backgroundColor: tipo.cor.withValues(alpha: 0.1),
+                    valueColor: AlwaysStoppedAnimation(tipo.cor),
+                  ),
+                ),
+              ),
+            ],
+        ],
       ),
     );
   }

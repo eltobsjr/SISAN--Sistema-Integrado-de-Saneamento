@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/core/constants/alerta_sanitario_tipo.dart';
 import 'package:sisan/core/errors/error_handler.dart';
@@ -85,10 +86,7 @@ class _CriarAlertaPageState extends ConsumerState<CriarAlertaPage> {
                   label: Text(t.label),
                   selected: selecionado,
                   selectedColor: t.cor,
-                  labelStyle: TextStyle(
-                    color: selecionado ? Colors.white : t.cor,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  labelStyle: TextStyle(color: selecionado ? Colors.white : t.cor, fontWeight: FontWeight.w600),
                   onSelected: (_) => setState(() => _tipo = t),
                 );
               }).toList(),
@@ -116,9 +114,7 @@ class _CriarAlertaPageState extends ConsumerState<CriarAlertaPage> {
               children: [
                 Text('Raio de risco', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                 Text(
-                  _raioMetros >= 1000
-                      ? '${(_raioMetros / 1000).toStringAsFixed(1)} km'
-                      : '${_raioMetros.toInt()} m',
+                  _raioMetros >= 1000 ? '${(_raioMetros / 1000).toStringAsFixed(1)} km' : '${_raioMetros.toInt()} m',
                   style: TextStyle(fontWeight: FontWeight.bold, color: _tipo.cor),
                 ),
               ],
@@ -211,7 +207,9 @@ class _CriarAlertaPageState extends ConsumerState<CriarAlertaPage> {
 
     setState(() => _salvando = true);
     try {
-      await ref.read(alertasSanitariosProvider.notifier).criar(
+      await ref
+          .read(alertasSanitariosProvider.notifier)
+          .criar(
             tipo: _tipo,
             descricao: _descricaoCtrl.text.trim(),
             latitude: _pin!.latitude,
@@ -219,16 +217,16 @@ class _CriarAlertaPageState extends ConsumerState<CriarAlertaPage> {
             raioMetros: _raioMetros,
           );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Alerta criado com sucesso'), backgroundColor: Colors.green),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Alerta criado com sucesso'), backgroundColor: SisanCores.sucesso));
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: SisanCores.perigo));
       }
     } finally {
       if (mounted) setState(() => _salvando = false);

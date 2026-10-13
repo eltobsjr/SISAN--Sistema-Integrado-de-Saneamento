@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sisan/shared/design/sisan_tokens.dart';
 
 import 'package:sisan/app/router.dart';
 import 'package:sisan/core/theme/app_theme.dart';
@@ -45,7 +46,7 @@ class _OfflineWrapper extends ConsumerWidget {
           duration: const Duration(milliseconds: 250),
           child: isOffline
               ? Material(
-                  color: Colors.orange.shade700,
+                  color: SisanCores.atencao,
                   child: SafeArea(
                     bottom: false,
                     child: Container(

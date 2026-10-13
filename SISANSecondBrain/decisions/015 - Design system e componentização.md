@@ -65,3 +65,16 @@ e novos cards em Ordens e Notificações.
   sumiram por isso. Usar `SizedBox.expand` ou `Container`.
 - `criar_alerta_page` mantém a AppBar na cor do tipo do alerta, que é
   semântica, de propósito.
+
+## Adendo 09/10/2026 — refinamento visual
+
+- O tema (`AppTheme`) lê só dos tokens; nenhuma cor de status fora de
+  `SisanCores`. A regra "sem `Color(0x…)` solto" agora vale para todo o
+  `lib/` (exceto `sisan_tokens.dart`).
+- Fonte padrão: Inter embutida (offline-first, sem `google_fonts`).
+- Urgência e status nunca só por cor: sempre ícone ou texto junto
+  (`OcorrenciaUrgencia.icone`, selo no card e no marcador do mapa).
+- Gráficos de distribuição/tendência usam `fl_chart` (rosca e linhas);
+  barras de ranking seguem em `LinearProgressIndicator` animado.
+- Alvo de toque mínimo de 48 dp nos botões.
+- Detalhes: `devtrack/2026-10-09 - Refinamento visual e gráficos novos.md`.

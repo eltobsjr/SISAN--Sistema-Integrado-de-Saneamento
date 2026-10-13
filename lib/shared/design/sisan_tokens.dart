@@ -19,7 +19,7 @@ abstract final class SisanCores {
   // Texto
   static const texto = Color(0xFF15222D);
   static const textoSecundario = Color(0xFF5A6A77);
-  static const textoTerciario = Color(0xFF94A2AE);
+  static const textoTerciario = Color(0xFF66778A);
 
   // Semânticas
   static const sucesso = Color(0xFF2E7D32);
@@ -28,6 +28,12 @@ abstract final class SisanCores {
   static const info = Color(0xFF0288D1);
   static const andamento = Color(0xFF6A1B9A);
   static const neutro = Color(0xFF78909C);
+
+  // Tintas claras das semânticas (fundos de aviso)
+  static const atencaoClara = Color(0xFFFFF3E0);
+  static const sucessoClara = Color(0xFFE8F5E9);
+  static const perigoClara = Color(0xFFFFEBEE);
+  static const bordaForte = Color(0xFFC5CFD8);
 
   // Acentos de categoria (atalhos, gráficos)
   static const teal = Color(0xFF00796B);

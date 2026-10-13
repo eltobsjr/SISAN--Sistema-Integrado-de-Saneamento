@@ -74,7 +74,8 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      if (ocorrencia.urgencia != OcorrenciaUrgencia.normal) _UrgenciaBadge(urgencia: ocorrencia.urgencia),
+                      if (ocorrencia.urgencia != OcorrenciaUrgencia.normal)
+                        _UrgenciaBadge(urgencia: ocorrencia.urgencia),
                       const Spacer(),
                       Text(
                         DateFormat('dd/MM/yyyy HH:mm').format(ocorrencia.criadoEm),
@@ -90,10 +91,7 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           ocorrencia.protocolo!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.black45,
-                            fontFamily: 'monospace',
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.black45, fontFamily: 'monospace'),
                         ),
                       ],
                     ),
@@ -111,7 +109,7 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                     Card(
                       margin: EdgeInsets.zero,
                       child: ListTile(
-                        leading: const Icon(Icons.location_on_outlined, color: Colors.red),
+                        leading: const Icon(Icons.location_on_outlined, color: SisanCores.perigo),
                         title: const Text('Local'),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,11 +153,8 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                                 color: Colors.black12,
                                 child: const Center(child: CircularProgressIndicator()),
                               ),
-                              errorWidget: (_, _, _) => const Icon(
-                                Icons.broken_image_outlined,
-                                size: 48,
-                                color: Colors.black26,
-                              ),
+                              errorWidget: (_, _, _) =>
+                                  const Icon(Icons.broken_image_outlined, size: 48, color: Colors.black26),
                             ),
                           ),
                         ),
@@ -174,9 +169,9 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: SisanCores.fundo,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: SisanCores.borda),
                     ),
                     child: Text(
                       ocorrencia.descricao,
@@ -229,21 +224,14 @@ class _StatusTimeline extends StatelessWidget {
                     height: 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: alcancada ? theme.colorScheme.primary : Colors.grey.shade300,
-                      border: ehAtual
-                          ? Border.all(color: theme.colorScheme.primary, width: 3)
-                          : null,
+                      color: alcancada ? theme.colorScheme.primary : SisanCores.borda,
+                      border: ehAtual ? Border.all(color: theme.colorScheme.primary, width: 3) : null,
                     ),
-                    child: alcancada
-                        ? const Icon(Icons.check, size: 12, color: Colors.white)
-                        : null,
+                    child: alcancada ? const Icon(Icons.check, size: 12, color: Colors.white) : null,
                   ),
                   if (!ultimo)
                     Expanded(
-                      child: Container(
-                        width: 2,
-                        color: i < atualIndex ? theme.colorScheme.primary : Colors.grey.shade300,
-                      ),
+                      child: Container(width: 2, color: i < atualIndex ? theme.colorScheme.primary : SisanCores.borda),
                     ),
                 ],
               ),
