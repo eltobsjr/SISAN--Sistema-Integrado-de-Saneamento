@@ -32,6 +32,8 @@ class _OrdensServicoPageState extends ConsumerState<OrdensServicoPage> {
   List<OrdemServico> _ordenar(Iterable<OrdemServico> lista) {
     final copia = lista.toList();
     copia.sort((a, b) {
+      final p = (b.ocorrencia.prioridade ?? 0).compareTo(a.ocorrencia.prioridade ?? 0);
+      if (p != 0) return p;
       final urgDiff = b.ocorrencia.urgencia.index.compareTo(a.ocorrencia.urgencia.index);
       if (urgDiff != 0) return urgDiff;
       return a.criadoEm.compareTo(b.criadoEm);
@@ -40,12 +42,12 @@ class _OrdensServicoPageState extends ConsumerState<OrdensServicoPage> {
   }
 
   bool _passa(_Filtro f, OrdemServico os, String? uid) => switch (f) {
-        _Filtro.todas => true,
-        _Filtro.semTecnico => os.tecnicoId == null,
-        _Filtro.minhas => os.tecnicoId != null && os.tecnicoId == uid,
-        _Filtro.emCampo => os.tecnicoId != null,
-        _Filtro.risco => os.ocorrencia.urgencia == OcorrenciaUrgencia.riscoSaude,
-      };
+    _Filtro.todas => true,
+    _Filtro.semTecnico => os.tecnicoId == null,
+    _Filtro.minhas => os.tecnicoId != null && os.tecnicoId == uid,
+    _Filtro.emCampo => os.tecnicoId != null,
+    _Filtro.risco => os.ocorrencia.urgencia == OcorrenciaUrgencia.riscoSaude,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,10 @@ class _OrdensServicoPageState extends ConsumerState<OrdensServicoPage> {
     final filtros = [
       (_Filtro.todas, 'Todas', Icons.list_alt),
       (_Filtro.semTecnico, 'Aguardando técnico', Icons.hourglass_empty_rounded),
-      if (ehTecnico) (_Filtro.minhas, 'Com você', Icons.person_outline) else (_Filtro.emCampo, 'Em campo', Icons.engineering_outlined),
+      if (ehTecnico)
+        (_Filtro.minhas, 'Com você', Icons.person_outline)
+      else
+        (_Filtro.emCampo, 'Em campo', Icons.engineering_outlined),
       (_Filtro.risco, 'Risco à saúde', Icons.health_and_safety_outlined),
     ];
 
@@ -102,9 +107,7 @@ class _OrdensServicoPageState extends ConsumerState<OrdensServicoPage> {
           Expanded(
             child: state.when(
               loading: () => const SkeletonList(),
-              error: (_, _) => SisanErrorState(
-                onRetry: () => ref.read(ordensServicoProvider.notifier).recarregar(),
-              ),
+              error: (_, _) => SisanErrorState(onRetry: () => ref.read(ordensServicoProvider.notifier).recarregar()),
               data: (todas) {
                 final ordenada = _ordenar(todas.where((os) => _passa(_filtro, os, usuario?.id)));
                 if (ordenada.isEmpty) {
@@ -181,7 +184,10 @@ class _FiltroChip extends StatelessWidget {
             children: [
               Icon(icone, size: 16, color: fg),
               const SizedBox(width: 6),
-              Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: fg)),
+              Text(
+                label,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: fg),
+              ),
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
@@ -189,7 +195,10 @@ class _FiltroChip extends StatelessWidget {
                   color: selecionado ? Colors.white.withValues(alpha: 0.25) : SisanCores.borda,
                   borderRadius: BorderRadius.circular(SisanRaio.pill),
                 ),
-                child: Text('$contagem', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg)),
+                child: Text(
+                  '$contagem',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
+                ),
               ),
             ],
           ),

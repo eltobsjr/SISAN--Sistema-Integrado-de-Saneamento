@@ -36,10 +36,7 @@ class GestorHomePage extends ConsumerWidget {
           label: 'Início',
           icone: Icons.home_outlined,
           iconeSelecionado: Icons.home,
-          pagina: _InicioTab(
-            usuario: usuario,
-            irPara: irPara,
-          ),
+          pagina: _InicioTab(usuario: usuario, irPara: irPara),
         ),
         const HomeAba(
           label: 'Painel',
@@ -53,12 +50,7 @@ class GestorHomePage extends ConsumerWidget {
           iconeSelecionado: Icons.assignment,
           pagina: OrdensServicoPage(),
         ),
-        const HomeAba(
-          label: 'Mapa',
-          icone: Icons.map_outlined,
-          iconeSelecionado: Icons.map,
-          pagina: MapaPage(),
-        ),
+        const HomeAba(label: 'Mapa', icone: Icons.map_outlined, iconeSelecionado: Icons.map, pagina: MapaPage()),
         const HomeAba(
           label: 'Perfil',
           icone: Icons.person_outline,
@@ -103,7 +95,10 @@ class _InicioTab extends ConsumerWidget {
     int porUrgencia(OcorrenciaUrgencia u) => fila.where((os) => os.ocorrencia.urgencia == u).length;
     final paradas = semTecnico.where((os) => DateTime.now().difference(os.criadoEm).inHours >= 48).length;
     final criticas = semTecnico.where((os) => os.ocorrencia.urgencia == OcorrenciaUrgencia.riscoSaude).toList()
-      ..sort((a, b) => a.criadoEm.compareTo(b.criadoEm));
+      ..sort((a, b) {
+        final p = (b.ocorrencia.prioridade ?? 0).compareTo(a.ocorrencia.prioridade ?? 0);
+        return p != 0 ? p : a.criadoEm.compareTo(b.criadoEm);
+      });
 
     final porBairro = <String, int>{};
     for (final os in fila) {
@@ -132,7 +127,11 @@ class _InicioTab extends ConsumerWidget {
               onAvatarTap: () => irPara(_abaPerfil),
               rodape: StatStrip(
                 itens: [
-                  StatItem(stats == null ? '—' : '${stats.mesAtual.ocorrencias}', 'Ocorrências\nno mês', onTap: () => irPara(_abaPainel)),
+                  StatItem(
+                    stats == null ? '—' : '${stats.mesAtual.ocorrencias}',
+                    'Ocorrências\nno mês',
+                    onTap: () => irPara(_abaPainel),
+                  ),
                   StatItem('${semTecnico.length}', 'Aguardando\ntécnico', onTap: () => irPara(_abaOrdens)),
                   StatItem('$alertasAtivos', 'Alertas\nativos', onTap: () => context.push('/alertas-sanitarios')),
                 ],
@@ -190,7 +189,11 @@ class _InicioTab extends ConsumerWidget {
                     icone: Icons.filter_alt_outlined,
                     vazio: 'Nenhuma OS aberta.',
                     segmentos: [
-                      for (final s in [OrdemServicoStatus.pendente, OrdemServicoStatus.aceita, OrdemServicoStatus.aCaminho])
+                      for (final s in [
+                        OrdemServicoStatus.pendente,
+                        OrdemServicoStatus.aceita,
+                        OrdemServicoStatus.aCaminho,
+                      ])
                         Segmento(s.label, porStatus(s), s.cor),
                     ],
                   ),

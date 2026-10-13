@@ -16,6 +16,7 @@ import 'package:sisan/core/constants/ordem_servico_status.dart';
 import 'package:sisan/core/constants/perfil_usuario.dart';
 import 'package:sisan/core/errors/error_handler.dart';
 import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sisan/features/ocorrencias/presentation/widgets/classificacao_card.dart';
 import 'package:sisan/features/ordens_de_servico/domain/entities/ordem_servico.dart';
 import 'package:sisan/features/ordens_de_servico/presentation/providers/ordens_servico_provider.dart';
 import 'package:sisan/shared/widgets/foto_viewer.dart';
@@ -49,9 +50,7 @@ class OrdemServicoDetalhePage extends ConsumerWidget {
       ),
       error: (e, _) => Scaffold(
         appBar: SisanAppBar(title: const Text('Ordem de Serviço')),
-        body: SisanErrorState(
-          onRetry: () => ref.invalidate(ordemServicoPorIdProvider(id)),
-        ),
+        body: SisanErrorState(onRetry: () => ref.invalidate(ordemServicoPorIdProvider(id))),
       ),
       data: (os) => _OrdemServicoDetalheView(ordemServico: os),
     );
@@ -63,12 +62,10 @@ class _OrdemServicoDetalheView extends ConsumerStatefulWidget {
   final OrdemServico ordemServico;
 
   @override
-  ConsumerState<_OrdemServicoDetalheView> createState() =>
-      _OrdemServicoDetalheViewState();
+  ConsumerState<_OrdemServicoDetalheView> createState() => _OrdemServicoDetalheViewState();
 }
 
-class _OrdemServicoDetalheViewState
-    extends ConsumerState<_OrdemServicoDetalheView> {
+class _OrdemServicoDetalheViewState extends ConsumerState<_OrdemServicoDetalheView> {
   bool _loading = false;
 
   String get _meuId => ref.read(authProvider).valueOrNull?.id ?? '';
@@ -87,10 +84,7 @@ class _OrdemServicoDetalheViewState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(ErrorHandler.parse(e)),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+          SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -98,50 +92,41 @@ class _OrdemServicoDetalheViewState
     }
   }
 
-  Future<void> _aceitar() => _executar(
-        () => ref.read(ordensServicoProvider.notifier).aceitar(widget.ordemServico.id),
-      );
+  Future<void> _aceitar() => _executar(() => ref.read(ordensServicoProvider.notifier).aceitar(widget.ordemServico.id));
 
   Future<void> _registrarChegada() => _executar(() async {
-        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-        if (!serviceEnabled) throw Exception('GPS desativado. Ative a localização.');
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) throw Exception('GPS desativado. Ative a localização.');
 
-        var perm = await Geolocator.checkPermission();
-        if (perm == LocationPermission.denied) {
-          perm = await Geolocator.requestPermission();
-        }
-        if (perm == LocationPermission.denied ||
-            perm == LocationPermission.deniedForever) {
-          throw Exception('Permissão de localização negada.');
-        }
+    var perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
+    }
+    if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+      throw Exception('Permissão de localização negada.');
+    }
 
-        final pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-        );
-        await ref.read(ordensServicoProvider.notifier).registrarChegada(
-              widget.ordemServico.id,
-              latitude: pos.latitude,
-              longitude: pos.longitude,
-            );
-      });
+    final pos = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+    await ref
+        .read(ordensServicoProvider.notifier)
+        .registrarChegada(widget.ordemServico.id, latitude: pos.latitude, longitude: pos.longitude);
+  });
 
   void _abrirConclusao(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (sheetCtx) => _ConclusaoBottomSheet(
         ordemServico: widget.ordemServico,
         onConcluir: (checklist, fotos) {
           Navigator.pop(sheetCtx);
           _executar(
-            () => ref.read(ordensServicoProvider.notifier).concluir(
-                  widget.ordemServico.id,
-                  checklist: checklist,
-                  fotosDepois: fotos,
-                ),
+            () => ref
+                .read(ordensServicoProvider.notifier)
+                .concluir(widget.ordemServico.id, checklist: checklist, fotosDepois: fotos),
           );
         },
       ),
@@ -182,10 +167,7 @@ class _OrdemServicoDetalheViewState
         padding: EdgeInsets.zero,
         children: [
           if (temCoordenadas)
-            _MiniMapa(
-              ponto: LatLng(ocorrencia.latitude!, ocorrencia.longitude!),
-              cor: ocorrencia.urgencia.cor,
-            ),
+            _MiniMapa(ponto: LatLng(ocorrencia.latitude!, ocorrencia.longitude!), cor: ocorrencia.urgencia.cor),
           Padding(
             padding: const EdgeInsets.all(SisanEspaco.tela),
             child: Column(
@@ -193,7 +175,12 @@ class _OrdemServicoDetalheViewState
               children: [
                 SisanCard(
                   corDestaque: ocorrencia.urgencia.cor,
-                  padding: const EdgeInsets.fromLTRB(SisanEspaco.lg + 4, SisanEspaco.lg, SisanEspaco.lg, SisanEspaco.lg),
+                  padding: const EdgeInsets.fromLTRB(
+                    SisanEspaco.lg + 4,
+                    SisanEspaco.lg,
+                    SisanEspaco.lg,
+                    SisanEspaco.lg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -219,8 +206,13 @@ class _OrdemServicoDetalheViewState
                         runSpacing: SisanEspaco.sm,
                         children: [
                           StatusBadge(os.status.label, cor: os.status.cor, icone: os.status.icone),
-                          StatusBadge(ocorrencia.urgencia.label, cor: ocorrencia.urgencia.cor, icone: Icons.warning_amber_rounded),
-                          if (_isMinha) const StatusBadge('Com você', cor: SisanCores.primaria, icone: Icons.person_outline),
+                          StatusBadge(
+                            ocorrencia.urgencia.label,
+                            cor: ocorrencia.urgencia.cor,
+                            icone: ocorrencia.urgencia.icone,
+                          ),
+                          if (_isMinha)
+                            const StatusBadge('Com você', cor: SisanCores.primaria, icone: Icons.person_outline),
                         ],
                       ),
                       const SizedBox(height: SisanEspaco.lg),
@@ -228,9 +220,20 @@ class _OrdemServicoDetalheViewState
                     ],
                   ),
                 ),
-                const SectionHeader('Relato do cidadão', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+                const SectionHeader(
+                  'Prioridade',
+                  padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
+                ),
+                ClassificacaoCard(ocorrencia: ocorrencia),
+                const SectionHeader(
+                  'Relato do cidadão',
+                  padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
+                ),
                 SisanCard(child: Text(ocorrencia.descricao, style: SisanTexto.corpo)),
-                const SectionHeader('Local e registro', padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm)),
+                const SectionHeader(
+                  'Local e registro',
+                  padding: EdgeInsets.only(top: SisanEspaco.xl, bottom: SisanEspaco.sm),
+                ),
                 SisanCard(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -297,7 +300,10 @@ class _LinhaInfo extends StatelessWidget {
               children: [
                 Text(rotulo, style: SisanTexto.legenda),
                 const SizedBox(height: 1),
-                Text(valor, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SisanCores.texto)),
+                Text(
+                  valor,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SisanCores.texto),
+                ),
               ],
             ),
           ),
@@ -322,10 +328,7 @@ class _MiniMapa extends StatelessWidget {
         useSafeArea: false,
         builder: (_) => Dialog.fullscreen(
           child: Scaffold(
-            appBar: SisanAppBar(
-              leading: const CloseButton(),
-              title: const Text('Localização da Ocorrência'),
-            ),
+            appBar: SisanAppBar(leading: const CloseButton(), title: const Text('Localização da Ocorrência')),
             body: FlutterMap(
               options: MapOptions(initialCenter: ponto, initialZoom: 16, maxZoom: 19),
               children: [
@@ -362,11 +365,11 @@ class _MiniMapa extends StatelessWidget {
   }
 
   Marker _marcador(LatLng ponto, Color cor, {required double size}) => Marker(
-        point: ponto,
-        width: size,
-        height: size,
-        child: Icon(Icons.location_pin, color: cor, size: size),
-      );
+    point: ponto,
+    width: size,
+    height: size,
+    child: Icon(Icons.location_pin, color: cor, size: size),
+  );
 }
 
 // ─── STATUS TIMELINE ──────────────────────────────────────────────────────
@@ -397,25 +400,15 @@ class _StatusTimeline extends StatelessWidget {
         return Expanded(
           child: Row(
             children: [
-              if (i > 0)
-                Expanded(
-                  child: Container(height: 2, color: feito ? primary : Colors.black12),
-                ),
+              if (i > 0) Expanded(child: Container(height: 2, color: feito ? primary : Colors.black12)),
               Column(
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: atual ? 36 : 28,
                     height: atual ? 36 : 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: feito ? primary : Colors.black12,
-                    ),
-                    child: Icon(
-                      icone,
-                      size: atual ? 20 : 14,
-                      color: feito ? Colors.white : Colors.black38,
-                    ),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: feito ? primary : Colors.black12),
+                    child: Icon(icone, size: atual ? 20 : 14, color: feito ? Colors.white : Colors.black38),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -429,12 +422,7 @@ class _StatusTimeline extends StatelessWidget {
                 ],
               ),
               if (i < _etapas.length - 1)
-                Expanded(
-                  child: Container(
-                    height: 2,
-                    color: i < _indiceAtual ? primary : Colors.black12,
-                  ),
-                ),
+                Expanded(child: Container(height: 2, color: i < _indiceAtual ? primary : Colors.black12)),
             ],
           ),
         );
@@ -463,10 +451,10 @@ class _BotaoAcao extends StatelessWidget {
 
   /// Há botão pra mostrar (define se a barra inferior aparece).
   bool get temAcao => switch (ordemServico.status) {
-        OrdemServicoStatus.pendente => ehTecnico,
-        OrdemServicoStatus.aceita || OrdemServicoStatus.aCaminho => isMinha,
-        OrdemServicoStatus.concluida => false,
-      };
+    OrdemServicoStatus.pendente => ehTecnico,
+    OrdemServicoStatus.aceita || OrdemServicoStatus.aCaminho => isMinha,
+    OrdemServicoStatus.concluida => false,
+  };
   final VoidCallback onAceitar;
   final VoidCallback onChegada;
   final VoidCallback onConcluir;
@@ -476,42 +464,29 @@ class _BotaoAcao extends StatelessWidget {
     if (loading) {
       return const FilledButton(
         onPressed: null,
-        child: SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-        ),
+        child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
       );
     }
 
     return switch (ordemServico.status) {
       OrdemServicoStatus.pendente when ehTecnico => FilledButton.icon(
-          onPressed: onAceitar,
-          icon: const Icon(Icons.assignment_turned_in_outlined),
-          label: const Text('Aceitar Ordem de Serviço'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            backgroundColor: SisanCores.atencao,
-          ),
-        ),
+        onPressed: onAceitar,
+        icon: const Icon(Icons.assignment_turned_in_outlined),
+        label: const Text('Aceitar Ordem de Serviço'),
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48), backgroundColor: SisanCores.atencao),
+      ),
       OrdemServicoStatus.aceita when isMinha => FilledButton.icon(
-          onPressed: onChegada,
-          icon: const Icon(Icons.location_on),
-          label: const Text('Registrar Chegada'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            backgroundColor: SisanCores.info,
-          ),
-        ),
+        onPressed: onChegada,
+        icon: const Icon(Icons.location_on),
+        label: const Text('Registrar Chegada'),
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48), backgroundColor: SisanCores.info),
+      ),
       OrdemServicoStatus.aCaminho when isMinha => FilledButton.icon(
-          onPressed: onConcluir,
-          icon: const Icon(Icons.check_circle_outline),
-          label: const Text('Concluir Ordem de Serviço'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            backgroundColor: SisanCores.sucesso,
-          ),
-        ),
+        onPressed: onConcluir,
+        icon: const Icon(Icons.check_circle_outline),
+        label: const Text('Concluir Ordem de Serviço'),
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48), backgroundColor: SisanCores.sucesso),
+      ),
       _ => const SizedBox.shrink(),
     };
   }
@@ -530,8 +505,7 @@ class _ConclusaoBottomSheet extends StatefulWidget {
 
 class _ConclusaoBottomSheetState extends State<_ConclusaoBottomSheet> {
   late final Map<String, bool> _checklist = {
-    for (final item in ChecklistEncerramento.itensPara(widget.ordemServico.ocorrencia.tipo))
-      item: false,
+    for (final item in ChecklistEncerramento.itensPara(widget.ordemServico.ocorrencia.tipo)) item: false,
   };
   final List<XFile> _fotos = [];
   final _picker = ImagePicker();
@@ -578,12 +552,7 @@ class _ConclusaoBottomSheetState extends State<_ConclusaoBottomSheet> {
     final theme = Theme.of(context);
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 12,
-        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -593,10 +562,7 @@ class _ConclusaoBottomSheetState extends State<_ConclusaoBottomSheet> {
                 width: 40,
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.black26,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(2)),
               ),
             ),
             Text('Concluir Ordem de Serviço', style: theme.textTheme.titleMedium),
@@ -629,20 +595,14 @@ class _ConclusaoBottomSheetState extends State<_ConclusaoBottomSheet> {
                   if (i == _fotos.length) {
                     return _BotaoAdicionarThumb(onTap: _mostrarPicker);
                   }
-                  return _ThumbFoto(
-                    foto: _fotos[i],
-                    onRemover: () => setState(() => _fotos.removeAt(i)),
-                  );
+                  return _ThumbFoto(foto: _fotos[i], onRemover: () => setState(() => _fotos.removeAt(i)));
                 },
               ),
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: _podeConcluir
-                  ? () => widget.onConcluir(
-                        _checklist,
-                        _fotos.map((x) => File(x.path)).toList(),
-                      )
+                  ? () => widget.onConcluir(_checklist, _fotos.map((x) => File(x.path)).toList())
                   : null,
               style: FilledButton.styleFrom(
                 backgroundColor: SisanCores.sucesso,

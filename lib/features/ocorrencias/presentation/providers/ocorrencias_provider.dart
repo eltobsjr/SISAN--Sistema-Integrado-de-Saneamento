@@ -49,9 +49,7 @@ class OcorrenciasNotifier extends AsyncNotifier<List<Ocorrencia>> {
 
     final online = kIsWeb || await ref.read(connectivityServiceProvider).isOnline();
     if (!online) {
-      final localPaths = fotos.isEmpty
-          ? const <String>[]
-          : await SyncService.savePhotosLocally(fotos, usuario.id);
+      final localPaths = fotos.isEmpty ? const <String>[] : await SyncService.savePhotosLocally(fotos, usuario.id);
 
       final pendente = Ocorrencia(
         id: 'offline_${DateTime.now().millisecondsSinceEpoch}',
@@ -68,26 +66,30 @@ class OcorrenciasNotifier extends AsyncNotifier<List<Ocorrencia>> {
         criadoEm: DateTime.now(),
       );
 
-      await ref.read(syncServiceProvider).enqueue(
-        operation: 'INSERT',
-        table: 'ocorrencias',
-        payload: {
-          'municipio_id': usuario.municipioId,
-          'denunciante_id': usuario.id,
-          'tipo': tipo.dbValue,
-          'descricao': descricao,
-          'endereco': ?endereco,
-          'latitude': ?latitude,
-          'longitude': ?longitude,
-          '_local_photo_paths': localPaths,
-        },
-      );
+      await ref
+          .read(syncServiceProvider)
+          .enqueue(
+            operation: 'INSERT',
+            table: 'ocorrencias',
+            payload: {
+              'municipio_id': usuario.municipioId,
+              'denunciante_id': usuario.id,
+              'tipo': tipo.dbValue,
+              'descricao': descricao,
+              'endereco': ?endereco,
+              'latitude': ?latitude,
+              'longitude': ?longitude,
+              '_local_photo_paths': localPaths,
+            },
+          );
       ref.invalidate(pendingSyncCountProvider);
       state = AsyncData([pendente, ...(state.valueOrNull ?? [])]);
       return pendente;
     }
 
-    final ocorrencia = await ref.read(ocorrenciaRepositoryProvider).criar(
+    final ocorrencia = await ref
+        .read(ocorrenciaRepositoryProvider)
+        .criar(
           municipioId: usuario.municipioId,
           denuncianteId: usuario.id,
           tipo: tipo,
@@ -102,14 +104,21 @@ class OcorrenciasNotifier extends AsyncNotifier<List<Ocorrencia>> {
   }
 }
 
-final ocorrenciasProvider =
-    AsyncNotifierProvider<OcorrenciasNotifier, List<Ocorrencia>>(
-  OcorrenciasNotifier.new,
-);
+final ocorrenciasProvider = AsyncNotifierProvider<OcorrenciasNotifier, List<Ocorrencia>>(OcorrenciasNotifier.new);
 
 /// Busca uma ocorrência direto pelo id — usado quando a tela de detalhe é
 /// aberta sem o objeto completo em mãos (ex: deep link futuro).
-final ocorrenciaPorIdProvider =
-    FutureProvider.autoDispose.family<Ocorrencia, String>((ref, id) {
+final ocorrenciaPorIdProvider = FutureProvider.autoDispose.family<Ocorrencia, String>((ref, id) {
   return ref.watch(ocorrenciaRepositoryProvider).buscarPorId(id);
+});
+
+/// "Prioridades de hoje" do painel: abertas do município pela pontuação do
+/// banco (urgência + nível de risco + confirmações + dias em aberto).
+final prioridadesAbertasProvider = FutureProvider.autoDispose<List<Ocorrencia>>((ref) {
+  return ref.watch(ocorrenciaRepositoryProvider).prioridadesAbertas(limite: 5);
+});
+
+/// Fotos do reparo para o cidadão avaliar a resolução.
+final evidenciaResolucaoProvider = FutureProvider.autoDispose.family<EvidenciaResolucao?, String>((ref, id) {
+  return ref.watch(ocorrenciaRepositoryProvider).evidenciasResolucao(id);
 });

@@ -1,3 +1,4 @@
+import 'package:sisan/core/constants/ocorrencia_risco.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/core/constants/ocorrencia_tipo.dart';
 import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
@@ -18,6 +19,22 @@ class Ocorrencia {
   final DateTime criadoEm;
   final DateTime? atualizadoEm;
 
+  /// Classificação: nível de risco e quando foi feita (null = IA ainda não
+  /// respondeu). [classificacaoManual] = corrigida pelo gestor.
+  final OcorrenciaRisco? riscoSaude;
+  final DateTime? classificadoEm;
+  final bool classificacaoManual;
+
+  /// Outros moradores que confirmaram o mesmo problema.
+  final int confirmacoes;
+
+  /// 'resolvido' / 'nao_resolvido', respondido pelo cidadão após a conclusão.
+  final String? avaliacaoCidadao;
+
+  /// Pontuação calculada no banco (`prioridade(ocorrencias)`); null quando a
+  /// consulta não pediu o campo.
+  final int? prioridade;
+
   const Ocorrencia({
     required this.id,
     required this.municipioId,
@@ -33,7 +50,47 @@ class Ocorrencia {
     this.protocolo,
     required this.criadoEm,
     this.atualizadoEm,
+    this.riscoSaude,
+    this.classificadoEm,
+    this.classificacaoManual = false,
+    this.confirmacoes = 0,
+    this.avaliacaoCidadao,
+    this.prioridade,
   });
+
+  /// Concluída pelo técnico e esperando o cidadão dizer se resolveu de fato
+  /// (também depois de reaberta e concluída de novo).
+  bool get aguardandoAvaliacao => status == OcorrenciaStatus.resolvida && avaliacaoCidadao != 'resolvido';
+}
+
+/// Relato aberto do mesmo tipo perto do ponto escolhido (RPC
+/// `ocorrencias_proximas`), oferecido pra confirmação em vez de duplicar.
+class OcorrenciaProxima {
+  final String id;
+  final String? protocolo;
+  final String descricao;
+  final String? endereco;
+  final DateTime criadoEm;
+  final int confirmacoes;
+  final int distanciaM;
+
+  const OcorrenciaProxima({
+    required this.id,
+    this.protocolo,
+    required this.descricao,
+    this.endereco,
+    required this.criadoEm,
+    required this.confirmacoes,
+    required this.distanciaM,
+  });
+}
+
+/// Fotos e data do reparo, mostradas ao cidadão na hora de avaliar.
+class EvidenciaResolucao {
+  final List<String> fotos;
+  final DateTime? concluidaEm;
+
+  const EvidenciaResolucao({this.fotos = const [], this.concluidaEm});
 }
 
 extension OcorrenciaLocal on Ocorrencia {

@@ -9,33 +9,36 @@ enum OcorrenciaStatus {
   arquivada;
 
   String get label => switch (this) {
-        OcorrenciaStatus.pendente => 'Pendente',
-        OcorrenciaStatus.emAnalise => 'Em análise',
-        OcorrenciaStatus.resolvida => 'Resolvida',
-        OcorrenciaStatus.arquivada => 'Arquivada',
-      };
+    OcorrenciaStatus.pendente => 'Pendente',
+    OcorrenciaStatus.emAnalise => 'Em análise',
+    OcorrenciaStatus.resolvida => 'Resolvida',
+    OcorrenciaStatus.arquivada => 'Arquivada',
+  };
 
   Color get cor => switch (this) {
-        OcorrenciaStatus.pendente => SisanCores.atencao,
-        OcorrenciaStatus.emAnalise => SisanCores.info,
-        OcorrenciaStatus.resolvida => SisanCores.sucesso,
-        OcorrenciaStatus.arquivada => SisanCores.neutro,
-      };
+    OcorrenciaStatus.pendente => SisanCores.atencao,
+    OcorrenciaStatus.emAnalise => SisanCores.info,
+    OcorrenciaStatus.resolvida => SisanCores.sucesso,
+    OcorrenciaStatus.arquivada => SisanCores.neutro,
+  };
 
   IconData get icone => switch (this) {
-        OcorrenciaStatus.pendente => Icons.hourglass_empty_rounded,
-        OcorrenciaStatus.emAnalise => Icons.engineering_outlined,
-        OcorrenciaStatus.resolvida => Icons.check_circle_outline,
-        OcorrenciaStatus.arquivada => Icons.archive_outlined,
-      };
+    OcorrenciaStatus.pendente => Icons.hourglass_empty_rounded,
+    OcorrenciaStatus.emAnalise => Icons.engineering_outlined,
+    OcorrenciaStatus.resolvida => Icons.check_circle_outline,
+    OcorrenciaStatus.arquivada => Icons.archive_outlined,
+  };
+
+  /// Ainda esperando atendimento (entra na fila e na prioridade).
+  bool get aberta => this == OcorrenciaStatus.pendente || this == OcorrenciaStatus.emAnalise;
 
   String get dbValue => switch (this) {
-        OcorrenciaStatus.pendente => 'pendente',
-        OcorrenciaStatus.emAnalise => 'em_analise',
-        OcorrenciaStatus.resolvida => 'resolvida',
-        OcorrenciaStatus.arquivada => 'arquivada',
-      };
+    OcorrenciaStatus.pendente => 'pendente',
+    OcorrenciaStatus.emAnalise => 'em_analise',
+    OcorrenciaStatus.resolvida => 'resolvida',
+    OcorrenciaStatus.arquivada => 'arquivada',
+  };
 
-  static OcorrenciaStatus fromString(String value) => OcorrenciaStatus.values
-      .firstWhere((e) => e.dbValue == value, orElse: () => OcorrenciaStatus.pendente);
+  static OcorrenciaStatus fromString(String value) =>
+      OcorrenciaStatus.values.firstWhere((e) => e.dbValue == value, orElse: () => OcorrenciaStatus.pendente);
 }

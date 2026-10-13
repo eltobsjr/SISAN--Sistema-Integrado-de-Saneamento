@@ -40,20 +40,13 @@ class TecnicoHomePage extends ConsumerWidget {
           iconeSelecionado: Icons.assignment,
           pagina: OrdensServicoPage(),
         ),
-        const HomeAba(
-          label: 'Mapa',
-          icone: Icons.map_outlined,
-          iconeSelecionado: Icons.map,
-          pagina: MapaPage(),
-        ),
+        const HomeAba(label: 'Mapa', icone: Icons.map_outlined, iconeSelecionado: Icons.map, pagina: MapaPage()),
         const HomeAba(
           label: 'Perfil',
           icone: Icons.person_outline,
           iconeSelecionado: Icons.person,
           pagina: PerfilTab(
-            atalhos: [
-              PerfilAtalho(icone: Icons.notifications_outlined, titulo: 'Notificações', rota: '/notificacoes'),
-            ],
+            atalhos: [PerfilAtalho(icone: Icons.notifications_outlined, titulo: 'Notificações', rota: '/notificacoes')],
           ),
         ),
       ],
@@ -69,9 +62,12 @@ class _PainelTab extends ConsumerWidget {
 
   static const _dias = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 
+  /// Pontuação do banco (urgência + risco + confirmações + dias), depois urgência e antiguidade.
   List<OrdemServico> _porPrioridade(Iterable<OrdemServico> lista) {
     final copia = lista.toList();
     copia.sort((a, b) {
+      final p = (b.ocorrencia.prioridade ?? 0).compareTo(a.ocorrencia.prioridade ?? 0);
+      if (p != 0) return p;
       final u = b.ocorrencia.urgencia.index.compareTo(a.ocorrencia.urgencia.index);
       return u != 0 ? u : a.criadoEm.compareTo(b.criadoEm);
     });
@@ -117,13 +113,13 @@ class _PainelTab extends ConsumerWidget {
     final semana = porDia.fold<int>(0, (a, b) => a + b);
 
     Widget listaOs(List<OrdemServico> lista) => Column(
-          children: [
-            for (final (i, os) in lista.indexed) ...[
-              if (i > 0) const SizedBox(height: SisanEspaco.sm + 2),
-              OrdemServicoCard(ordemServico: os, onTap: () => context.push('/ordens-de-servico/${os.id}')),
-            ],
-          ],
-        );
+      children: [
+        for (final (i, os) in lista.indexed) ...[
+          if (i > 0) const SizedBox(height: SisanEspaco.sm + 2),
+          OrdemServicoCard(ordemServico: os, onTap: () => context.push('/ordens-de-servico/${os.id}')),
+        ],
+      ],
+    );
 
     const lateral = EdgeInsets.symmetric(horizontal: SisanEspaco.tela);
 

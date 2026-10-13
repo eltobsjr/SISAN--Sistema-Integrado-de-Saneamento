@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,8 @@ import 'package:latlong2/latlong.dart';
 
 import 'package:sisan/core/constants/ocorrencia_tipo.dart';
 import 'package:sisan/core/errors/error_handler.dart';
+import 'package:sisan/shared/services/connectivity_service.dart';
+import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
 import 'package:sisan/shared/widgets/app_text_field.dart';
@@ -40,6 +43,7 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
   final _relatoCtrl = TextEditingController();
   final List<XFile> _fotos = [];
   bool _enviando = false;
+  bool _verificandoProximas = false;
 
   @override
   void initState() {
@@ -70,6 +74,65 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
   void _voltar() {
     final anterior = _anterior;
     if (anterior != null) setState(() => _etapa = anterior);
+  }
+
+  /// Antes de seguir, procura relato aberto do mesmo tipo a até ~80 m. Se
+  /// houver, oferece confirmar em vez de duplicar (a confirmação sobe a
+  /// prioridade). Offline ou com erro, segue o fluxo normal.
+  Future<void> _continuarDoLocal() async {
+    final ponto = _ponto;
+    final tipo = _tipo;
+    if (ponto == null || tipo == null) return _avancar();
+
+    setState(() => _verificandoProximas = true);
+    List<OcorrenciaProxima> proximas = const [];
+    try {
+      if (kIsWeb || await ref.read(connectivityServiceProvider).isOnline()) {
+        proximas = await ref
+            .read(ocorrenciaRepositoryProvider)
+            .proximas(latitude: ponto.latitude, longitude: ponto.longitude, tipo: tipo);
+      }
+    } catch (_) {
+      // Checagem é só uma ajuda: nunca bloqueia o registro.
+    } finally {
+      if (mounted) setState(() => _verificandoProximas = false);
+    }
+    if (!mounted) return;
+    if (proximas.isEmpty) return _avancar();
+
+    final escolhida = await showModalBottomSheet<OcorrenciaProxima>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _ProximasSheet(tipo: tipo, proximas: proximas),
+    );
+    if (!mounted) return;
+    if (escolhida == null) return _avancar();
+    await _confirmar(escolhida);
+  }
+
+  Future<void> _confirmar(OcorrenciaProxima o) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final total = await ref.read(ocorrenciaRepositoryProvider).confirmar(o.id);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Obrigado! Agora $total morador${total == 1 ? '' : 'es'} confirmaram este problema, '
+            'e isso aumenta a prioridade do atendimento.',
+          ),
+        ),
+      );
+      setState(() {
+        _etapa = _Etapa.tipo;
+        _tipo = null;
+        _ponto = null;
+        _enderecoCtrl.clear();
+        _relatoCtrl.clear();
+        _fotos.clear();
+      });
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(ErrorHandler.parse(e))));
+    }
   }
 
   Future<void> _adicionarFoto(ImageSource source) async {
@@ -110,7 +173,9 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
     if (_tipo == null) return;
     setState(() => _enviando = true);
     try {
-      final ocorrencia = await ref.read(ocorrenciasProvider.notifier).criar(
+      final ocorrencia = await ref
+          .read(ocorrenciasProvider.notifier)
+          .criar(
             tipo: _tipo!,
             descricao: _relatoCtrl.text.trim(),
             endereco: _enderecoCtrl.text.trim().isNotEmpty ? _enderecoCtrl.text.trim() : null,
@@ -137,19 +202,24 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
       },
       child: switch (_etapa) {
         _Etapa.tipo => _passo(child: _passoTipo(), continuarHabilitado: _tipo != null, onContinuar: _avancar),
-        _Etapa.local => _passo(child: _passoLocal(), continuarHabilitado: true, onContinuar: _avancar),
+        _Etapa.local => _passo(
+          child: _passoLocal(),
+          continuarHabilitado: !_verificandoProximas,
+          labelContinuar: _verificandoProximas ? 'Verificando relatos próximos...' : 'Continuar',
+          onContinuar: _continuarDoLocal,
+        ),
         _Etapa.relato => _passo(
-            child: _passoRelato(),
-            continuarHabilitado: _relatoCtrl.text.trim().length >= 15,
-            onContinuar: _avancar,
-          ),
+          child: _passoRelato(),
+          continuarHabilitado: _relatoCtrl.text.trim().length >= 15,
+          onContinuar: _avancar,
+        ),
         _Etapa.fotos => _passo(child: _passoFotos(), continuarHabilitado: true, onContinuar: _avancar),
         _Etapa.revisar => _passo(
-            child: _passoRevisar(),
-            continuarHabilitado: !_enviando,
-            labelContinuar: _enviando ? 'Enviando...' : 'Enviar Ocorrência',
-            onContinuar: _enviar,
-          ),
+          child: _passoRevisar(),
+          continuarHabilitado: !_enviando,
+          labelContinuar: _enviando ? 'Enviando...' : 'Enviar Ocorrência',
+          onContinuar: _enviar,
+        ),
       },
     );
   }
@@ -171,7 +241,9 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
               else
                 const SizedBox(width: 8),
               const SizedBox(width: 4),
-              Expanded(child: StepProgressBar(position: _indice + 1, total: _fluxo.length)),
+              Expanded(
+                child: StepProgressBar(position: _indice + 1, total: _fluxo.length),
+              ),
             ],
           ),
         ),
@@ -216,11 +288,7 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _TituloPasso('Onde está acontecendo?', 'Toque no mapa ou use sua localização atual.'),
-        MapLocationPicker(
-          pontoInicial: _ponto,
-          altura: 260,
-          onPontoSelecionado: (p) => setState(() => _ponto = p),
-        ),
+        MapLocationPicker(pontoInicial: _ponto, altura: 260, onPontoSelecionado: (p) => setState(() => _ponto = p)),
         const SizedBox(height: 16),
         AppTextField(
           label: 'Endereço, bairro ou referência (opcional)',
@@ -323,7 +391,11 @@ class _NovaOcorrenciaGuiadaViewState extends ConsumerState<NovaOcorrenciaGuiadaV
               : (_ponto != null ? 'Ponto marcado no mapa' : 'Não informado'),
         ),
         _linhaResumo(Icons.description_outlined, 'Relato', _relatoCtrl.text.trim()),
-        _linhaResumo(Icons.photo_camera_outlined, 'Fotos', '${_fotos.length} adicionada${_fotos.length == 1 ? '' : 's'}'),
+        _linhaResumo(
+          Icons.photo_camera_outlined,
+          'Fotos',
+          '${_fotos.length} adicionada${_fotos.length == 1 ? '' : 's'}',
+        ),
         const SizedBox(height: 8),
         Text(
           'Ao enviar, a concessionária do seu município vai analisar o caso.',
@@ -375,6 +447,74 @@ class _TituloPasso extends StatelessWidget {
           const SizedBox(height: 6),
           Text(subtitulo, style: const TextStyle(fontSize: 14, color: Colors.black45)),
         ],
+      ),
+    );
+  }
+}
+
+class _ProximasSheet extends StatelessWidget {
+  const _ProximasSheet({required this.tipo, required this.proximas});
+  final OcorrenciaTipo tipo;
+  final List<OcorrenciaProxima> proximas;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(SisanEspaco.tela),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Alguém já relatou isso aqui perto', style: SisanTexto.tituloSecao),
+            const SizedBox(height: SisanEspaco.xs),
+            Text(
+              'Se for o mesmo problema (${tipo.label.toLowerCase()}), confirme o relato existente: '
+              'a concessionária vê quantas pessoas estão sendo afetadas.',
+              style: SisanTexto.secundario,
+            ),
+            const SizedBox(height: SisanEspaco.lg),
+            for (final o in proximas) ...[
+              SisanCard(
+                onTap: () => Navigator.pop(context, o),
+                child: Row(
+                  children: [
+                    IconTile(tipo.icone, cor: tipo.cor),
+                    const SizedBox(width: SisanEspaco.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(o.descricao, maxLines: 2, overflow: TextOverflow.ellipsis, style: SisanTexto.corpo),
+                          const SizedBox(height: 2),
+                          Text(
+                            'a ${o.distanciaM} m · ${tempoRelativo(o.criadoEm)}'
+                            '${o.confirmacoes > 0 ? ' · +${o.confirmacoes} confirmaram' : ''}',
+                            style: SisanTexto.legenda,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: SisanEspaco.sm),
+                    const Text(
+                      'Confirmar',
+                      style: TextStyle(color: SisanCores.primaria, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: SisanEspaco.sm),
+            ],
+            const SizedBox(height: SisanEspaco.sm),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('É outro problema, continuar registro'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

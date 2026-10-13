@@ -64,9 +64,21 @@ class OcorrenciaCard extends StatelessWidget {
                   : StatusBadge(oc.status.label, cor: oc.status.cor, icone: oc.status.icone),
             ],
           ),
-          if (oc.urgencia != OcorrenciaUrgencia.normal && !aguardandoSync) ...[
+          if (!aguardandoSync &&
+              (oc.urgencia != OcorrenciaUrgencia.normal || oc.confirmacoes > 0 || oc.prioridade != null)) ...[
             const SizedBox(height: SisanEspaco.sm),
-            StatusBadge(oc.urgencia.label, cor: oc.urgencia.cor, icone: oc.urgencia.icone),
+            Wrap(
+              spacing: SisanEspaco.sm,
+              runSpacing: SisanEspaco.xs,
+              children: [
+                if (oc.urgencia != OcorrenciaUrgencia.normal)
+                  StatusBadge(oc.urgencia.label, cor: oc.urgencia.cor, icone: oc.urgencia.icone),
+                if (oc.confirmacoes > 0)
+                  StatusBadge('+${oc.confirmacoes} confirmaram', cor: SisanCores.indigo, icone: Icons.groups_outlined),
+                if (oc.prioridade != null && oc.status.aberta)
+                  StatusBadge('Prioridade ${oc.prioridade}', cor: SisanCores.primariaEscura, icone: Icons.trending_up),
+              ],
+            ),
           ],
           if (!compacto && !aguardandoSync) ...[
             const SizedBox(height: SisanEspaco.md),

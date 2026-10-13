@@ -7,7 +7,10 @@ import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
 import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
 import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
+import 'package:sisan/core/errors/error_handler.dart';
+import 'package:sisan/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
+import 'package:sisan/features/ocorrencias/presentation/widgets/classificacao_card.dart';
 import 'package:sisan/shared/widgets/foto_viewer.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
 import 'package:sisan/shared/widgets/sisan_loading.dart';
@@ -42,13 +45,28 @@ class OcorrenciaDetalhePage extends ConsumerWidget {
   }
 }
 
-class _OcorrenciaDetalheView extends StatelessWidget {
+class _OcorrenciaDetalheView extends ConsumerStatefulWidget {
   const _OcorrenciaDetalheView({required this.ocorrencia});
   final Ocorrencia ocorrencia;
 
   @override
+  ConsumerState<_OcorrenciaDetalheView> createState() => _OcorrenciaDetalheViewState();
+}
+
+class _OcorrenciaDetalheViewState extends ConsumerState<_OcorrenciaDetalheView> {
+  // Atualizada localmente depois de corrigir a classificação ou avaliar.
+  late Ocorrencia ocorrencia = widget.ocorrencia;
+
+  void _atualizar(Ocorrencia o) {
+    setState(() => ocorrencia = o);
+    ref.invalidate(ocorrenciasProvider);
+    ref.invalidate(ocorrenciaPorIdProvider(o.id));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final ehDenunciante = ref.watch(authProvider).valueOrNull?.id == ocorrencia.denuncianteId;
     final tipo = ocorrencia.tipo;
 
     return Scaffold(
@@ -102,6 +120,31 @@ class _OcorrenciaDetalheView extends StatelessWidget {
                   Text('Acompanhamento', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   _StatusTimeline(status: ocorrencia.status),
+
+                  if (ehDenunciante && ocorrencia.aguardandoAvaliacao) ...[
+                    _AvaliacaoCard(ocorrencia: ocorrencia, onAvaliada: _atualizar),
+                    const SizedBox(height: 16),
+                  ] else if (ocorrencia.avaliacaoCidadao == 'resolvido') ...[
+                    const AvisoBanner(
+                      mensagem: 'O cidadão confirmou que o problema foi resolvido.',
+                      cor: SisanCores.sucesso,
+                      icone: Icons.thumb_up_alt_outlined,
+                    ),
+                    const SizedBox(height: 16),
+                  ] else if (ocorrencia.avaliacaoCidadao == 'nao_resolvido') ...[
+                    const AvisoBanner(
+                      mensagem: 'Reaberta: o cidadão informou que o problema não foi resolvido.',
+                      cor: SisanCores.atencao,
+                      icone: Icons.replay_outlined,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  if (ocorrencia.protocolo != kProtocoloOffline) ...[
+                    Text('Prioridade', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    ClassificacaoCard(ocorrencia: ocorrencia, onAtualizada: _atualizar),
+                  ],
 
                   const SizedBox(height: 20),
 
@@ -194,24 +237,25 @@ class _StatusTimeline extends StatelessWidget {
   const _StatusTimeline({required this.status});
   final OcorrenciaStatus status;
 
-  static const _etapas = [
+  // Arquivada é um desfecho alternativo, não uma etapa depois de "Resolvida".
+  List<OcorrenciaStatus> get _etapas => [
     OcorrenciaStatus.pendente,
     OcorrenciaStatus.emAnalise,
-    OcorrenciaStatus.resolvida,
-    OcorrenciaStatus.arquivada,
+    status == OcorrenciaStatus.arquivada ? OcorrenciaStatus.arquivada : OcorrenciaStatus.resolvida,
   ];
 
   @override
   Widget build(BuildContext context) {
-    final atualIndex = _etapas.indexOf(status);
+    final etapas = _etapas;
+    final atualIndex = etapas.indexOf(status);
     final theme = Theme.of(context);
 
     return Column(
-      children: List.generate(_etapas.length, (i) {
-        final etapa = _etapas[i];
+      children: List.generate(etapas.length, (i) {
+        final etapa = etapas[i];
         final alcancada = i <= atualIndex;
         final ehAtual = i == atualIndex;
-        final ultimo = i == _etapas.length - 1;
+        final ultimo = i == etapas.length - 1;
 
         return IntrinsicHeight(
           child: Row(
@@ -272,6 +316,106 @@ class _UrgenciaBadge extends StatelessWidget {
       child: Text(
         urgencia.label,
         style: TextStyle(color: cor, fontWeight: FontWeight.w600, fontSize: 11),
+      ),
+    );
+  }
+}
+
+/// Fecha o ciclo com o cidadão: mostra o reparo e pergunta se resolveu.
+/// "Não" devolve a OS para a fila dos técnicos.
+class _AvaliacaoCard extends ConsumerStatefulWidget {
+  const _AvaliacaoCard({required this.ocorrencia, required this.onAvaliada});
+  final Ocorrencia ocorrencia;
+  final ValueChanged<Ocorrencia> onAvaliada;
+
+  @override
+  ConsumerState<_AvaliacaoCard> createState() => _AvaliacaoCardState();
+}
+
+class _AvaliacaoCardState extends ConsumerState<_AvaliacaoCard> {
+  bool _enviando = false;
+
+  Future<void> _avaliar(bool resolvido) async {
+    setState(() => _enviando = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final o = await ref
+          .read(ocorrenciaRepositoryProvider)
+          .avaliarResolucao(widget.ocorrencia.id, resolvido: resolvido);
+      widget.onAvaliada(o);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            resolvido ? 'Obrigado por confirmar!' : 'Ocorrência reaberta. Ela voltou para a fila dos técnicos.',
+          ),
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(ErrorHandler.parse(e)), backgroundColor: SisanCores.perigo));
+    } finally {
+      if (mounted) setState(() => _enviando = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final evidencia = ref.watch(evidenciaResolucaoProvider(widget.ocorrencia.id)).valueOrNull;
+    final fotos = evidencia?.fotos ?? const <String>[];
+
+    return SisanCard(
+      corDestaque: SisanCores.sucesso,
+      cor: SisanCores.sucessoClara,
+      padding: const EdgeInsets.fromLTRB(SisanEspaco.lg + 4, SisanEspaco.lg, SisanEspaco.lg, SisanEspaco.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('O problema foi resolvido?', style: SisanTexto.tituloCard),
+          const SizedBox(height: SisanEspaco.xs),
+          Text(
+            evidencia?.concluidaEm != null
+                ? 'O técnico concluiu o reparo em ${DateFormat('dd/MM/yyyy HH:mm').format(evidencia!.concluidaEm!)}.'
+                : 'O técnico marcou o reparo como concluído.',
+            style: SisanTexto.secundario,
+          ),
+          if (fotos.isNotEmpty) ...[
+            const SizedBox(height: SisanEspaco.md),
+            SizedBox(
+              height: 88,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: fotos.length,
+                separatorBuilder: (_, _) => const SizedBox(width: SisanEspaco.sm),
+                itemBuilder: (_, i) => GestureDetector(
+                  onTap: () => showFotoViewer(context, fotos, i),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(SisanRaio.sm),
+                    child: CachedNetworkImage(imageUrl: fotos[i], width: 88, height: 88, fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: SisanEspaco.md),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _enviando ? null : () => _avaliar(false),
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('Não'),
+                ),
+              ),
+              const SizedBox(width: SisanEspaco.sm),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _enviando ? null : () => _avaliar(true),
+                  icon: const Icon(Icons.check_rounded),
+                  label: const Text('Sim, resolveu'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

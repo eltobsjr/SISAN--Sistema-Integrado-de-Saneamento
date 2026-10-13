@@ -17,7 +17,8 @@ import 'package:sisan/features/dashboard/presentation/widgets/insight_card.dart'
 import 'package:sisan/features/dashboard/presentation/widgets/tendencia_chart.dart';
 import 'package:sisan/features/dashboard/services/pdf_relatorio.dart';
 import 'package:sisan/core/constants/ocorrencia_status.dart';
-import 'package:sisan/core/constants/ocorrencia_urgencia.dart';
+import 'package:sisan/features/ocorrencias/domain/entities/ocorrencia.dart';
+import 'package:sisan/features/ocorrencias/presentation/providers/ocorrencias_provider.dart';
 import 'package:sisan/features/ocorrencias/presentation/widgets/ocorrencia_card.dart';
 import 'package:sisan/shared/widgets/ds/ds.dart';
 import 'package:sisan/shared/widgets/sisan_error_state.dart';
@@ -63,6 +64,7 @@ class DashboardPage extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               ref.invalidate(insightDashboardProvider);
+              ref.invalidate(prioridadesAbertasProvider);
               ref.read(dashboardProvider.notifier).recarregar();
             },
           ),
@@ -81,6 +83,7 @@ class DashboardPage extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(insightDashboardProvider);
+        ref.invalidate(prioridadesAbertasProvider);
         await ref.read(dashboardProvider.notifier).recarregar();
       },
       child: ListView(
@@ -97,7 +100,7 @@ class DashboardPage extends ConsumerWidget {
             ),
             const SizedBox(height: SisanEspaco.lg),
           ],
-          ..._prioridades(stats),
+          ..._prioridades(ref.watch(prioridadesAbertasProvider).valueOrNull ?? const []),
           const SectionHeader('Indicadores do mês', padding: EdgeInsets.only(bottom: SisanEspaco.sm)),
           _buildKpiGrid(stats),
           const SizedBox(height: SisanEspaco.md),
@@ -134,23 +137,14 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  /// "O que atacar hoje": ocorrências abertas com urgência, risco à saúde primeiro.
-  List<Widget> _prioridades(DashboardStats stats) {
-    final abertas =
-        stats.ultimasOcorrencias
-            .where(
-              (o) =>
-                  o.urgencia != OcorrenciaUrgencia.normal &&
-                  o.status != OcorrenciaStatus.resolvida &&
-                  o.status != OcorrenciaStatus.arquivada,
-            )
-            .toList()
-          ..sort((a, b) => b.urgencia.index.compareTo(a.urgencia.index));
+  /// "O que atacar hoje": abertas do município inteiro pela pontuação do
+  /// banco (urgência + nível de risco + confirmações + dias em aberto).
+  List<Widget> _prioridades(List<Ocorrencia> abertas) {
     if (abertas.isEmpty) return const [];
     return [
       SectionHeader(
         'Prioridades de hoje',
-        subtitulo: 'Abertas com urgência, risco à saúde primeiro',
+        subtitulo: 'Abertas com maior risco sanitário, pela pontuação de prioridade',
         padding: const EdgeInsets.only(bottom: SisanEspaco.sm),
       ),
       for (final (i, o) in abertas.take(3).indexed) ...[
