@@ -161,7 +161,7 @@ class _PainelTab extends ConsumerWidget {
             // ── Prioridade na fila ────────────────────────────────────────
             SectionHeader(
               'Prioridade na fila',
-              subtitulo: 'Ordenada por urgência e antiguidade',
+              subtitulo: 'Ordenada pela pontuação de risco sanitário',
               acaoLabel: livres.length > 3 ? 'Ver todas (${livres.length})' : null,
               onAcao: () => irPara(1),
             ),

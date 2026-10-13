@@ -1,5 +1,5 @@
 ---
-data: 2026-10-09
+data: 2026-10-13
 ---
 
 # Apresentação do pitch (2 minutos)
@@ -7,31 +7,47 @@ data: 2026-10-09
 Cópia de segurança do deck publicado como Artifact (link privado do Claude):
 https://claude.ai/artifact/LDsDaXDDRChhshc9YHrMRw
 
-- `deck.json` — índice do deck (ordem dos slides e seções).
-- `slides/*.html` — um arquivo por slide. As imagens apontam para `/_blob/<id>`
+- `deck.json`: índice do deck (ordem dos slides, seções e fontes).
+- `slides/*.html`: um arquivo por slide. As imagens apontam para `/_blob/<id>`
   (assets do Artifact), então **não aparecem se o HTML for aberto fora dele**.
-- `telas/*.jpg` — os prints reais usados nos slides (capturados da versão web
-  do app em 09/10/2026, com as contas de demonstração). Para recriar o deck,
-  suba essas imagens de novo como assets e troque os `/_blob/` pelos novos.
+- `telas/*.jpg`: os prints reais usados nos slides, capturados em 13/10/2026 da
+  versão web do app (Playwright, viewport 412×892 a 2x, contas de demonstração).
+  Pra recriar o deck, suba essas imagens de novo como assets e troque os `/_blob/`.
+- `gerar.py`: script que gerou os slides (paleta, tipografia e componentes num
+  lugar só). Ele escreve em `project/slides/`, a estrutura do Artifact.
 - Roteiro para duas pessoas: [`../roteiro-pitch-2min.md`](../roteiro-pitch-2min.md).
+
+## Visual (13/10/2026)
+
+- Títulos e números em **Bricolage Grotesque**; texto em **DM Sans**.
+- Azul-noite `#0B2235` e papel `#F4F2EC` alternando; âmbar `#F3A43F` como
+  destaque de risco e prioridade (o slide "prioridade" é o slide de destaque).
+- Telas em moldura de celular escura com sombra.
 
 ## Ordem
 
-Pitch (7 slides): `cover`, `oficial`, `fluxo`, `telas`, `mapa`, `tecnologia`, `fim`.
+Pitch (8 slides): `cover`, `oficial`, `fluxo`, `telas`, `prioridade`, `mapa`,
+`tecnologia`, `fim`.
 
 Apêndice escondido (para perguntas): `perfis`, `cidadao`, `tecnico`, `gestor`,
-`j1` a `j5` (jornada de uma ocorrência), `dados`, `fontes`, `proximo`.
+`corrigir` ("E se a IA errar?"), `j1` a `j6` (jornada de uma ocorrência),
+`dados`, `fontes`, `proximo`.
 
 ## Mapa de imagens
 
-| Arquivo | Tela |
-|---|---|
-| `login.jpg`, `cadastro.jpg` | Login e criar conta |
-| `cid_home.jpg`, `cid_registrar.jpg`, `cid_mapa.jpg` | Cidadão: início, registrar, mapa |
-| `tec_home.jpg`, `tec_ordens.jpg` | Técnico: início e ordens de serviço |
-| `ges_home.jpg`, `ges_painel.jpg` | Gestor: início e painel |
-| `j_detalhe.jpg`, `j_notif.jpg`, `j_os.jpg`, `j_alertas.jpg` | Jornada: detalhe, notificações, ordem de serviço, alertas |
-| `j_minhas.jpg` | Minhas ocorrências do cidadão (capturada, não usada em nenhum slide) |
+| Arquivo | Tela | Slides |
+|---|---|---|
+| `login.jpg`, `cadastro.jpg` | Login e criar conta | perfis |
+| `cid_home.jpg` | Início do cidadão | cover, telas |
+| `cid_tipo.jpg`, `cid_local.jpg` | Nova ocorrência: tipo e local | cidadao, j1 |
+| `cid_proximas.jpg` | Aviso de relato parecido a 21 m (confirmar) | mapa, j2 |
+| `cid_mapa.jpg` | Mapa de Teresina | mapa |
+| `cid_avaliacao.jpg` | "O problema foi resolvido?" | fim, j6 |
+| `tec_home.jpg`, `tec_ordens.jpg` | Técnico: início e fila por prioridade | telas, tecnico |
+| `tec_os.jpg`, `tec_os_prioridade.jpg` | Ordem de serviço e sua prioridade | tecnico, j4 |
+| `ges_home.jpg`, `ges_alertas.jpg` | Gestor: início e alertas sanitários | telas, gestor |
+| `ges_painel.jpg` | Painel com "Prioridades de hoje" | cover, prioridade, j5 |
+| `ges_classificacao.jpg`, `ges_corrigir.jpg` | Classificação da IA e correção | corrigir, j3 |
 
 ## Regra sobre os dados
 

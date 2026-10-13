@@ -1,17 +1,53 @@
 {
   "v": 4,
-  "createdOnFiles": { "v": 1, "at": "2026-10-09T13:20:00Z" },
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-09T13:20:00Z"
+  },
   "lists": "css",
   "title": "SISAN — Pitch Final",
-  "order": ["cover", "oficial", "fluxo", "telas", "mapa", "tecnologia", "fim", "perfis", "cidadao", "tecnico", "gestor", "j1", "j2", "j3", "j4", "j5", "dados", "fontes", "proximo"],
+  "order": [
+    "cover",
+    "oficial",
+    "fluxo",
+    "telas",
+    "prioridade",
+    "mapa",
+    "tecnologia",
+    "fim",
+    "perfis",
+    "cidadao",
+    "tecnico",
+    "gestor",
+    "corrigir",
+    "j1",
+    "j2",
+    "j3",
+    "j4",
+    "j5",
+    "j6",
+    "dados",
+    "fontes",
+    "proximo"
+  ],
   "sections": {
-    "pitch": { "description": "Pitch de 2 minutos: cenário, solução, app, mapa e abordagem.", "start": "cover" },
-    "apendice": { "description": "Apêndice escondido, para perguntas: perfis, jornada, dados e fontes.", "start": "perfis" }
+    "pitch": {
+      "description": "Pitch de 2 minutos: cenário, solução, app, prioridade, mapa e abordagem.",
+      "start": "cover"
+    },
+    "apendice": {
+      "description": "Apêndice escondido, para perguntas: perfis, IA, jornada, dados e fontes.",
+      "start": "perfis"
+    }
   },
   "faces": {
     "dm-sans": {
       "family": "DM Sans",
       "href": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+    },
+    "bricolage-grotesque": {
+      "family": "Bricolage Grotesque",
+      "href": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap"
     }
   },
   "designSystems": []

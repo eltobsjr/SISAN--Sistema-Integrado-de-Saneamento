@@ -127,7 +127,7 @@ class _OrdensServicoPageState extends ConsumerState<OrdensServicoPage> {
                     itemBuilder: (_, i) {
                       if (i == 0) {
                         return Text(
-                          '${ordenada.length} ordem${ordenada.length == 1 ? '' : 's'} · por urgência e antiguidade',
+                          '${ordenada.length} ordem${ordenada.length == 1 ? '' : 's'} · por prioridade de risco',
                           style: SisanTexto.legenda,
                         );
                       }
