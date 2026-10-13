@@ -1,5 +1,5 @@
 ---
-atualizado: 2026-10-12
+atualizado: 2026-10-13
 ---
 
 # Cronograma — Hackathon "O Piauí que Queremos" (fase final)
@@ -88,25 +88,25 @@ Resíduos sólidos, limpeza urbana e drenagem ficam de fora do foco.
       professor, por conta própria (data de ida a definir; provavelmente 13/10)
 - [ ] **Declaração de comparecimento** do Elto chegar em 13/10
 - [ ] **Formalizar a saída do Kassio** com a organização, se for necessário
-- [ ] **Roteiro e slides** ajustados para 2 alunos + professor (o deck e o roteiro
-      assumem 2 apresentadores; conferir se o Kassio aparece em algum slide)
+- [x] **Roteiro e slides** ajustados (13/10): pitch de 8 slides, roteiro para A e B
+      (Elto e Évillyn), o Kassio não aparece. PDFs enviados à Évillyn pelo WhatsApp
 - [ ] **Local e horário do dia 14**, e se o roteiro é gravar na TV Cidade Verde:
       ouvir as mensagens de voz omitidas ou perguntar de novo
 - [ ] Confirmar com a organização se o professor Jorge conta como integrante
       ("só nós 3 ou precisa de mais um discente?" ficou sem resposta; agora a
       pergunta vale para Elto, Évillyn e Jorge)
 
-- [ ] Nomes da equipe e contatos no slide final
+- [x] Nomes da equipe no slide final (13/10: "Elto · Évillyn · Prof. Jorge Luis da Rocha Lima",
+      sem sobrenomes e sem contatos; completar se quiser)
 - [ ] Multa da ARSETE (R$ 3,16 milhões, IN024 41,37% e 45,67%): confirmar em fonte
       primária ou **não citar** na gravação
-- [ ] Rótulo dos dados: dizer "base de testes interna, simulada pela equipe" em voz
-      alta no slide do mapa
+- [x] Rótulo dos dados: a fala do slide do mapa no roteiro de 13/10 diz "base de testes interna"
 - [ ] Protocolar o pedido LAI (ARSETE e Prefeitura/156): anotar protocolo e data;
       a resposta não chega antes de 14/10, então citar só como "pedido em andamento"
-- [ ] Indicadores de outubro zerados no painel (seed vai de julho a setembro):
+- [ ] Indicadores de outubro zerados no painel (continua: o print do painel no deck
+      mostra "1 ocorrência no mês" e "0 resolvidas"; só o trecho de cima aparece) (seed vai de julho a setembro):
       decidir se espalha datas até o mês corrente ou evita mostrar essa tela
-- [ ] Commit do que foi feito em 09/10 (decidir se inclui as ~25 alterações
-      anteriores do design system)
+- [x] Commit do que foi feito em 09/10 (`0637104`, 13/10, tudo junto)
 - [ ] Decidir sobre o commit `2d49d13` (7 arquivos só com reformatação)
 - [ ] Tela de login/cadastro em tela larga e `splash_page` no visual antigo
       (só importa se a gravação mostrar a versão web)

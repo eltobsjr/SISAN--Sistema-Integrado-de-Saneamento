@@ -1,0 +1,34 @@
+const L = require('./lib');
+(async () => {
+  let browser, page;
+  ({ browser, page } = await L.abrir());
+  await L.login(page, 'gestor1@sisan.com');
+  await L.foto(page, 'ges_home');
+  await L.clicar(page, 'Painel'); await page.waitForTimeout(5000);
+  await L.foto(page, 'ges_painel_topo');
+  await L.rolarAte(page, 'Prioridades de hoje', 90);
+  await L.foto(page, 'ges_painel');
+  const h = await L.caixa(page, 'Prioridades de hoje');
+  await page.mouse.click(206, h.y + h.h + 70); await page.waitForTimeout(2500); await L.semantica(page);
+  await L.foto(page, 'ges_oc_detalhe');
+  await L.rolarAte(page, 'Prioridade', 90);
+  await L.foto(page, 'ges_classificacao');
+  await L.clicar(page, 'Corrigir');
+  await L.foto(page, 'ges_corrigir');
+  await L.fechar(page);
+  await page.goto(L.BASE + '/#/alertas-sanitarios'); await page.waitForTimeout(6000);
+  await L.foto(page, 'ges_alertas');
+  await browser.close();
+
+  ({ browser, page } = await L.abrir());
+  await L.login(page, 'tecnico1@sisan.com');
+  await L.foto(page, 'tec_home');
+  await L.clicar(page, 'Ordens'); await page.waitForTimeout(3000);
+  await L.foto(page, 'tec_ordens');
+  const t = await L.caixa(page, 'Esgoto a céu aberto', { depoisDeY: 150 });
+  await page.mouse.click(206, t.y + t.h / 2); await page.waitForTimeout(4000); await L.semantica(page);
+  await L.foto(page, 'tec_os');
+  await L.rolarAte(page, 'Prioridade', 90);
+  await L.foto(page, 'tec_os_prioridade');
+  await browser.close();
+})().catch((e) => { console.error(e.message); process.exit(1); });

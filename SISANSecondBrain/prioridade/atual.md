@@ -1,5 +1,5 @@
 ---
-atualizado: 2026-10-09
+atualizado: 2026-10-13
 ---
 
 # Prioridades — SISAN
@@ -11,6 +11,12 @@ atualizado: 2026-10-09
 > 09/10: refinamento visual e gráficos novos feitos, **sem commit e sem
 > conferência por print** — ver `devtrack/2026-10-09 - Refinamento visual e
 > gráficos novos.md`.
+> **13/10:** revisão crítica do app e correções (prioridade por risco no banco,
+> confirmações de moradores, correção da IA pelo gestor, avaliação da resolução),
+> tudo commitado e com push (`0637104`, `152fec6`, `7ae5c28`). Deck do pitch
+> refeito com prints novos (8 slides) e roteiro de 2 minutos; PDFs enviados à
+> Évillyn. Ver `devtrack/2026-10-13 - Priorização por risco, confirmações e
+> avaliação da resolução.md` e `prioridade/cronograma-finalistas.md`.
 
 > Prazo real: submissão do PDF até **23/09/2026**. Documento **enviado em
 > 19/09** (`submissao/`, `devtrack/2026-09-19`). Hoje é **21/09/2026**.
@@ -29,7 +35,13 @@ atualizado: 2026-10-09
 
 ## Alta
 
-- [ ] **Setup do OneSignal** — *Responsável: Kassio.* Criar o app (gratuito),
+- [ ] **Conferir no celular** as telas novas de 13/10 (painel do gestor, detalhe
+      da OS, confirmação de relato próximo, avaliação) com o APK de release
+      antes da gravação de 14/10.
+- [ ] **Trocar a senha das contas de demo** depois da gravação: ela já esteve
+      em docs do repositório público (removida em 13/10, mas fica no histórico).
+
+- [ ] **Setup do OneSignal** — *Responsável: a definir (o Kassio saiu da equipe em 12/10).* Criar o app (gratuito),
       colocar `ONESIGNAL_APP_ID` no `.env` e `ONESIGNAL_REST_API_KEY` como
       secret da Edge Function `notify-push`. Sem isso o push não dispara.
 - [ ] **Checkpoint de 21/09** (`decisions/010`) — conferir de novo os 3

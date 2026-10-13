@@ -1,0 +1,33 @@
+const L = require('./lib');
+(async () => {
+  const { browser, page } = await L.abrir({ geo: { latitude: -5.12740, longitude: -42.75790 } });
+  await L.foto(page, 'login');
+  await L.clicar(page, 'Cadastre-se');
+  await L.foto(page, 'cadastro');
+  await page.goto(L.BASE + '/#/login'); await page.waitForTimeout(5000); await L.semantica(page);
+  await L.login(page, 'cidadao1@sisan.com');
+  await L.foto(page, 'cid_home');
+  await L.clicar(page, 'Mapa'); await page.waitForTimeout(5000);
+  await L.foto(page, 'cid_mapa');
+  await L.clicar(page, 'Registrar');
+  await L.foto(page, 'cid_registrar');
+  await L.clicar(page, 'Iniciar registro');
+  await L.clicar(page, 'Esgoto a céu aberto');
+  await L.foto(page, 'cid_tipo');
+  await L.clicar(page, 'Continuar'); await page.waitForTimeout(5000);
+  await L.foto(page, 'cid_local');
+  await L.clicar(page, 'Continuar'); await page.waitForTimeout(4000);
+  await L.foto(page, 'cid_proximas');
+  await L.fechar(page);
+  // avaliação: uma resolvida da cidadã
+  await page.goto(L.BASE + '/#/ocorrencias'); await page.waitForTimeout(6000); await L.semantica(page);
+  await L.foto(page, 'cid_minhas');
+  await L.rolarAte(page, 'Baixa pressão', 200);
+  await L.clicar(page, 'Baixa pressão');
+  await L.foto(page, 'cid_avaliacao');
+  await L.rolarAte(page, 'Prioridade', 90);
+  await L.foto(page, 'cid_classificacao');
+  await page.goto(L.BASE + '/#/notificacoes'); await page.waitForTimeout(6000);
+  await L.foto(page, 'cid_notif');
+  await browser.close();
+})().catch((e) => { console.error(e.message); process.exit(1); });

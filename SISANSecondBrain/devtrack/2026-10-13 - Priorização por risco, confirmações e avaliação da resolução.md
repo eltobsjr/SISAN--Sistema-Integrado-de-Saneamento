@@ -57,12 +57,64 @@ Revisão crítica do app na véspera da gravação (14/10), seguida das correç�
 ## Verificação
 
 - `flutter analyze` sem problemas, `flutter test` passando, `flutter build web` ok.
-- **Não conferido por print no aparelho.** Antes da gravação: gerar o APK e passar pelos 3 perfis.
+- As telas foram conferidas na build web (prints da seção seguinte). **No celular, ainda não.**
+
+## Segurança: senha de demo no repositório público
+
+O repositório no GitHub é **público** e dois docs (devtrack de 09/10 e
+`cronograma-finalistas.md`) traziam a senha das contas de demo. Ela foi trocada
+por "senha de demo (fora do repositório)" antes do push, mas **continua no
+histórico do git**: trocar a senha depois da gravação é obrigatório.
+
+## Commits (todos com push na `main`)
+
+| Commit | Conteúdo |
+|---|---|
+| `0637104` | Trabalho pendente de 09/10: refinamento visual, gráficos, pitch, seed de fontes públicas |
+| `152fec6` | Priorização por risco, confirmações, correção da IA e avaliação da resolução |
+| `7ae5c28` | Deck com prints novos e redesign, roteiro de 8 slides, texto da fila do técnico |
+
+## Deck do pitch refeito
+
+Artifact (mesmo link): https://claude.ai/artifact/LDsDaXDDRChhshc9YHrMRw (versão 13).
+Cópia no vault: `submissao/apresentacao/` (ver o README de lá).
+
+- **Prints novos** de 13/10, 17 telas dos 3 perfis, capturados da build web com
+  Playwright (scripts em `submissao/apresentacao/captura/`). Durante a captura
+  nada foi salvo no banco: os painéis de confirmação e correção foram abertos e fechados.
+- **Visual novo:** Bricolage Grotesque e DM Sans; azul-noite `#0B2235`, papel
+  `#F4F2EC` e âmbar `#F3A43F` (risco e prioridade); telas em moldura de celular.
+  Gerado por `submissao/apresentacao/gerar.py`.
+- **Pitch com 8 slides:** capa, cenário, solução, app, **prioridade** (novo: os
+  até 120 pontos ao lado do painel real), mapa (com a confirmação de relato
+  próximo), abordagem e fim (com os nomes da equipe e a tela de avaliação).
+- **Apêndice:** "E se a IA errar?" (novo), jornada em 6 passos (registro →
+  confirmação → triagem pela IA → campo → painel → avaliação), mais perfis, dados,
+  fontes e próximo passo.
+- **App:** a fila do técnico dizia "Ordenada por urgência e antiguidade"; agora
+  diz "Ordenada pela pontuação de risco sanitário" (e "por prioridade de risco"
+  na lista de OS).
+
+## Roteiro e PDFs
+
+- `submissao/roteiro-pitch-2min.md` refeito para 8 slides em 2 minutos, com A e B
+  (Elto e Évillyn), perguntas prováveis e a regra de não prometer push na demo.
+- PDFs em `submissao/apresentacao/pdf/`:
+  - `SISAN-pitch.pdf`: só os 8 slides do pitch, sem o apêndice, a 1920×1080.
+    Montado localmente (`pdf.py` e Chrome), não pela exportação do Artifact; as
+    `x-icon` e as setas viraram SVG. Diferença visível: o card "Gestor" do slide 3
+    ficou um pouco mais baixo que os outros.
+  - `SISAN-roteiro-pitch-2min.pdf`: roteiro em uma página A4 (`roteiro.html`).
+- **Enviados à Évillyn pelo WhatsApp** (número passado pelo Elto, fora do
+  repositório por ser público), com uma mensagem explicando os arquivos. O número
+  não estava nos contatos; confirmar com ela se chegou.
 
 ## Pendências
 
 - Conferir as telas novas no celular (painel do gestor, detalhe da OS, fluxo de confirmação).
-- Herdadas: OneSignal (push não dispara sem ele), Gemini como fallback (descartado em 21/09;
-  o PDF cita dois provedores), trocar a senha das contas de demo depois da gravação,
-  refazer o roteiro sem o Kassio.
+- Trocar a senha das contas de demo depois da gravação (está no histórico público).
+- Indicadores de outubro quase zerados no painel ("1 ocorrência no mês"), porque o seed vai até setembro.
+- Slide final sem sobrenomes e sem contatos.
+- Herdadas: OneSignal (push não dispara sem ele; o responsável era o Kassio),
+  Gemini como fallback (descartado em 21/09; o PDF da submissão cita dois provedores).
 - Pitch: a resposta para "e se a IA errar?" agora é "o gestor corrige, e a correção muda a fila".

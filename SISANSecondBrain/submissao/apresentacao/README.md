@@ -16,6 +16,13 @@ https://claude.ai/artifact/LDsDaXDDRChhshc9YHrMRw
 - `gerar.py`: script que gerou os slides (paleta, tipografia e componentes num
   lugar só). Ele escreve em `project/slides/`, a estrutura do Artifact.
 - Roteiro para duas pessoas: [`../roteiro-pitch-2min.md`](../roteiro-pitch-2min.md).
+- `pdf/`: `SISAN-pitch.pdf` (só os 8 slides do pitch) e
+  `SISAN-roteiro-pitch-2min.pdf` (uma página A4), mais os geradores `pdf.py` e
+  `roteiro.html`. O PDF do deck é montado localmente com o Chrome, não pela
+  exportação do Artifact.
+- `captura/`: scripts Playwright que tiraram os prints. Eles leem a senha de demo
+  de `SENHA_DEMO` (nunca no código) e esperam a build web servida em
+  `localhost:8099`; a saída vai para `build/pw/shots/`.
 
 ## Visual (13/10/2026)
 
