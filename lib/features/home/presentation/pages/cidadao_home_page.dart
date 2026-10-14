@@ -141,6 +141,12 @@ class _InicioTab extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: SisanEspaco.tela),
               child: minhasState.isLoading && minhas.isEmpty
                   ? const LinearProgressIndicator()
+                  : minhasState.hasError && minhas.isEmpty
+                  ? const AvisoBanner(
+                      mensagem: 'Não foi possível carregar seus registros. Verifique a conexão e puxe a tela para atualizar.',
+                      cor: SisanCores.atencao,
+                      icone: Icons.cloud_off_outlined,
+                    )
                   : andamento.isEmpty
                       ? EmptyHint(
                           icone: minhas.isEmpty ? Icons.water_drop_outlined : Icons.verified_outlined,

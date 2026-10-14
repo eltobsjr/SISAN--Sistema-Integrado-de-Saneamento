@@ -57,6 +57,32 @@ class _OcorrenciaDetalheViewState extends ConsumerState<_OcorrenciaDetalheView> 
   // Atualizada localmente depois de corrigir a classificação ou avaliar.
   late Ocorrencia ocorrencia = widget.ocorrencia;
 
+  @override
+  void initState() {
+    super.initState();
+    if (ocorrencia.classificadoEm == null) _aguardarClassificacao();
+  }
+
+  /// A IA classifica poucos segundos depois do envio, mas a ocorrência chega
+  /// da lista sem isso: rebusca por id até a classificação aparecer.
+  Future<void> _aguardarClassificacao() async {
+    for (var i = 0; i < 4; i++) {
+      await Future<void>.delayed(const Duration(seconds: 3));
+      if (!mounted) return;
+      try {
+        ref.invalidate(ocorrenciaPorIdProvider(ocorrencia.id));
+        final o = await ref.read(ocorrenciaPorIdProvider(ocorrencia.id).future);
+        if (!mounted) return;
+        if (o.classificadoEm != null) {
+          setState(() => ocorrencia = o);
+          return;
+        }
+      } catch (_) {
+        // offline ou erro passageiro: tenta de novo na próxima volta
+      }
+    }
+  }
+
   void _atualizar(Ocorrencia o) {
     setState(() => ocorrencia = o);
     ref.invalidate(ocorrenciasProvider);

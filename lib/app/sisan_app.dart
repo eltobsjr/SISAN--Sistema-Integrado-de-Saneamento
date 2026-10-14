@@ -69,7 +69,14 @@ class _OfflineWrapper extends ConsumerWidget {
                 )
               : const SizedBox.shrink(),
         ),
-        Expanded(child: child),
+        // Android 15+ desenha o app sob a barra de navegação do sistema: o
+        // SafeArea inferior vale pra todas as telas (botões e fim de lista).
+        Expanded(
+          child: ColoredBox(
+            color: SisanCores.superficie,
+            child: SafeArea(top: false, child: child),
+          ),
+        ),
       ],
     );
   }

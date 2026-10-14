@@ -1,9 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sem isso o APK release não tem rede (só debug/profile declaram) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- geolocator não injeta isso sozinho (lição herdada do SIGAU) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
-        android:label="sisan"
+        android:label="SISAN"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

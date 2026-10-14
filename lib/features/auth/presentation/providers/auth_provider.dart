@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:sisan/core/constants/perfil_usuario.dart';
@@ -33,11 +37,48 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
       await PushNotificationsService.logout();
       return null;
     }
-    final usuario = await _fetchUsuario(session.user.id);
+    Usuario? usuario;
+    try {
+      usuario = await _fetchUsuario(session.user.id);
+      if (usuario != null) await _salvarCache(usuario);
+    } catch (e) {
+      // Sem rede na abertura do app: usa o último perfil conhecido deste
+      // mesmo usuário, em vez de mandar quem tem sessão salva pro login.
+      usuario = await _lerCache(session.user.id);
+      if (usuario == null) rethrow;
+    }
     if (usuario != null) {
       await PushNotificationsService.login(usuario.id);
     }
     return usuario;
+  }
+
+  static const _cacheKey = 'sisan_usuario_cache';
+  static const _storage = FlutterSecureStorage();
+
+  Future<void> _salvarCache(Usuario u) async {
+    try {
+      await _storage.write(key: _cacheKey, value: jsonEncode(u.toJson()));
+    } catch (e) {
+      debugPrint('cache de perfil indisponível: $e');
+    }
+  }
+
+  Future<Usuario?> _lerCache(String id) async {
+    try {
+      final raw = await _storage.read(key: _cacheKey);
+      if (raw == null) return null;
+      final u = Usuario.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      return u.id == id ? u : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _limparCache() async {
+    try {
+      await _storage.delete(key: _cacheKey);
+    } catch (_) {}
   }
 
   Future<Usuario?> _fetchUsuario(String id) async {
@@ -57,6 +98,7 @@ class AuthNotifier extends AsyncNotifier<Usuario?> {
   }
 
   Future<void> logout() async {
+    await _limparCache();
     await PushNotificationsService.logout();
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);

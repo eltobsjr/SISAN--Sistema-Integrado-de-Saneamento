@@ -178,7 +178,15 @@ class _PainelTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: SisanEspaco.sm + 2),
                   ],
-                  livres.isEmpty
+                  filaState.hasError && fila.isEmpty
+                      ? const AvisoBanner(
+                          mensagem: 'Não foi possível carregar a fila. Verifique a conexão e puxe a tela para atualizar.',
+                          cor: SisanCores.atencao,
+                          icone: Icons.cloud_off_outlined,
+                        )
+                      : livres.isEmpty && filaState.isLoading
+                      ? const SizedBox.shrink()
+                      : livres.isEmpty
                       ? const EmptyHint(
                           icone: Icons.check_circle_outline,
                           mensagem: 'Fila zerada. Todas as ocorrências do município estão atendidas.',
