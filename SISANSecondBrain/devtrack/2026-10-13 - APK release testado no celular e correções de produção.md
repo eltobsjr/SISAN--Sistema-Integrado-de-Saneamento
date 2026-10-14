@@ -48,10 +48,58 @@ ainda sem configuração), fila offline com envio de ocorrência sem rede.
 
 Remover antes da gravação, se atrapalharem a demo.
 
+## Distribuição (WhatsApp)
+
+- Material de apresentação enviado a **Jorge** (+55 89 9974-2675) e a
+  **Évillyn** (+55 89 9981-4406): texto explicando o sistema (perfis, IA,
+  priorização, diferenciais, avisos), `SISAN-pitch.pdf`, `SISAN-roteiro-pitch-2min.pdf`
+  e 4 prints (`cid_home`, `tec_os_prioridade`, `ges_painel`, `cid_mapa`).
+  Os dois números têm 8 dígitos após o DDD, como informados; a ponte
+  respondeu sucesso.
+- **APK (`SISAN.apk`, 74 MB, sha256 `4c95e5c0…f93df`) a ambos: timeout de 10 s**
+  da ponte do WhatsApp nos dois envios. Entrega **não confirmada**, e a
+  consulta de histórico da ferramenta volta vazia, então não dá para checar.
+  Não reenviei às cegas para não duplicar. Pendente: o Elton conferir no
+  WhatsApp; se não chegou, reenviar ou mandar o arquivo manualmente.
+  Alternativa mais leve: `flutter build apk --release --split-per-abi`
+  (arm64 ~25 MB).
+- Texto com instruções de instalação (permitir fontes desconhecidas, contas
+  de demo) fica para depois da confirmação de que o APK chegou.
+
+## Incidentes da sessão
+
+- **Instagram:** o teste mandou `KEYCODE_BACK` com o app na tela de login, o
+  que fechou o SISAN e abriu o Instagram que estava por baixo. Dois toques e um
+  texto caíram numa story. Nada foi enviado nem curtido (caixa de mensagem
+  vazia), mas um toque pode ter registrado visualização. Corrigido o método:
+  checar o foco da janela antes de cada toque (ver
+  `referencia/checklist-apk-release-android.md`).
+- **Conversas pessoais:** uma chamada de `list_chats` para verificar a entrega
+  devolveu conversas pessoais do Elton. Nada foi lido além do necessário nem
+  usado.
+- Notificações pessoais (banco, WhatsApp) apareceram nos prints do celular;
+  não foram usadas.
+
+## Decisões
+
+- Manter a senha das contas de demo e a confirmação de e-mail desligada
+  (decisão do Elton, 13/10).
+- SafeArea inferior global em vez de remendo por tela.
+- Dados de teste ficam no banco até o Elton autorizar a remoção.
+
+## Pendências abertas
+
+1. Confirmar entrega do APK a Jorge e Évillyn.
+2. Decidir se remove `OCR-202610-00102` e `qa.instalacao@sisan.dev`.
+3. Testar foto + conclusão de OS, e envio offline, no aparelho.
+4. Revisar o texto do resumo de IA antes da gravação de 14/10.
+5. Configurar o OneSignal se push for prometido na demo.
+
 ## Observações
 
 - A senha das contas de demo continua a mesma e está no histórico do git
   (decisão do Elton: manter, é conta de demonstração).
+- Contas usadas nos testes: `cidadao1@`, `tecnico1@`, `gestor1@sisan.com`.
 - O resumo do mês por IA gerou "mantenha a taxa de resolução em 0 horas":
   frase fraca para a demo, vem do modelo e não do código.
 - A conta `cidadao.teste@sisan.dev` não usa a senha de demo padrão.
