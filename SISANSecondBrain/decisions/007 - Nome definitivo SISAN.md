@@ -1,4 +1,5 @@
 ---
+tipo: decisao
 data: 2026-09-17
 status: aprovado — substitui decisions/001
 ---

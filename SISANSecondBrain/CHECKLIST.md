@@ -1,3 +1,7 @@
+---
+tipo: checklist
+---
+
 # Checklist — SISAN
 
 ## Bloqueante para a submissão (23/09/2026)

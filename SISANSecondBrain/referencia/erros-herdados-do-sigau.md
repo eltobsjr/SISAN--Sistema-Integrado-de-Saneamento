@@ -1,3 +1,7 @@
+---
+tipo: nota
+---
+
 # Erros já resolvidos no SIGAU — não repetir aqui
 
 Catálogo condensado de `SIGAU/roles/ERRORS_LOG.md` (44 entradas) e

@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Resumo do dia: Fases 0 a 4, fila offline, login novo, dois incidentes de governança
 
 > Devtrack consolidado do dia inteiro (pedido explícito do usuário: "documenta

@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-19
+---
+
 # 2026-09-19 — Documento de submissão, IA em produção, seed de Teresina e rate limit
 
 ## O que foi feito

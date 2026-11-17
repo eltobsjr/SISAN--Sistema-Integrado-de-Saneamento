@@ -1,4 +1,5 @@
 ---
+tipo: devtrack
 data: 2026-10-07
 ---
 

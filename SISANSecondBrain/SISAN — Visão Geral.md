@@ -1,4 +1,5 @@
 ---
+tipo: visao-geral
 data: 2026-09-17
 ---
 

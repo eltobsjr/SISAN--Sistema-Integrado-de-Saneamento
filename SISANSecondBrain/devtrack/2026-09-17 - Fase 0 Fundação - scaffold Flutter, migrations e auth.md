@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Fase 0 Fundação: scaffold Flutter, migrations e auth
 
 ## Contexto

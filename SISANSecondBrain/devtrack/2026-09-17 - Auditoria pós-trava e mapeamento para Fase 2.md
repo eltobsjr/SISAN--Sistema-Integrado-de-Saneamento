@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Auditoria pós-trava e mapeamento para Fase 2
 
 > Sessão de análise e planejamento. Sem implementação de código.

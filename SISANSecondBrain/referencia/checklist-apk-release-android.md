@@ -1,4 +1,5 @@
 ---
+tipo: checklist
 data: 2026-10-13
 ---
 

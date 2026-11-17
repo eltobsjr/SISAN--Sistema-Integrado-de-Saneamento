@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Fila offline (drift) para técnico e cidadão
 
 ## Contexto

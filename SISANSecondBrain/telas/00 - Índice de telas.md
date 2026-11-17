@@ -1,3 +1,7 @@
+---
+tipo: nota
+---
+
 # Índice de telas — SISAN
 
 Mapeamento inicial por perfil, espelhando a estrutura de navegação do SIGAU

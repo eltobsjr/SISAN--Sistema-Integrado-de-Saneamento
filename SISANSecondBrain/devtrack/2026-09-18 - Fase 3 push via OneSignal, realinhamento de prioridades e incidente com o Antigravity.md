@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-18
+---
+
 # 2026-09-18 — Fase 3: push via OneSignal, realinhamento de prioridades e incidente com o Antigravity
 
 ## O que foi feito

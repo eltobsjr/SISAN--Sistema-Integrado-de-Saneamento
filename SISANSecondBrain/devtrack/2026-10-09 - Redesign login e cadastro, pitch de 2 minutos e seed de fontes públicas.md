@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-10-09
+---
+
 # 2026-10-09 — Redesign login e cadastro, pitch de 2 minutos e seed de fontes públicas
 
 ## O que foi feito

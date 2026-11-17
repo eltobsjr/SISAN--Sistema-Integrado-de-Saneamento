@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Fase 2 Ordens de Serviço: fila, aceitar, chegada, checklist e conclusão
 
 ## O que foi feito

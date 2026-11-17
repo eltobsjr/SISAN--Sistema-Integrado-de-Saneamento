@@ -1,4 +1,5 @@
 ---
+tipo: prioridade
 atualizado: 2026-10-13
 ---
 

@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Retrofit visual das telas de Fase 0 e 1 pro padrão SIGAU
 
 ## Contexto

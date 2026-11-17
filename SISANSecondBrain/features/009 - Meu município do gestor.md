@@ -1,4 +1,5 @@
 ---
+tipo: feature
 data: 2026-09-19
 status: implementada
 ---

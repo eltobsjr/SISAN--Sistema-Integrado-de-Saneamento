@@ -1,3 +1,7 @@
+---
+tipo: nota
+---
+
 # O que reaproveitar de cada projeto
 
 Mapa vivo — consultar antes de implementar qualquer feature nova. Se não

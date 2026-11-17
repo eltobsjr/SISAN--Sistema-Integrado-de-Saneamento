@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-18
+---
+
 # 2026-09-18 — Onboarding guiado de Nova Ocorrência, GPS no mapa e correção do ícone
 
 ## O que foi feito

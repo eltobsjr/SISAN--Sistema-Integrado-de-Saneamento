@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Nome definitivo SISAN, roadmap técnico e texto de pitch
 
 > Continuação da mesma data do devtrack "Setup do SecondBrain e mapeamento

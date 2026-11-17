@@ -1,3 +1,8 @@
+---
+tipo: devtrack
+data: 2026-09-17
+---
+
 # 2026-09-17 — Repositório, MCP do Supabase e arquivo de contexto do projeto
 
 > Terceira entrada de devtrack do mesmo dia — sessão longa, dividida por

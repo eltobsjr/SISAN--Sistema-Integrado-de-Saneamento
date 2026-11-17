@@ -1,4 +1,5 @@
 ---
+tipo: decisao
 data: 2026-09-19
 status: aprovado e aplicado em 19/09/2026
 ---
