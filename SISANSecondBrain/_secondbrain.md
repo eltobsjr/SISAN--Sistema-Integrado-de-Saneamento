@@ -3,7 +3,7 @@ schema: 2
 versionado: true
 sensibilidade: normal   # normal | alta (alta = startup/institucional: nunca vai para o git)
 backup: true            # false = fora do backup para HD externo
-hooks: false
+hooks: true
 diataxis: false
 modulos: [devtrack, decisoes, features, prioridade, estado]
 papeis:
