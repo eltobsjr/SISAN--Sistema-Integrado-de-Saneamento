@@ -17,11 +17,11 @@ onde continuar. Depois siga o protocolo normal abaixo.
 
 Ao iniciar qualquer conversa neste projeto:
 
-1. Leia o índice de memória: `~/.claude/projects/-home-eltobsjr-dev-pessoal-sisan/memory/MEMORY.md`
+1. Leia o índice de memória: `~/.claude/projects/-home-eltobsjr-dev-apps-civico-sisan/memory/MEMORY.md`
    É um índice — siga os links para os arquivos relevantes à tarefa atual.
 
 2. Leia o devtrack mais recente:
-   `ls /home/eltobsjr/dev/pessoal/sisan/SISANSecondBrain/devtrack/ | sort | tail -1`
+   `ls /home/eltobsjr/dev/apps/civico/sisan/SISANSecondBrain/devtrack/ | sort | tail -1`
    e leia o arquivo retornado. Isso garante continuidade: o que foi feito,
    decisões tomadas e pendências abertas na última sessão.
 

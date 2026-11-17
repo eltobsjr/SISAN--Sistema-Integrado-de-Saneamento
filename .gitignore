@@ -18,3 +18,8 @@ build/
 # Supabase local
 supabase/.branches
 supabase/.temp
+
+# Deck do pitch: arquivos gerados e versão com a senha de demo
+SISANSecondBrain/submissao/apresentacao/project/
+SISANSecondBrain/submissao/apresentacao/pdf/pitch.html
+SISANSecondBrain/submissao/apresentacao/pdf/*-com-contas.pdf

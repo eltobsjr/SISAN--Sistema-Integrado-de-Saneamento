@@ -1,4 +1,5 @@
 ---
+tipo: nota
 data: 2026-09-18
 status: rascunho v1 — pendente revisão da equipe
 prazo: 2026-09-23
@@ -88,6 +89,7 @@ Duas funções isoladas do fluxo principal, de modo que uma falha da IA nunca im
 - **Multi-tenancy por município** com concessionária associada (Águas do Piauí, Águas de Teresina, Águas de Timon): a mesma denúncia chega à empresa certa. Novo município é cadastro, não código.
 - **Mapas abertos (OpenStreetMap)**, sem cobrança por uso de mapa.
 - **Segurança:** isolamento de dados por município no banco (Row Level Security em todas as tabelas de negócio).
+- **Complemento ao sistema da concessionária, não um segundo sistema:** a concessionária já tem sistema próprio de geração e execução de ordens de serviço. O SISAN entra como novo canal de comunicação com o usuário e, para operar em escala, prevê a integração com esse sistema (seção 6.2, etapa 4): a baixa da ordem de serviço no sistema de campo atualiza o status do relato para o cidadão, e a pontuação e as flags de prioridade chegam à programação da concessionária. Ainda não existe API de integração; ela será definida com a concessionária depois do piloto.
 
 ---
 
@@ -122,7 +124,10 @@ Protótipo funcional, desenvolvido pela equipe:
 | **1. Consolidação** | 2 semanas | Campanhas educativas e teste dos três perfis em aparelhos reais com usuários |
 | **2. Validação com a concessionária** | 4 semanas | Reunião com a Águas do Piauí em Picos; ajuste dos tipos de ocorrência e dos checklists ao procedimento real da operação |
 | **3. Piloto** | 90 dias | Bairros selecionados de Picos, com técnicos e gestores treinados; divulgação do app junto à comunidade |
-| **4. Avaliação e expansão** | ao fim do piloto | Relatório de resultados; cadastro de novos municípios (Teresina e Timon incluídos) sem novo desenvolvimento |
+| **4. Integração com o sistema da concessionária** | após o piloto; prazo acordado com a concessionária | Atualização do status do relato pela baixa da ordem de serviço no sistema de campo (field) e envio da pontuação e das flags de prioridade para a programação, para não gerir dois sistemas de serviço |
+| **5. Avaliação e expansão** | ao fim do piloto e da integração | Relatório de resultados; cadastro de novos municípios (Teresina e Timon incluídos) sem novo desenvolvimento |
+
+Por que o piloto vem antes da integração: ele valida a solução com usuários e técnicos reais, e só depois se investe em ligá-la ao sistema existente.
 
 ### 6.3 Como vamos medir o piloto
 Indicadores definidos desde o início, com linha de base coletada na primeira semana:
@@ -142,6 +147,7 @@ A stack foi escolhida para custo baixo: mapas abertos (sem billing de mapa), bac
 | Conectividade ruim em campo | Arquitetura offline-first com fila de sincronização |
 | Privacidade dos dados | Remoção de EXIF, acesso restrito por papel e município, nenhum dado pessoal enviado à IA |
 | Concessionária não integrar o fluxo | Etapa 2 dedicada a alinhar o app ao procedimento operacional real; o gestor pode usar o sistema mesmo em modo de acompanhamento |
+| Dois sistemas de ordem de serviço em paralelo | O SISAN começa como canal do cidadão, complementar ao sistema da concessionária; a etapa 4 integra status e prioridade ao sistema de campo, que continua sendo a referência da operação |
 | Equipe pequena | Reaproveitamento de arquitetura já validada em projetos anteriores da equipe |
 
 ---

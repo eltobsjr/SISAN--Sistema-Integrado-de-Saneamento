@@ -1,4 +1,5 @@
 ---
+tipo: devtrack
 data: 2026-10-13
 ---
 
@@ -59,8 +60,8 @@ Remover antes da gravação, se atrapalharem a demo.
 - **APK (`SISAN.apk`, 74 MB, sha256 `4c95e5c0…f93df`) a ambos: timeout de 10 s**
   da ponte do WhatsApp nos dois envios. Entrega **não confirmada**, e a
   consulta de histórico da ferramenta volta vazia, então não dá para checar.
-  Não reenviei às cegas para não duplicar. Pendente: o Elton conferir no
-  WhatsApp; se não chegou, reenviar ou mandar o arquivo manualmente.
+  Não reenviei às cegas para não duplicar. **Atualização (14/10): o Elton
+  confirmou que o APK chegou** aos dois; o timeout da ponte não indica falha.
   Alternativa mais leve: `flutter build apk --release --split-per-abi`
   (arm64 ~25 MB).
 - Texto com instruções de instalação (permitir fontes desconhecidas, contas

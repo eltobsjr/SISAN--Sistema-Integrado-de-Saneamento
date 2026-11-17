@@ -1,10 +1,10 @@
-"""Monta os 8 slides do pitch numa página local (1920×1080 por slide) para virar PDF."""
+"""Monta os 11 slides do pitch numa página local (1920×1080 por slide) para virar PDF."""
 import pathlib
 import re
 
-AQUI = pathlib.Path(__file__).parent
-TELAS = AQUI.parent / 'pw' / 'shots'
-PITCH = ['cover', 'oficial', 'fluxo', 'telas', 'prioridade', 'mapa', 'tecnologia', 'fim']
+AQUI = pathlib.Path(__file__).parent.parent  # pasta apresentacao/
+TELAS = AQUI / 'telas'
+PITCH = ['cover', 'oficial', 'fluxo', 'telas', 'prioridade', 'mapa', 'beneficios', 'implantacao', 'integracao', 'impacto', 'fim']
 
 # /_blob/<id> → print local
 blob = dict((v.split('/')[-1], k) for k, v in re.findall(r"'(\w+)': '(/_blob/\w+)'", (AQUI / 'gerar.py').read_text()))
@@ -60,5 +60,5 @@ img {{ display: block; flex-shrink: 0 }}
 </style></head><body>
 {''.join(slides)}
 </body></html>'''
-(AQUI / 'pitch.html').write_text(html)
+(AQUI / 'pdf' / 'pitch.html').write_text(html)
 print('ok', len(slides))

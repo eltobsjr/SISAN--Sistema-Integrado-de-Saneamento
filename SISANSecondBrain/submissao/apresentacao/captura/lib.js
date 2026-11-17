@@ -1,7 +1,7 @@
 const { chromium } = require('playwright-core');
 
 const BASE = 'http://localhost:8099';
-const OUT = '/home/eltobsjr/dev/pessoal/sisan/build/pw/shots';
+const OUT = '/home/eltobsjr/dev/apps/civico/sisan/build/pw/shots';
 
 async function abrir({ geo } = {}) {
   const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true });

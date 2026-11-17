@@ -1,9 +1,17 @@
 """Gera os slides do pitch do SISAN (formato do tipo Slides) em project/slides/."""
 import json
+import os
 import pathlib
+
+import segno
 
 RAIZ = pathlib.Path(__file__).parent / 'project'
 (RAIZ / 'slides').mkdir(parents=True, exist_ok=True)
+
+# Link do APK no Drive e senha das contas de demo vêm de fora: a senha nunca
+# entra no repositório (ele é público). Sem as variáveis, o slide final avisa.
+LINK_APK = os.environ.get('LINK_APK', '').strip()
+SENHA = os.environ.get('SENHA_DEMO', '').strip()
 
 # ─── Paleta e tipografia ───────────────────────────────────────────────────
 INK, INK2, INKLINE = '#0B2235', '#12324C', '#24496A'
@@ -82,27 +90,27 @@ S['cover'] = secao('cover', INK, ON_INK, f'''
 <p style="font-family:{DISPLAY};font-size:52px;font-weight:600;line-height:1.15">Sistema Integrado de Saneamento</p>
 <p style="font-size:32px;line-height:1.45;color:{ON_INK2};width:860px">Denúncia cidadã, ordens de serviço e prioridade por risco sanitário, num único aplicativo.</p>
 </div>''',
-    'ROTEIRO DE 2 MINUTOS (8 slides, de 10 a 20 segundos cada).\n'
-    "1 Capa (10s): Somos o SISAN, o app que liga quem sofre com falta d'água e esgoto a quem resolve.\n"
-    '2 Cenário (18s): Em Teresina, cerca de 4 em cada 10 moradores ainda não têm esgoto atendido, e quase 20% da água se perde na distribuição. '
-    'O cidadão não tem como avisar, e o gestor não vê onde agir primeiro.\n'
-    '3 Solução (15s): O cidadão registra com foto e GPS, mesmo sem internet. O técnico atende pela fila de prioridade e só conclui com checklist e foto. '
-    'O gestor decide onde agir. E o ciclo fecha com quem relatou.\n'
-    '4 App (12s): Um só aplicativo para os três perfis. Estas são telas reais.\n'
-    '5 Prioridade (20s): A fila não é por ordem de chegada. Cada caso ganha uma pontuação: a urgência e o nível de risco à saúde, que a IA classifica a partir do relato, '
-    'quantos moradores confirmaram e há quantos dias está aberto. Se a IA errar, o gestor corrige e a fila reordena na hora.\n'
-    '6 Mapa (17s): Cada relato aparece no mapa, colorido por urgência. Quem vê o mesmo problema a até 80 metros é convidado a confirmar, em vez de abrir outro chamado. '
-    'Os pontos vêm da nossa base de testes interna.\n'
-    '7 Abordagem (13s): Uma base única e segura, multiplataforma e rápida de entregar com equipe pequena.\n'
-    '8 Fim (15s): Próximo passo: pedir às autoridades, pela Lei de Acesso à Informação, as reclamações reais por bairro. Obrigado.\n'
+    'ROTEIRO DE 2 MINUTOS (11 slides, 254 palavras, cerca de 117 segundos).\n'
+    '1 Capa (8s): Somos o SISAN: o aplicativo que liga quem sofre com falta d\'água e esgoto a quem resolve.\n'
+    '2 Cenário (16s): Em Teresina, 4 em cada 10 moradores ainda não têm esgoto atendido, e quase 20% da água se perde. Falta um canal simples para o cidadão avisar, e dado para a concessionária saber onde agir.\n'
+    '3 Solução (14s): O cidadão registra com foto e GPS, mesmo sem internet. O técnico atende pela fila de prioridade e só conclui com checklist e foto. Quem relatou confirma se foi resolvido.\n'
+    '4 App (4s): Um só aplicativo, três perfis. Telas reais.\n'
+    '5 Prioridade (15s): A fila não é por ordem de chegada. A pontuação soma urgência, risco à saúde classificado pela IA, confirmações de moradores e dias em aberto. Se a IA errar, o gestor corrige.\n'
+    '6 Mapa (13s): Cada relato vai ao mapa, por urgência. Quem vê o mesmo problema a até 80 metros confirma, em vez de duplicar. Dados da nossa base de testes interna.\n'
+    '7 Benefícios (12s): Para o cidadão, um canal simples, na palma da mão, que o aproxima da concessionária. Para ela, a prefeitura e a saúde, dado localizado e priorizado.\n'
+    '8 Implantação (10s): Implantação em etapas, simples, rápida e de baixo custo: consolidação, validação e piloto de 90 dias. Funciona offline, protege os dados e escala.\n'
+    '9 Integração (13s): O SISAN complementa o sistema da concessionária, não cria um segundo. Depois do piloto, a baixa da ordem atualiza o status do cidadão, e a prioridade chega à programação.\n'
+    '10 Impacto (8s): Não vendemos um aplicativo. Mudamos a relação do cidadão com o saneamento: mais voz, mais saúde, mais transparência.\n'
+    '11 Fim (4s): Obrigado! Escaneiem o QR code e testem o app.\n'
     'Os slides escondidos (apêndice) ficam para as perguntas.',
     extra='display:flex;flex-direction:column;justify-content:center', trans='fade')
 
 
-def stat(numero, rotulo, cor):
+def stat(numero, rotulo, cor, fonte=''):
+    f = f'<p style="font-size:24px;line-height:1.35;color:{TXT2}">{fonte}</p>' if fonte else ''
     return (f'<div style="flex:1;display:flex;flex-direction:column;gap:16px;border-top:3px solid {cor};padding:32px 0px 0px 0px">'
             f'<p style="font-family:{DISPLAY};font-size:104px;font-weight:700;line-height:1;letter-spacing:-2px;color:{cor}">{numero}</p>'
-            f'<p style="font-size:28px;line-height:1.35;color:{TXT2}">{rotulo}</p></div>')
+            f'<p style="font-size:28px;line-height:1.35;color:{TXT2}">{rotulo}</p>{f}</div>')
 
 
 S['oficial'] = secao('oficial', PAPER, TXT, f'''
@@ -111,16 +119,19 @@ S['oficial'] = secao('oficial', PAPER, TXT, f'''
 {titulo('O cenário de Teresina em números', TXT)}
 </div>
 <div style="display:flex;flex-direction:row;gap:48px">
-{stat('94,8%', 'da população atendida com abastecimento de água', TXT)}
-{stat('55,5%', 'da população atendida com esgotamento sanitário', AMBER_TXT)}
-{stat('19,6%', 'de perdas na distribuição de água', AMBER_TXT)}
-{stat('3', 'estações de tratamento de esgoto ativas: Leste, Pirajá e Alegria', TXT)}
+{stat('100%', 'da área urbana regular atendida com abastecimento de água', TXT, 'Fonte: Águas de Teresina (Aegea), universalização declarada em out/2020. aegea.com.br')}
+{stat('59%', 'de cobertura de esgotamento sanitário', AMBER_TXT, 'Fonte: Águas de Teresina, que o MPF-PI e o Governo do Piauí também divulgam. mpf.mp.br, pi.gov.br')}
+{stat('19,6%', 'de perdas na distribuição de água (19,55%, ano-base 2024)', AMBER_TXT, 'Fonte: Instituto Trata Brasil, Estudo de Perdas de Água 2026 (SNIS/SINISA). tratabrasil.org.br')}
+{stat('33', 'estações de tratamento de esgoto em operação. As maiores: Leste e Pirajá', TXT, 'Fonte: Águas de Teresina, informação repassada em 13/10/2026')}
 </div>
 <p style="font-family:{DISPLAY};font-size:40px;font-weight:600;line-height:1.3;width:1400px">Cerca de 4 em cada 10 moradores ainda não têm esgotamento atendido. É aí que o relato do cidadão aponta onde agir primeiro.</p>
-<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:{TXT2}">Fontes: Instituto Água e Saneamento (exportação de 09/10/2026) e ANA, Atlas Esgotos (levantamento de 2020). Os anos-base variam por indicador.</p>''',
-    'Cuidado ao citar: os indicadores vêm de fontes com anos-base diferentes, e a própria concessionária divulga cobertura de esgoto acima de 59%, '
-    'número diferente dos 55,5% do Instituto Água e Saneamento. Cite sempre a fonte. Os 55,5% significam população atendida com esgotamento; '
-    'o complemento, cerca de 44,5%, é a base da frase de 4 em cada 10. As três estações de tratamento vêm do levantamento da ANA de 2020. '
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:{TXT2}">Os anos-base variam por indicador. Cobertura e estações de tratamento seguem a concessionária; as perdas vêm de estudo independente.</p>''',
+    'Números corrigidos em 13/10/2026 a partir da informação da concessionária (mentora Flávia Miranda): 100% de cobertura de água na área urbana, '
+    '59% de cobertura de esgoto e 33 ETEs em operação, sendo as maiores a Leste e a Pirajá. Antes o slide trazia 94,8% de água e 55,5% de esgoto (Instituto Água e Saneamento), '
+    'e 3 estações (Leste, Pirajá e Alegria, levantamento da ANA de 2020), que não valem mais. Com 59% atendidos, o complemento é de 41%, o que sustenta a frase de 4 em cada 10. '
+    'As perdas de 19,6% (19,55%, ano-base 2024) vêm do Estudo de Perdas de Água 2026 do Instituto Trata Brasil, confirmado em pesquisa de 13/10/2026; a mentora não comentou esse número. '
+    'Pesquisa de 13/10/2026: o 59% de esgoto aparece em notas do MPF-PI (2026) e do Governo do Piauí (2024); a universalização da água na área urbana regular foi declarada pela Aegea em out/2020; '
+    'não achei publicação que confirme as 33 ETEs, então o dado segue como informação da concessionária. '
     'O município declara ter ouvidoria, mas não achamos dados públicos de reclamações, o que reforça o papel do SISAN.',
     extra='display:flex;flex-direction:column;justify-content:space-between', pad='128px 128px 160px')
 
@@ -247,23 +258,131 @@ S['tecnologia'] = secao('tecnologia', PAPER, TXT, f'''
 </div>''',
     'Sem entrar em nome de tecnologia: a escolha por uma base única e segura, que funciona em várias plataformas, nos permite entregar rápido '
     'e manter o controle de acesso em um só lugar. Se perguntarem: Flutter no app, Supabase no servidor, com regras de acesso por linha no banco.',
+    extra='display:flex;flex-direction:column;justify-content:space-between', hidden=True, trans='fade')
+
+
+def pill(texto):
+    return (f'<div style="display:flex;flex-direction:row;align-items:center;gap:14px;background:{CARD};border:1px solid {LINE};'
+            f'border-radius:99px;padding:18px 36px">'
+            f'<x-icon name="CheckCircle" style="color:{BLUE};width:36px;height:36px"></x-icon>'
+            f'<p style="font-size:30px;font-weight:700">{texto}</p></div>')
+
+
+S['beneficios'] = secao('beneficios', PAPER, TXT, f"""
+<div style="display:flex;flex-direction:column;gap:24px">
+{sobrancelha('Quem ganha', BLUE)}
+{titulo('Um canal simples, na palma da mão', TXT)}
+</div>
+<div style="display:flex;flex-direction:row;gap:32px">
+{pilar('Users', 'Cidadão', 'Registra em um minuto, acompanha pelo protocolo e passa a entender como o saneamento da sua cidade funciona.')}
+{pilar('Wrench', 'Concessionária', 'Recebe a demanda já localizada e classificada por risco, para programar o atendimento.')}
+{pilar('Chart', 'Prefeitura e saúde', 'Mapa e alertas sanitários para agir antes de a doença chegar e prestar contas à população.')}
+</div>
+<p style="font-family:{DISPLAY};font-size:40px;font-weight:600;line-height:1.3;width:1500px">Mais perto: o cidadão passa a conversar com a concessionária, em vez de só esperar.</p>""",
+    'Orientação da mentora Flávia Miranda: destacar o benefício ao usuário (canal simples e acessível, na palma da mão, que aproxima a relação com a concessionária) '
+    'e trazer os benefícios para os outros atores. Além da solução técnica, mostrar como o cuidado com o saneamento impacta a vida das pessoas. '
+    'O cidadão também aprende mais sobre a dinâmica do saneamento da cidade e contribui para o desenvolvimento dela.',
     extra='display:flex;flex-direction:column;justify-content:space-between')
 
 
-S['fim'] = secao('fim', INK, ON_INK, f'''
-{fone('cid_avaliacao', 'Tela em que o cidadão confirma se o problema foi resolvido', 360, 'position:absolute;left:1360px;top:150px;transform:rotate(3deg);')}
-<div style="display:flex;flex-direction:column;gap:40px;width:1080px">
+def etapa(num, prazo, tit, texto):
+    return (f'<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:{CARD};padding:36px;border:1px solid {LINE};border-radius:28px">'
+            f'<p style="font-size:24px;font-weight:700;letter-spacing:2px;color:{BLUE}">{num} · {prazo}</p>'
+            f'<h3 style="font-family:{DISPLAY};font-size:40px;font-weight:700;line-height:1.12">{tit}</h3>'
+            f'<p style="font-size:27px;line-height:1.4;color:{TXT2}">{texto}</p></div>')
+
+
+S['implantacao'] = secao('implantacao', PAPER, TXT, f"""
+<div style="display:flex;flex-direction:column;gap:24px">
+{sobrancelha('Implantação', BLUE)}
+{titulo('Simples, rápida e de baixo custo', TXT)}
+</div>
+<div style="display:flex;flex-direction:row;gap:24px">
+{etapa('01', '2 SEMANAS', 'Consolidação', 'Teste dos três perfis em aparelhos reais, com usuários.')}
+{etapa('02', '4 SEMANAS', 'Validação', 'Tipos de ocorrência e checklists ajustados ao procedimento da concessionária.')}
+{etapa('03', '90 DIAS', 'Piloto', 'Bairros de Picos, com técnicos e gestores treinados e indicadores medidos.')}
+{etapa('04', 'APÓS O PILOTO', 'Integração', 'Status e prioridade ligados ao sistema de ordens de serviço da concessionária.')}
+</div>
+<div style="display:flex;flex-direction:row;gap:20px">
+{pill('Baixo custo')}{pill('Funciona offline')}{pill('Dados protegidos')}{pill('Escalável')}
+</div>
+<p style="font-size:26px;line-height:1.4;color:{TXT2};width:1500px">Riscos mapeados, cada um com resposta: baixa adesão, sinal ruim, privacidade dos dados e integração com o sistema da concessionária.</p>""",
+    'Orientação da mentora: incluir uma lâmina que consolide as etapas de implantação, destacando o baixo custo e os riscos mapeados com solução. '
+    'Reforçar que a implantação é simples, rápida, de baixo custo, funciona até offline, com dados protegidos, e é escalável. '
+    'A integração com o sistema de campo (field) da concessionária está prevista como etapa 04, depois de o piloto validar a solução: '
+    'a concessionária já tem sistema próprio de geração e execução de ordens de serviço, e não faz sentido gerir dois sistemas. '
+    'Prazos: 2 semanas, 4 semanas e 90 dias vêm do documento de submissão; a integração não tem prazo fixo, será acordada com a concessionária. '
+    'Custo baixo: mapas abertos, backend gerenciado com camada gratuita no piloto e um só código para celular e web. Não projetar valores.',
+    extra='display:flex;flex-direction:column;justify-content:space-between', pad='128px 128px 96px')
+
+
+def pilar_impacto(titulo_, texto):
+    return (f'<div style="flex:1;display:flex;flex-direction:column;gap:18px;background:{INK2};padding:40px;border:1px solid {INKLINE};border-radius:28px">'
+            f'<h3 style="font-family:{DISPLAY};font-size:44px;font-weight:700;line-height:1.1;color:{AMBER}">{titulo_}</h3>'
+            f'<p style="font-size:28px;line-height:1.45;color:{ON_INK}">{texto}</p></div>')
+
+
+S['impacto'] = secao('impacto', INK, ON_INK, f"""
+<div style="display:flex;flex-direction:column;gap:28px">
+{sobrancelha('Transformação pretendida', AMBER)}
+<h2 style="font-family:{DISPLAY};font-size:84px;font-weight:800;line-height:1.05;letter-spacing:-2px;width:1550px">Não vendemos um app. Mudamos a relação do cidadão com o saneamento.</h2>
+</div>
+<div style="display:flex;flex-direction:row;gap:28px">
+{pilar_impacto('Saúde', 'Menos tempo de exposição a esgoto a céu aberto e água contaminada.')}
+{pilar_impacto('Social', 'O cidadão ganha voz, protocolo e prova de resolução.')}
+{pilar_impacto('Educação', 'Campanhas sobre uso consciente da água e cuidado com o esgoto.')}
+{pilar_impacto('Sustentabilidade', 'Reparo rápido de vazamentos reduz o desperdício de água tratada.')}
+</div>""",
+    'Orientação da mentora: finalizar com um slide de impacto sobre as transformações pretendidas. "Você não está vendendo um app, está mudando a relação do cidadão '
+    'com o saneamento, em todas as esferas." O novo canal aproxima o cidadão da temática: ele aprende sobre a dinâmica do saneamento da cidade e contribui para o desenvolvimento dela. '
+    'Os quatro pilares vêm da seção 7 do documento de submissão. Não prometer números de resultado: o piloto existe para medi-los.',
+    extra='display:flex;flex-direction:column;justify-content:space-between', trans='fade')
+
+
+def qr_svg(url, tam=340):
+    """SVG do QR no subconjunto do deck: width/height em atributo, aria-label e sem estilo de caixa."""
+    svg = segno.make(url, error='m').svg_inline(scale=10, border=2, dark=INK, light='#FFFFFF', omitsize=True)
+    return svg.replace('<svg ', f'<svg width="{tam}" height="{tam}" aria-label="QR code para baixar o APK do SISAN" ', 1)
+
+
+def conta(perfil, email):
+    return (f'<div style="display:flex;flex-direction:row;justify-content:space-between;gap:24px">'
+            f'<p style="font-size:24px;font-weight:700;color:{TXT2}">{perfil}</p>'
+            f'<p style="font-size:26px;font-weight:700;color:{TXT}">{email}</p></div>')
+
+
+if LINK_APK:
+    _qr = qr_svg(LINK_APK)
+else:
+    _qr = (f'<div style="width:340px;height:340px;display:flex;align-items:center;justify-content:center;background:#FDEBD3;border-radius:12px">'
+           f'<p style="font-size:26px;font-weight:700;color:{AMBER_TXT};text-align:center;padding:24px">QR do download pendente (defina LINK_APK)</p></div>')
+_senha = SENHA or 'enviada pela equipe'
+
+S['fim'] = secao('fim', INK, ON_INK, f"""
+<div style="position:absolute;left:1130px;top:90px;width:660px;display:flex;flex-direction:column;align-items:center;gap:22px;background:{CARD};color:{TXT};padding:40px;border-radius:32px;box-shadow:0 32px 64px rgba(5,15,24,0.4)">
+<p style="font-family:{DISPLAY};font-size:44px;font-weight:700;line-height:1.1;text-align:center">Teste o app agora</p>
+{_qr}
+<p style="font-size:24px;line-height:1.35;color:{TXT2};text-align:center">Escaneie para baixar o APK (Android). Ao abrir, permita instalar de fontes desconhecidas.</p>
+<div style="display:flex;flex-direction:column;gap:8px;width:100%;border-top:1px solid {LINE};padding:18px 0px 0px 0px">
+{conta('Cidadão', 'cidadao1@sisan.com')}
+{conta('Técnico', 'tecnico1@sisan.com')}
+{conta('Gestor', 'gestor1@sisan.com')}
+{conta('Senha', _senha)}
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:36px;width:940px">
 {sobrancelha('Hackathon O Piauí que Queremos', AMBER)}
 <h2 style="font-family:{DISPLAY};font-size:144px;font-weight:800;line-height:1;letter-spacing:-3px">Obrigado</h2>
 <p style="font-family:{DISPLAY};font-size:44px;font-weight:600;line-height:1.25">SISAN: água e esgoto com a voz do cidadão e prioridade por risco à saúde.</p>
-<p style="font-size:30px;line-height:1.45;color:{ON_INK2}">Próximo passo: pedir às autoridades, pela Lei de Acesso à Informação, as reclamações reais por bairro.</p>
+<p style="font-size:30px;line-height:1.45;color:{ON_INK2}">Próximo passo: um piloto para validar a solução e, depois, a integração com o sistema de ordens de serviço da concessionária.</p>
 <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid {INKLINE};padding:32px 0px 0px 0px">
 <p style="font-size:30px;font-weight:700">Elto · Évillyn · Prof. Jorge Luis da Rocha Lima</p>
 <p style="font-size:26px;color:{ON_INK2}">Análise e Desenvolvimento de Sistemas · IFPI Picos</p>
 </div>
-</div>''',
-    'Encerramento. A tela à direita é o fim do ciclo: o cidadão vê que o reparo foi concluído e confirma se resolveu. '
-    'Fechar com o próximo passo (Lei de Acesso à Informação) e agradecer.',
+</div>""",
+    'Encerramento. Agradecer e convidar a plateia a escanear o QR code e testar o app com as contas de demonstração (Android). '
+    'Os dados do mapa vêm da base de testes interna. Próximo passo: piloto para validar e, depois, a integração com o sistema da concessionária. '
+    'O pedido de acesso à informação segue como frente paralela (slide escondido "proximo").',
     extra='display:flex;flex-direction:column;justify-content:center', trans='fade')
 
 # ─── APÊNDICE ─────────────────────────────────────────────────────────────
@@ -420,7 +539,7 @@ def card_proximo(num, rot, tit, texto):
 
 S['proximo'] = secao('proximo', PAPER, TXT, f'''
 <div style="display:flex;flex-direction:column;gap:24px">
-{sobrancelha('Próximo passo', BLUE)}
+{sobrancelha('Dados reais · em paralelo ao piloto', BLUE)}
 {titulo('Do teste para o dado real, por bairro', TXT)}
 </div>
 <div style="display:flex;flex-direction:row;gap:32px">
@@ -433,10 +552,27 @@ S['proximo'] = secao('proximo', PAPER, TXT, f'''
     'O texto do pedido está em SISANSecondBrain/referencia/pedido-lai-dados-ocorrencias.md.',
     hidden=True, trans='fade', extra='display:flex;flex-direction:column;justify-content:space-between', pad='128px 128px 160px')
 
+S['integracao'] = secao('integracao', PAPER, TXT, f"""
+<div style="display:flex;flex-direction:column;gap:24px">
+{sobrancelha('Integração com a concessionária', BLUE)}
+{titulo('Um complemento ao sistema da concessionária, não um segundo sistema', TXT, 1500, 64)}
+</div>
+<div style="display:flex;flex-direction:row;gap:32px">
+{card_proximo('01', 'STATUS', 'A baixa da OS vira status', 'Quando o sistema de campo da concessionária dá baixa na ordem de serviço, o status do relato é atualizado para o cidadão.')}
+{card_proximo('02', 'PRIORIDADE', 'A classificação segue para a programação', 'A pontuação de risco e as flags de prioridade chegam ao sistema da concessionária para orientar a programação.')}
+{card_proximo('03', 'ORDEM', 'Primeiro o piloto, depois a integração', 'O piloto valida a solução como canal do cidadão; a integração entra na etapa seguinte e evita gerir dois sistemas de serviço.')}
+</div>""",
+    'Se perguntarem como o SISAN convive com o sistema da concessionária. A concessionária tem sistema próprio de geração e execução de ordens de serviço, com parâmetros '
+    'de monitoramento e controle. O SISAN entra como ferramenta complementar e novo canal de comunicação com o usuário. Para funcionar como proposto, é preciso integrar: '
+    'o status da atividade deve ser atualizado conforme a baixa da ordem de serviço no sistema de campo (field), e as flags de prioridade devem chegar ao sistema '
+    'para que a programação priorize pela classificação proposta. A mentora sugeriu rodar um piloto antes e, validada a solução, seguir com a integração. '
+    'Ainda não existe API de integração: é uma previsão do cronograma, e não uma funcionalidade pronta.',
+    trans='fade', extra='display:flex;flex-direction:column;justify-content:space-between', pad='128px 128px 160px')
+
 # ─── Escrita ──────────────────────────────────────────────────────────────
-ORDEM = ['cover', 'oficial', 'fluxo', 'telas', 'prioridade', 'mapa', 'tecnologia', 'fim',
+ORDEM = ['cover', 'oficial', 'fluxo', 'telas', 'prioridade', 'mapa', 'beneficios', 'implantacao', 'integracao', 'impacto', 'fim',
          'perfis', 'cidadao', 'tecnico', 'gestor', 'corrigir', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6',
-         'dados', 'fontes', 'proximo']
+         'tecnologia', 'dados', 'fontes', 'proximo']
 assert set(ORDEM) == set(S), set(ORDEM) ^ set(S)
 for id_, html in S.items():
     (RAIZ / 'slides' / f'{id_}.html').write_text(html, encoding='utf-8')
@@ -444,8 +580,8 @@ for id_, html in S.items():
 deck = json.loads((RAIZ / 'deck.json').read_text(encoding='utf-8'))
 deck['order'] = ORDEM
 deck['sections'] = {
-    'pitch': {'description': 'Pitch de 2 minutos: cenário, solução, app, prioridade, mapa e abordagem.', 'start': 'cover'},
-    'apendice': {'description': 'Apêndice escondido, para perguntas: perfis, IA, jornada, dados e fontes.', 'start': 'perfis'},
+    'pitch': {'description': 'Pitch de 2 minutos: cenário, solução, app, prioridade, mapa, benefícios, implantação, integração, impacto e teste do app.', 'start': 'cover'},
+    'apendice': {'description': 'Apêndice escondido, para perguntas: perfis, IA, jornada, abordagem técnica, dados e fontes.', 'start': 'perfis'},
 }
 deck['faces'] = {
     'dm-sans': {'family': 'DM Sans', 'href': 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap'},
